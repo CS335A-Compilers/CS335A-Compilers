@@ -3,13 +3,16 @@
 #include <string.h>
 
 #define INTIAL_ARRAY_SIZE 1
+#define STRING_BUFFER_SIZE 1000
 
 int curr_size = 0;
 int curr_max_size = INTIAL_ARRAY_SIZE;
+char* buffer_pointer;
 
-enum TokenKind { KEYWORDS, IDENTIFIERS, DELIMITORS, OPERATORS, LITERALS};
+enum TokenKind { KEYWORDS, IDENTIFIERS, DELIMITORS, OPERATORS, LITERALS, STRINGS};
 
-char* TokenStrings[] = { "KEYWORDS", "IDENTIFIERS", "DELIMITORS", "OPERATORS", "LITERALS"};
+char* TokenStrings[] = { "KEYWORDS", "IDENTIFIERS", "DELIMITORS", "OPERATORS", "LITERALS", "STRINGS"};
+char string_buffer[STRING_BUFFER_SIZE];
 
 typedef struct{
     enum TokenKind TokenType;
@@ -49,5 +52,10 @@ void pushToken(enum TokenKind TokenType, char* lex){
     tk->lexeme = lex;
     tk->TokenType = TokenType;
     pushTokenUtil(*tk); 
+    return ;
+}
+
+void showError(){
+    printf("Tokenization error present... Terminating Scanner!\n");
     return ;
 }
