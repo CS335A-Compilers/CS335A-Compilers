@@ -10,6 +10,10 @@ LETTER              [a-zA-Z]
 OPERATOR            "+"|"-"|"*"|"/"|"."|":="|"="|"<>"|"<"|">"|"<="|">="|"^"|"or"|"and"|"not"|"div"|"mod"|"in"
 INT_NUM             {DIGIT}+
 FLOAT_NUM           {DIGIT}+[.]{DIGIT}+
+NUMBER              {INT_NUM}|{FLOAT_NUM}
+EXPONENT_INDICATOR  E|e
+EXPONENT_SIGN       "+"|"-"
+EXPONENT_NUM        {NUMBER}{EXPONENT_INDICATOR}{EXPONENT_SIGN}?{INT_NUM}
 LETTER_OR_DIGIT     [a-zA-Z0-9]
 IDENTIFIER          {LETTER}+{LETTER_OR_DIGIT}*
 BLANK_SPACE         [ \t\r]
@@ -31,6 +35,8 @@ KEYWORD             "array"|"begin"|"case"|"const"|"do"|"downto"|"else"|"end"|"f
 <string>\\r         {*buffer_pointer++ = '\r';}
 <string>\\b         {*buffer_pointer++ = '\b';}
 <string>\\f         {*buffer_pointer++ = '\f';}
+<string>[\\][\"]    {*buffer_pointer++ = '\"';}
+<string>[\\][\']    {*buffer_pointer++ = '\'';}
 <string>[\\][\\]    {*buffer_pointer++ = '\\';}
 <string>[\\][^ntrbf\\] {showError("", 2); return(0) ;}
 <string>[^"\\\n]+   {char* temp = strdup(yytext); while(*temp) {*buffer_pointer++ = *temp++;} }
@@ -38,7 +44,7 @@ KEYWORD             "array"|"begin"|"case"|"const"|"do"|"downto"|"else"|"end"|"f
 
 {NEWLINE_SPACE}     {line_nums++;}
 {OPERATOR}          {char* temp = strdup(yytext); pushToken(OPERATORS, temp);}
-{INT_NUM}|{FLOAT_NUM} {char* temp = strdup(yytext); pushToken(LITERALS, temp);}
+{NUMBER}|{EXPONENT_NUM} {char* temp = strdup(yytext); pushToken(LITERALS, temp);}
 {KEYWORD}           {char* temp = strdup(yytext); pushToken(KEYWORDS, temp);}
 {BLANK_SPACE}*      {}
 {IDENTIFIER}        {char* temp = strdup(yytext); pushToken(IDENTIFIERS, temp);}

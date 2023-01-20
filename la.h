@@ -13,7 +13,7 @@ int ScannerTerminated = 0;
 
 enum TokenKind { KEYWORDS, IDENTIFIERS, DELIMITORS, OPERATORS, LITERALS, STRINGS};
 
-char* TokenStrings[] = { "KEYWORDS", "IDENTIFIERS", "DELIMITORS", "OPERATORS", "LITERALS", "STRINGS"};
+char* TokenStrings[] = { "KEYWORD", "IDENTIFIER", "DELIMITOR", "OPERATOR", "LITERAL", "STRING"};
 char* LexicalErrors[] = {"String cannot contain multiple lines.", "Illegal character present.", "Bad excape sequence character present."};
 
 char string_buffer[STRING_BUFFER_SIZE];
