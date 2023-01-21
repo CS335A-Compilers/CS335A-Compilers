@@ -29,7 +29,7 @@ KEYWORD             "array"|"begin"|"case"|"const"|"do"|"downto"|"else"|"end"|"f
 <comment>"}"        {BEGIN(INITIAL);}
 
 \"                  {buffer_pointer = string_buffer; BEGIN(string);}
-<string>\n          {showError("", 0); line_nums++; return(0);}
+<string>\n          {showError("", STRINGERROR); line_nums++; return(0);}
 <string>\\n         {*buffer_pointer++ = '\n';}
 <string>\\t         {*buffer_pointer++ = '\t';}
 <string>\\r         {*buffer_pointer++ = '\r';}
@@ -38,7 +38,7 @@ KEYWORD             "array"|"begin"|"case"|"const"|"do"|"downto"|"else"|"end"|"f
 <string>[\\][\"]    {*buffer_pointer++ = '\"';}
 <string>[\\][\']    {*buffer_pointer++ = '\'';}
 <string>[\\][\\]    {*buffer_pointer++ = '\\';}
-<string>[\\][^ntrbf\\] {showError("", 2); return(0) ;}
+<string>[\\][^ntrbf\\] {char* temp = strdup(yytext); showError(temp, BADEXCAPESEQ); return(0) ;}
 <string>[^"\\\n]+   {char* temp = strdup(yytext); while(*temp) {*buffer_pointer++ = *temp++;} }
 <string>\"          {BEGIN(INITIAL); *buffer_pointer='\0'; char* temp = strdup(string_buffer); pushToken(STRINGS, temp);}
 
@@ -49,12 +49,12 @@ KEYWORD             "array"|"begin"|"case"|"const"|"do"|"downto"|"else"|"end"|"f
 {BLANK_SPACE}*      {}
 {IDENTIFIER}        {char* temp = strdup(yytext); pushToken(IDENTIFIERS, temp);}
 {DELIMITOR}         {char* temp = strdup(yytext); pushToken(DELIMITORS, temp);}
-.                   {char* temp = strdup(yytext); showError(temp, 1); return(0);}
+.                   {char* temp = strdup(yytext); showError(temp, ILLEGALCHAR); return(0);}
 
 %%
 
 int main() {
-    init_array();
+    init();
     yylex();
     if(!ScannerTerminated){
         writeToCSV();

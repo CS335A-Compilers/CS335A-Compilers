@@ -1,6 +1,0 @@
-Lexeme, Token, Count
-"52.36", LITERAL, 1
-"52", LITERAL, 1
-"52e65", LITERAL, 1
-".", OPERATOR, 1
-"5", LITERAL, 1

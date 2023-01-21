@@ -2,16 +2,17 @@
 #include <stdio.h>
 #include <string.h>
 
-#define INTIAL_ARRAY_SIZE 1
+#define INTIAL_ARRAY_SIZE 10
 #define STRING_BUFFER_SIZE 1000
 
-int curr_size = 0;
-int curr_max_size = INTIAL_ARRAY_SIZE;
-int line_nums = 1;
+int curr_size;
+int curr_max_size;
+int line_nums;
 char* buffer_pointer;
-int ScannerTerminated = 0;
+int ScannerTerminated ;
 
 enum TokenKind { KEYWORDS, IDENTIFIERS, DELIMITORS, OPERATORS, LITERALS, STRINGS};
+enum ErrorKind {STRINGERROR, ILLEGALCHAR, BADEXCAPESEQ};
 
 char* TokenStrings[] = { "KEYWORD", "IDENTIFIER", "DELIMITOR", "OPERATOR", "LITERAL", "STRING"};
 char* LexicalErrors[] = {"String cannot contain multiple lines.", "Illegal character present.", "Bad excape sequence character present."};
@@ -22,13 +23,17 @@ typedef struct{
     enum TokenKind TokenType;
     char* lexeme;
     int count;
-    // Other attributes not needed as of now :)
+    // Other attributes not needed as of now :) but will need in future!
 } Token;
 
 Token* Tokens;
 
-void init_array(){
+void init(){
     Tokens = (Token*)malloc(INTIAL_ARRAY_SIZE * sizeof(Token));    
+    curr_size = 0;
+    curr_max_size = INTIAL_ARRAY_SIZE;
+    line_nums = 1;
+    ScannerTerminated = 0;
 }
 
 void pushTokenUtil(Token tk){
@@ -43,9 +48,7 @@ void pushTokenUtil(Token tk){
         Tokens = (Token*)realloc(Tokens, 2*curr_max_size*sizeof(Token));
         curr_max_size*=2;
     }
-    Tokens[curr_size].count = tk.count;
-    Tokens[curr_size].lexeme = tk.lexeme;
-    Tokens[curr_size].TokenType = tk.TokenType;
+    memcpy(&Tokens[curr_size], &tk, sizeof(Token));
     curr_size++;
     return ;
 }
@@ -59,11 +62,18 @@ void pushToken(enum TokenKind TokenType, char* lex){
     return ;
 }
 
-void showError(char* temp, int errorCode){
+void showError(char* temp, enum ErrorKind errorCode){
     ScannerTerminated = 1;
     printf("Error at line num: %d\nError: %s\n", line_nums, LexicalErrors[errorCode]);
-    if(strcmp(temp, "")){
-        printf("Illegal Character present is: %c", temp);
+    switch (errorCode){
+        case BADEXCAPESEQ:
+            printf("Bad escape sequence: %s\n", temp);
+            break;
+        case ILLEGALCHAR:
+            printf("Illegal Character: %s\n", temp);
+            break;
+        default:
+            break;
     }
     return ;
 }
