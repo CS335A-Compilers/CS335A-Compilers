@@ -2,6 +2,7 @@
 %x str
 %x chars
 %x text_block
+%x text_block_chars
 
 %{
     #include "la.h"
@@ -97,6 +98,14 @@ OCTAL_EXCAPE                \\{OCTAL_DIGIT}|\\{OCTAL_DIGIT}{OCTAL_DIGIT}|\\[0-3]
 <str>{ESCAPE_SEQUENCE}      {char* temp = strdup(yytext); *buffer_pointer++ = convertExcapeChar(temp[1]);}
 <str>\"                     {BEGIN(INITIAL); *buffer_pointer='\0'; char* temp = strdup(string_buffer); pushToken(STRINGS, temp);}
 
+["]["]["]                               {buffer_pointer = string_buffer; BEGIN(text_block);}
+<text_block>["]["]["]{BLANK_SPACE}*     {}
+<text_block>{LINE_TERMINATOR}           {line_nums++; BEGIN(text_block_chars);}
+<text_block_chars>{LINE_TERMINATOR}     {char* temp = strdup(yytext); *buffer_pointer++ = *temp; line_nums++;}
+<text_block_chars>[^\\]                 {char* temp = strdup(yytext); *buffer_pointer++ = *temp;}
+<text_block_chars>{ESCAPE_SEQUENCE}     {char* temp = strdup(yytext); *buffer_pointer++ = convertExcapeChar(temp[1]);}                   
+<text_block_chars>["]["]["]             {BEGIN(INITIAL); *buffer_pointer='\0'; char* temp = strdup(string_buffer); pushToken(LITERALS, temp);}
+
 {NUM_LITERALS}              {char* temp = strdup(yytext); pushToken(LITERALS, temp);}
 {KEYWORD}                   {char* temp = strdup(yytext); pushToken(KEYWORDS, temp);}
 {OPERATOR}                  {char* temp = strdup(yytext); pushToken(OPERATORS, temp);}
@@ -106,18 +115,18 @@ OCTAL_EXCAPE                \\{OCTAL_DIGIT}|\\{OCTAL_DIGIT}{OCTAL_DIGIT}|\\[0-3]
 {BLANK_SPACE}+              {}
 {LINE_TERMINATOR}           {line_nums++;}
 
-<str,chars,comment><<EOF>>  {showError("", EOF_ERROR); return(0);}
-<str,chars,INITIAL>.        {showError("", LEXICAL_ERROR); return(0);}
+<str,chars,comment,text_block,text_block_chars><<EOF>>  {showError("", EOF_ERROR); return(0);}
+<str,chars,text_block,text_block_chars,INITIAL>.        {char* temp = strdup(yytext); showError(temp, LEXICAL_ERROR); return(0);}
 
 %%
 
 int main() {
     init();
+    printf("\n");
     yylex();
     if(!ScannerTerminated){
         writeToCSV();
     }
-    printf("%d", line_nums);
     return 0;
 }
 

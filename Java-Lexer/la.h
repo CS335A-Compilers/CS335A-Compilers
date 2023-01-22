@@ -15,7 +15,7 @@ enum TokenKind { KEYWORDS, IDENTIFIERS, SEPARATORS, OPERATORS, LITERALS, STRINGS
 enum ErrorKind {MULTI_LINE_ERROR, LEXICAL_ERROR, EOF_ERROR};
 
 char* TokenStrings[] = { "KEYWORD", "IDENTIFIER", "SEPARATOR", "OPERATOR", "LITERAL", "STRING"};
-char* LexicalErrors[] = {"Multilines not allowed.", "Lexical Error present.", "EOF File reached but there is unbalanced seperator(\", \', \\*)"};
+char* LexicalErrors[] = {"Multilines not allowed.", "Lexical Error present.", "EOF File reached but there is unbalanced seperator(\", \', \\*, \"\"\")"};
 
 char string_buffer[STRING_BUFFER_SIZE];
 
@@ -65,6 +65,15 @@ void pushToken(enum TokenKind TokenType, char* lex){
 void showError(char* temp, enum ErrorKind errorCode){
     ScannerTerminated = 1;
     printf("Error at line num: %d\nError: %s\n", line_nums, LexicalErrors[errorCode]);
+    switch (errorCode)
+    {
+    case LEXICAL_ERROR:
+        printf("Unknown lexical sequence: %s\n", temp);
+        break;
+    
+    default:
+        break;
+    }
     return ;
 }
 
