@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#define INTIAL_ARRAY_SIZE 10
+#define INTIAL_ARRAY_SIZE 100
 #define STRING_BUFFER_SIZE 1000
 
 int curr_size;

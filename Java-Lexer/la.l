@@ -22,22 +22,22 @@ NUM_LITERALS                {INT_LITERAL}|{FLOAT_LITERAL}|{BOOL_LITERAL}|{NULL_L
 
 INT_LITERAL                 {DECIMAL_INT_LITERAL}|{HEX_INT_LITERAL}|{OCT_INT_LITERAL}|{BIN_INT_LITERAL}
 FLOAT_LITERAL               {DECIMAL_FLOAT_LITERAL}|{HEX_FLOAT_LITERAL} 
-BOOL_LITERAL                true|false
-NULL_LITERAL                null
+BOOL_LITERAL                "true"|"false"
+NULL_LITERAL                "null"
 
 NON_ZERO_DIGIT              [1-9]
-DIGIT                       0|{NON_ZERO_DIGIT}
+DIGIT                       "0"|{NON_ZERO_DIGIT}
 DIGITS                      {DIGIT}|{DIGIT}{DIGIT_AND_UNDERSCORE}?{DIGIT}
 DIGIT_AND_UNDERSCORE        {DIGIT_OR_UNDERSCORE}+
 DIGIT_OR_UNDERSCORE         {DIGIT}|_
 UNDERSCORE                  _
 UNDERSCORES                 {UNDERSCORE}+
 DECIMAL_INT_LITERAL         {DECIMAL_NUM}{INT_TYPE_SUFFIX}?
-DECIMAL_NUM                 0|{NON_ZERO_DIGIT}{DIGITS}?|{NON_ZERO_DIGIT}{UNDERSCORES}{DIGITS}
-INT_TYPE_SUFFIX             L|l
+DECIMAL_NUM                 "0"|{NON_ZERO_DIGIT}{DIGITS}?|{NON_ZERO_DIGIT}{UNDERSCORES}{DIGITS}
+INT_TYPE_SUFFIX             "L"|"l"
 
 HEX_INT_LITERAL             {HEX_NUM}{INT_TYPE_SUFFIX}?
-HEX_INDICATOR               x|X
+HEX_INDICATOR               "x"|"X"
 HEX_NUM                     0{HEX_INDICATOR}{HEX_DIGITS}
 HEX_DIGITS                  {HEX_DIGIT}|{HEX_DIGIT}{HEX_DIGIT_AND_UNDERSCORE}?{HEX_DIGIT}
 HEX_DIGIT                   [0-9a-fA-F]
@@ -52,7 +52,7 @@ OCTAL_DIGIT_AND_UNDERSCORES {OCTAL_DIGIT_OR_UNDERSCORE}+
 OCTAL_DIGIT_OR_UNDERSCORE   {OCTAL_DIGIT}|{UNDERSCORE}
 
 BIN_INT_LITERAL             {BIN_NUM}{INT_TYPE_SUFFIX}?
-BIN_INDICATOR               b|B
+BIN_INDICATOR               "b"|"B"
 BIN_NUM                     0{BIN_INDICATOR}{BIN_DIGITS}
 BIN_DIGITS                  {BIN_DIGIT}|{BIN_DIGIT}{BIN_DIGIT_AND_UNDERSCORES}?{BIN_DIGIT}
 BIN_DIGIT                   [0-1]
@@ -61,9 +61,9 @@ BIN_DIGIT_OR_UNDERSCORE     {BIN_DIGIT}|{UNDERSCORE}
 
 DECIMAL_FLOAT_LITERAL       {DIGITS}[.]{DIGITS}?{EXPONENT_PART}?{FLOAT_TYPE_SUFFIX}?|[.]{DIGITS}{EXPONENT_PART}?{FLOAT_TYPE_SUFFIX}?|{DIGITS}{EXPONENT_PART}{FLOAT_TYPE_SUFFIX}?|{DIGITS}{EXPONENT_PART}?{FLOAT_TYPE_SUFFIX}
 EXPONENT_PART               {EXPONENT_INDICATOR}{SIGN_INTEGER}
-EXPONENT_INDICATOR          E|e
+EXPONENT_INDICATOR          "E"|"e"
 SIGN_INTEGER                {SIGN}?{DIGITS}
-SIGN                        '+'|'-'
+SIGN                        "+"|"-"
 FLOAT_TYPE_SUFFIX           F|f|d|D
 
 HEX_FLOAT_LITERAL           {HEX_SIGNIFICAND}{BIN_EXPONENT}{FLOAT_TYPE_SUFFIX}?
@@ -98,13 +98,13 @@ OCTAL_EXCAPE                \\{OCTAL_DIGIT}|\\{OCTAL_DIGIT}{OCTAL_DIGIT}|\\[0-3]
 <str>{ESCAPE_SEQUENCE}      {char* temp = strdup(yytext); *buffer_pointer++ = convertExcapeChar(temp[1]);}
 <str>\"                     {BEGIN(INITIAL); *buffer_pointer='\0'; char* temp = strdup(string_buffer); pushToken(STRINGS, temp);}
 
-["]["]["]                               {buffer_pointer = string_buffer; BEGIN(text_block);}
-<text_block>["]["]["]{BLANK_SPACE}*     {}
-<text_block>{LINE_TERMINATOR}           {line_nums++; BEGIN(text_block_chars);}
-<text_block_chars>{LINE_TERMINATOR}     {char* temp = strdup(yytext); *buffer_pointer++ = *temp; line_nums++;}
-<text_block_chars>[^\\]                 {char* temp = strdup(yytext); *buffer_pointer++ = *temp;}
-<text_block_chars>{ESCAPE_SEQUENCE}     {char* temp = strdup(yytext); *buffer_pointer++ = convertExcapeChar(temp[1]);}                   
-<text_block_chars>["]["]["]             {BEGIN(INITIAL); *buffer_pointer='\0'; char* temp = strdup(string_buffer); pushToken(LITERALS, temp);}
+["]["]["]                                   {buffer_pointer = string_buffer; BEGIN(text_block);}
+<text_block>["]["]["]{BLANK_SPACE}*         {}
+<text_block>{LINE_TERMINATOR}               {line_nums++; BEGIN(text_block_chars);}
+<text_block_chars>[\\]?{LINE_TERMINATOR}    {char* temp = strdup(yytext); *buffer_pointer++ = *temp; line_nums++;}
+<text_block_chars>[^\\]                     {char* temp = strdup(yytext); *buffer_pointer++ = *temp;}
+<text_block_chars>{ESCAPE_SEQUENCE}         {char* temp = strdup(yytext); *buffer_pointer++ = convertExcapeChar(temp[1]);}                   
+<text_block_chars>["]["]["]                 {BEGIN(INITIAL); *buffer_pointer='\0'; char* temp = strdup(string_buffer); pushToken(LITERALS, temp);}
 
 {NUM_LITERALS}              {char* temp = strdup(yytext); pushToken(LITERALS, temp);}
 {KEYWORD}                   {char* temp = strdup(yytext); pushToken(KEYWORDS, temp);}
@@ -124,8 +124,9 @@ int main() {
     init();
     printf("\n");
     yylex();
+    writeToCSV();
     if(!ScannerTerminated){
-        writeToCSV();
+        //writeToCSV();
     }
     return 0;
 }
