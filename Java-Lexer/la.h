@@ -10,7 +10,6 @@ int curr_max_size;
 int line_nums;
 char* buffer_pointer;
 int ScannerTerminated ;
-char buff_char;
 
 enum TokenKind { KEYWORDS, IDENTIFIERS, SEPARATORS, OPERATORS, LITERALS, STRINGS};
 enum ErrorKind {MULTI_LINE_ERROR, LEXICAL_ERROR, EOF_ERROR};
@@ -35,7 +34,6 @@ void init(){
     curr_max_size = INTIAL_ARRAY_SIZE;
     line_nums = 1;
     ScannerTerminated = 0;
-    buff_char='\0';
 }
 
 void pushTokenUtil(Token tk){

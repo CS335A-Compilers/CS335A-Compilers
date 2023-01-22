@@ -78,13 +78,21 @@ OCTAL_EXCAPE                \\{OCTAL_DIGIT}|\\{OCTAL_DIGIT}{OCTAL_DIGIT}|\\[0-3]
 
 %%
 
+"/*"                        {BEGIN(comment);}
+<comment>[^*\n]+            {}
+<comment>"*"+[^*/\n]*       {}
+<comment>\n                 {line_nums++;}
+<comment>"*"+"/"            {BEGIN(INITIAL);}
+
+"//"[^\n]*                  {}
+
 \'                          {BEGIN(chars);}
-<chars>{LINE_TERMINATOR}    {showError("", MULTI_LINE_ERROR);}
-<chars>[^'\\]?'             {char* temp = strdup(yytext); buff_char=temp[0]; BEGIN(INITIAL);}
-<chars>{ESCAPE_SEQUENCE}'   {char* temp = strdup(yytext); buff_char=convertExcapeChar(temp[1]); BEGIN(INITIAL); pushToken(LITERALS, &buff_char);}
+<chars>{LINE_TERMINATOR}    {showError("", MULTI_LINE_ERROR); return(0);}
+<chars>[^'\\]'              {char* temp = strdup(yytext); temp[1]='\0'; pushToken(LITERALS, temp); BEGIN(INITIAL);}
+<chars>{ESCAPE_SEQUENCE}'   {char* temp = strdup(yytext); temp[0]=convertExcapeChar(temp[1]); temp[1]='\0'; pushToken(LITERALS, temp); BEGIN(INITIAL);}
 
 \"                          {buffer_pointer = string_buffer; BEGIN(str);}
-<str>{LINE_TERMINATOR}      {showError("", MULTI_LINE_ERROR);}
+<str>{LINE_TERMINATOR}      {showError("", MULTI_LINE_ERROR); return(0);}
 <str>[^"\\]                 {char* temp = strdup(yytext); *buffer_pointer++ = *temp;}
 <str>{ESCAPE_SEQUENCE}      {char* temp = strdup(yytext); *buffer_pointer++ = convertExcapeChar(temp[1]);}
 <str>\"                     {BEGIN(INITIAL); *buffer_pointer='\0'; char* temp = strdup(string_buffer); pushToken(STRINGS, temp);}
@@ -99,7 +107,7 @@ OCTAL_EXCAPE                \\{OCTAL_DIGIT}|\\{OCTAL_DIGIT}{OCTAL_DIGIT}|\\[0-3]
 {LINE_TERMINATOR}           {line_nums++;}
 
 <str,chars,comment><<EOF>>  {showError("", EOF_ERROR); return(0);}
-<str,chars,comment>.        {printf("*");}
+<str,chars,INITIAL>.        {showError("", LEXICAL_ERROR); return(0);}
 
 %%
 
@@ -109,7 +117,7 @@ int main() {
     if(!ScannerTerminated){
         writeToCSV();
     }
-    printf("%c", buff_char);
+    printf("%d", line_nums);
     return 0;
 }
 
