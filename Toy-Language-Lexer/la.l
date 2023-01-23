@@ -9,7 +9,9 @@ DIGIT               [0-9]
 LETTER              [a-zA-Z]
 OPERATOR            "+"|"-"|"*"|"/"|"."|":="|"="|"<>"|"<"|">"|"<="|">="|"^"|"or"|"and"|"not"|"div"|"mod"|"in"
 INT_NUM             {DIGIT}+
-FLOAT_NUM           {DIGIT}+[.]{DIGIT}+
+FLOAT_NUM           {DIGIT}+[.]{DIGIT}*
+ERROR_NUM           [.]{DIGIT}+
+DOT_OPERATOR        {NUMBER}[.][.]{NUMBER}
 NUMBER              {INT_NUM}|{FLOAT_NUM}
 EXPONENT_INDICATOR  E|e
 EXPONENT_SIGN       "+"|"-"
@@ -42,6 +44,8 @@ KEYWORD             "array"|"begin"|"case"|"const"|"do"|"downto"|"else"|"end"|"f
 <string>[^"\\\n]+   {char* temp = strdup(yytext); while(*temp) {*buffer_pointer++ = *temp++;} }
 <string>\"          {BEGIN(INITIAL); *buffer_pointer='\0'; char* temp = strdup(string_buffer); pushToken(STRINGS, temp);}
 
+{DOT_OPERATOR}      {char* temp = strdup(yytext); pushDotFuntion(temp);}
+{ERROR_NUM}         {char* temp = strdup(yytext); showError(temp, ILLEGALCHAR); return(0);}
 {NEWLINE_SPACE}     {line_nums++;}
 {OPERATOR}          {char* temp = strdup(yytext); pushToken(OPERATORS, temp);}
 {NUMBER}|{EXPONENT_NUM} {char* temp = strdup(yytext); pushToken(LITERALS, temp);}

@@ -90,3 +90,27 @@ void writeToCSV(){
     fclose(fpt);
     return ;
 }
+
+void pushDotFuntion(char* temp){
+    int n = strlen(temp);
+    int pos = -1;
+    for(int i=0;i<n-1;i++){
+        if(temp[i]==temp[i+1] && temp[i]=='.') {
+            pos = i;
+            break;   
+        }
+    }
+    if(pos==-1) {
+        ScannerTerminated = 1;
+        showError("", ILLEGALCHAR);
+        return ;
+    }
+    char* num1 = strdup(temp);
+    char* num2 = strdup(temp);
+    num1[pos] = '\0';
+    num2 = num2+pos+2;
+    pushToken(LITERALS, num1);
+    pushToken(DELIMITORS, "..");
+    pushToken(LITERALS, num2);
+    return ;
+}
