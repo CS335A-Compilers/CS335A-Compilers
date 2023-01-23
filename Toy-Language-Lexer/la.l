@@ -2,7 +2,7 @@
 %x string
 
 %{
-    #include "la.h"
+    #include "../helper.h"
 %}
 
 DIGIT               [0-9]
@@ -12,6 +12,8 @@ INT_NUM             {DIGIT}+
 FLOAT_NUM           {DIGIT}+[.]{DIGIT}*
 ERROR_NUM           [.]{DIGIT}+
 DOT_OPERATOR        {NUMBER}[.][.]{NUMBER}
+ESCAPE_SEQUENCE     \\b|\\t|\\f|\\r|[\\][\"]|\\'|[\\][\\]|\\n
+
 NUMBER              {INT_NUM}|{FLOAT_NUM}
 EXPONENT_INDICATOR  E|e
 EXPONENT_SIGN       "+"|"-"
@@ -25,35 +27,30 @@ KEYWORD             "array"|"begin"|"case"|"const"|"do"|"downto"|"else"|"end"|"f
 
 %%
 
-"{"                 BEGIN(comment);
-<comment>[^}\n]+    /**/
-<comment>[\n]       {line_nums++;}
-<comment>"}"        {BEGIN(INITIAL);}
+"{"                             BEGIN(comment);
+<comment>[^}\n]+                /**/
+<comment>[\n]                   {line_nums++;}
+<comment>"}"                    {BEGIN(INITIAL);}
 
-\"                  {buffer_pointer = string_buffer; BEGIN(string);}
-<string>\n          {showError("", STRINGERROR); line_nums++; return(0);}
-<string>\\n         {*buffer_pointer++ = '\n';}
-<string>\\t         {*buffer_pointer++ = '\t';}
-<string>\\r         {*buffer_pointer++ = '\r';}
-<string>\\b         {*buffer_pointer++ = '\b';}
-<string>\\f         {*buffer_pointer++ = '\f';}
-<string>[\\][\"]    {*buffer_pointer++ = '\"';}
-<string>[\\][\']    {*buffer_pointer++ = '\'';}
-<string>[\\][\\]    {*buffer_pointer++ = '\\';}
-<string>[\\][^ntrbf\\] {char* temp = strdup(yytext); showError(temp, BADEXCAPESEQ); return(0) ;}
-<string>[^"\\\n]+   {char* temp = strdup(yytext); while(*temp) {*buffer_pointer++ = *temp++;} }
-<string>\"          {BEGIN(INITIAL); *buffer_pointer='\0'; char* temp = strdup(string_buffer); pushToken(STRINGS, temp);}
+\"                              {BEGIN(string); initBuffer();}
+<string>\n                      {showError("", MULTI_LINE_ERROR); line_nums++; return(0);}
+<string>{ESCAPE_SEQUENCE}       {char* temp = strdup(yytext); pushBuffer(convertExcapeChar(temp[1]));}
+<string>[\\][^ntrbf\\]          {char* temp = strdup(yytext); showError(temp, BADEXCAPESEQ); return(0) ;}
+<string>[^"\\]                  {char* temp = strdup(yytext); pushBuffer(temp);}
+<string>\"                      {BEGIN(INITIAL); endBuffer();}
 
-{DOT_OPERATOR}      {char* temp = strdup(yytext); pushDotFuntion(temp);}
-{ERROR_NUM}         {char* temp = strdup(yytext); showError(temp, ILLEGALCHAR); return(0);}
-{NEWLINE_SPACE}     {line_nums++;}
-{OPERATOR}          {char* temp = strdup(yytext); pushToken(OPERATORS, temp);}
-{NUMBER}|{EXPONENT_NUM} {char* temp = strdup(yytext); pushToken(LITERALS, temp);}
-{KEYWORD}           {char* temp = strdup(yytext); pushToken(KEYWORDS, temp);}
-{BLANK_SPACE}*      {}
-{IDENTIFIER}        {char* temp = strdup(yytext); pushToken(IDENTIFIERS, temp);}
-{DELIMITOR}         {char* temp = strdup(yytext); pushToken(DELIMITORS, temp);}
-.                   {char* temp = strdup(yytext); showError(temp, ILLEGALCHAR); return(0);}
+{DOT_OPERATOR}                  {char* temp = strdup(yytext); pushDotFuntion(temp);}
+{ERROR_NUM}                     {char* temp = strdup(yytext); showError(temp, ILLEGALCHAR); return(0);}
+{NEWLINE_SPACE}                 {line_nums++;}
+{OPERATOR}                      {char* temp = strdup(yytext); pushToken(OPERATORS, temp);}
+{NUMBER}|{EXPONENT_NUM}         {char* temp = strdup(yytext); pushToken(LITERALS, temp);}
+{KEYWORD}                       {char* temp = strdup(yytext); pushToken(KEYWORDS, temp);}
+{BLANK_SPACE}*                  {}
+{IDENTIFIER}                    {char* temp = strdup(yytext); pushToken(IDENTIFIERS, temp);}
+{DELIMITOR}                     {char* temp = strdup(yytext); pushToken(SEPARATORS, temp);}
+
+<string,comment><<EOF>>         {showError("", EOF_ERROR); return(0);}
+.                               {char* temp = strdup(yytext); showError(temp, ILLEGALCHAR); return(0);}
 
 %%
 

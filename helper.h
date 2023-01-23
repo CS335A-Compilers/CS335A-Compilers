@@ -3,21 +3,22 @@
 #include <string.h>
 
 #define INTIAL_ARRAY_SIZE 10
-#define STRING_BUFFER_SIZE 1000
+#define INITIAL_BUFFER_SIZE 100
 
 int curr_size;
 int curr_max_size;
 int line_nums;
-char* buffer_pointer;
+int buff_size_max;
+int buff_size_curr;
 int ScannerTerminated ;
 
-enum TokenKind { KEYWORDS, IDENTIFIERS, DELIMITORS, OPERATORS, LITERALS, STRINGS};
-enum ErrorKind {STRINGERROR, ILLEGALCHAR, BADEXCAPESEQ};
+enum TokenKind {KEYWORDS, IDENTIFIERS, SEPARATORS, OPERATORS, LITERALS};
+enum ErrorKind {MULTI_LINE_ERROR, LEXICAL_ERROR, EOF_ERROR, ILLEGALCHAR, BADEXCAPESEQ};
 
-char* TokenStrings[] = { "KEYWORD", "IDENTIFIER", "DELIMITOR", "OPERATOR", "LITERAL", "STRING"};
-char* LexicalErrors[] = {"String cannot contain multiple lines.", "Illegal character present.", "Bad excape sequence character present."};
+char* TokenStrings[] = { "KEYWORD", "IDENTIFIER", "SEPARATOR", "OPERATOR", "LITERAL"};
+char* LexicalErrors[] = {"Multilines not allowed.", "Lexical Error present.", "EOF File reached but there is unbalanced seperator(\", \', \\*, \"\"\")", "Illegal character present.", "Bad excape sequence character present."};
 
-char string_buffer[STRING_BUFFER_SIZE];
+char* string_buffer;
 
 typedef struct{
     enum TokenKind TokenType;
@@ -30,8 +31,11 @@ Token* Tokens;
 
 void init(){
     Tokens = (Token*)malloc(INTIAL_ARRAY_SIZE * sizeof(Token));    
+    string_buffer = (char*)malloc(INITIAL_BUFFER_SIZE*sizeof(char));
     curr_size = 0;
+    buff_size_curr = 0;
     curr_max_size = INTIAL_ARRAY_SIZE;
+    buff_size_max = INITIAL_BUFFER_SIZE;
     line_nums = 1;
     ScannerTerminated = 0;
 }
@@ -110,7 +114,49 @@ void pushDotFuntion(char* temp){
     num1[pos] = '\0';
     num2 = num2+pos+2;
     pushToken(LITERALS, num1);
-    pushToken(DELIMITORS, "..");
+    pushToken(SEPARATORS, "..");
     pushToken(LITERALS, num2);
     return ;
+}
+
+void pushBuffer(char* temp){
+    if(buff_size_curr == buff_size_max){
+        string_buffer = (char*)realloc(string_buffer,2*buff_size_curr*sizeof(char));
+        buff_size_max*=2;
+    }
+    string_buffer[buff_size_curr] = *temp;
+    buff_size_curr++;
+    return ;
+}
+
+void initBuffer(){
+    string_buffer = (char*)malloc(INITIAL_BUFFER_SIZE*sizeof(char));
+    buff_size_curr = 0;
+    buff_size_max = INITIAL_BUFFER_SIZE;
+    string_buffer[buff_size_curr] = '\0';
+    return ;
+}
+
+void endBuffer(){
+    string_buffer[buff_size_curr]='\0';
+    char* temp = strdup(string_buffer); 
+    pushToken(LITERALS, temp);
+    return ;
+}
+
+/*Cant think of any other way to implement this :( */ 
+char* convertExcapeChar(char x){
+    char* res;
+    if(x=='n') *res = '\n';
+    else if(x=='f') *res = '\f';
+    else if(x=='r') *res = '\r';
+    else if(x=='t') *res = '\t';
+    else if(x=='b') *res = '\b';
+    else if(x=='\\') *res = '\\';
+    else if(x=='\'') *res = '\'';
+    else if(x=='\"') *res = '\"';
+    else {
+        showError("", BADEXCAPESEQ);
+    }
+    return res;
 }

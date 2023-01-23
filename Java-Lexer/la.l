@@ -5,7 +5,7 @@
 %x text_block_chars
 
 %{
-    #include "la.h"
+    #include "../helper.h"
 %}
 
 JAVA_LETTER_OR_DIGIT        {JAVA_LETTER}|{DIGIT}
