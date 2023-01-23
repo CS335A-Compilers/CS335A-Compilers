@@ -90,21 +90,21 @@ OCTAL_EXCAPE                \\{OCTAL_DIGIT}|\\{OCTAL_DIGIT}{OCTAL_DIGIT}|\\[0-3]
 \'                          {BEGIN(chars);}
 <chars>{LINE_TERMINATOR}    {showError("", MULTI_LINE_ERROR); return(0);}
 <chars>[^'\\]'              {char* temp = strdup(yytext); temp[1]='\0'; pushToken(LITERALS, temp); BEGIN(INITIAL);}
-<chars>{ESCAPE_SEQUENCE}'   {char* temp = strdup(yytext); temp[0]=convertExcapeChar(temp[1]); temp[1]='\0'; pushToken(LITERALS, temp); BEGIN(INITIAL);}
+<chars>{ESCAPE_SEQUENCE}'   {char* temp = strdup(yytext); temp[0]=*convertExcapeChar(temp[1]); temp[1]='\0'; pushToken(LITERALS, temp); BEGIN(INITIAL);}
 
-\"                          {buffer_pointer = string_buffer; BEGIN(str);}
+\"                          {BEGIN(str); initBuffer();}
 <str>{LINE_TERMINATOR}      {showError("", MULTI_LINE_ERROR); return(0);}
-<str>[^"\\]                 {char* temp = strdup(yytext); *buffer_pointer++ = *temp;}
-<str>{ESCAPE_SEQUENCE}      {char* temp = strdup(yytext); *buffer_pointer++ = convertExcapeChar(temp[1]);}
-<str>\"                     {BEGIN(INITIAL); *buffer_pointer='\0'; char* temp = strdup(string_buffer); pushToken(STRINGS, temp);}
+<str>[^"\\]                 {char* temp = strdup(yytext); pushBuffer(temp);}
+<str>{ESCAPE_SEQUENCE}      {char* temp = strdup(yytext); pushBuffer(convertExcapeChar(temp[1]));}
+<str>\"                     {BEGIN(INITIAL); endBuffer();}
 
-["]["]["]                                   {buffer_pointer = string_buffer; BEGIN(text_block);}
+["]["]["]                                   {BEGIN(text_block); initBuffer();}
 <text_block>["]["]["]{BLANK_SPACE}*         {}
 <text_block>{LINE_TERMINATOR}               {line_nums++; BEGIN(text_block_chars);}
-<text_block_chars>[\\]?{LINE_TERMINATOR}    {char* temp = strdup(yytext); *buffer_pointer++ = *temp; line_nums++;}
-<text_block_chars>[^\\]                     {char* temp = strdup(yytext); *buffer_pointer++ = *temp;}
-<text_block_chars>{ESCAPE_SEQUENCE}         {char* temp = strdup(yytext); *buffer_pointer++ = convertExcapeChar(temp[1]);}                   
-<text_block_chars>["]["]["]                 {BEGIN(INITIAL); *buffer_pointer='\0'; char* temp = strdup(string_buffer); pushToken(LITERALS, temp);}
+<text_block_chars>[\\]?{LINE_TERMINATOR}    {char* temp = strdup(yytext); pushBuffer(temp); line_nums++;}
+<text_block_chars>[^\\]                     {char* temp = strdup(yytext); pushBuffer(temp);}
+<text_block_chars>{ESCAPE_SEQUENCE}         {char* temp = strdup(yytext); pushBuffer(convertExcapeChar(temp[1]));}                   
+<text_block_chars>["]["]["]                 {BEGIN(INITIAL); endBuffer();}
 
 {NUM_LITERALS}              {char* temp = strdup(yytext); pushToken(LITERALS, temp);}
 {KEYWORD}                   {char* temp = strdup(yytext); pushToken(KEYWORDS, temp);}
@@ -116,7 +116,7 @@ OCTAL_EXCAPE                \\{OCTAL_DIGIT}|\\{OCTAL_DIGIT}{OCTAL_DIGIT}|\\[0-3]
 {LINE_TERMINATOR}           {line_nums++;}
 
 <str,chars,comment,text_block,text_block_chars><<EOF>>  {showError("", EOF_ERROR); return(0);}
-<str,chars,text_block,text_block_chars,INITIAL>.        {char* temp = strdup(yytext); showError(temp, LEXICAL_ERROR); return(0);}
+<str,chars,text_block,text_block_chars,INITIAL>.        {showError("", LEXICAL_ERROR); return(0);}
 
 %%
 
