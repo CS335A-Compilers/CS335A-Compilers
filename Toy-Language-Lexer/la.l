@@ -32,12 +32,12 @@ KEYWORD             "array"|"begin"|"case"|"const"|"do"|"downto"|"else"|"end"|"f
 <comment>[\n]                   {line_nums++;}
 <comment>"}"                    {BEGIN(INITIAL);}
 
-\"                              {BEGIN(string); initBuffer();}
+\"                              {BEGIN(string); char* temp = strdup(yytext); initBuffer(temp);}
 <string>\n                      {showError("", MULTI_LINE_ERROR); line_nums++; return(0);}
 <string>{ESCAPE_SEQUENCE}       {char* temp = strdup(yytext); pushBuffer(convertExcapeChar(temp[1]));}
 <string>[\\][^ntrbf\\]          {char* temp = strdup(yytext); showError(temp, BADEXCAPESEQ); return(0) ;}
 <string>[^"\\]                  {char* temp = strdup(yytext); pushBuffer(temp);}
-<string>\"                      {BEGIN(INITIAL); endBuffer();}
+<string>\"                      {BEGIN(INITIAL); char* temp = strdup(yytext); endBuffer(temp);}
 
 {DOT_OPERATOR}                  {char* temp = strdup(yytext); pushDotFuntion(temp);}
 {ERROR_NUM}                     {char* temp = strdup(yytext); showError(temp, ILLEGALCHAR); return(0);}
@@ -49,7 +49,7 @@ KEYWORD             "array"|"begin"|"case"|"const"|"do"|"downto"|"else"|"end"|"f
 {IDENTIFIER}                    {char* temp = strdup(yytext); pushToken(IDENTIFIERS, temp);}
 {DELIMITOR}                     {char* temp = strdup(yytext); pushToken(SEPARATORS, temp);}
 
-<string,comment><<EOF>>         {showError("", EOF_ERROR); return(0);}
+<string,comment><<EOF>>         {char* temp = convertCurrState(YYSTATE); showError(temp, EOF_ERROR); return(0);}
 .                               {char* temp = strdup(yytext); showError(temp, ILLEGALCHAR); return(0);}
 
 %%

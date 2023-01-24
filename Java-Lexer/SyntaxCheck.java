@@ -7,7 +7,7 @@ public class SyntaxCheck {
 
         float b = 3.14f; // Default to a float type
         printFunc(b);
-        String vas = "Dee\npka";
+
         long val = 100L;
         printFunc(val);
     }

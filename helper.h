@@ -16,7 +16,7 @@ enum TokenKind {KEYWORDS, IDENTIFIERS, SEPARATORS, OPERATORS, LITERALS};
 enum ErrorKind {MULTI_LINE_ERROR, LEXICAL_ERROR, EOF_ERROR, ILLEGALCHAR, BADEXCAPESEQ};
 
 char* TokenStrings[] = { "KEYWORD", "IDENTIFIER", "SEPARATOR", "OPERATOR", "LITERAL"};
-char* LexicalErrors[] = {"Multilines not allowed.", "Lexical Error present.", "EOF File reached but there is unbalanced seperator(\", \', \\*, \"\"\")", "Illegal character present.", "Bad excape sequence character present."};
+char* LexicalErrors[] = {"Multilines not allowed.", "Lexical Error present.", "EOF File reached but there is unbalanced seperator", "Illegal character present.", "Bad excape sequence character present."};
 
 char* string_buffer;
 
@@ -76,6 +76,12 @@ void showError(char* temp, enum ErrorKind errorCode){
         case ILLEGALCHAR:
             printf("Illegal Character: %s\n", temp);
             break;
+        case LEXICAL_ERROR:
+            printf("Bad Lexical Sequence starts from: %s\n", temp);
+            break;
+        case EOF_ERROR:
+            printf("Unbalanced %s present.\n", temp);
+            break;
         default:
             break;
     }
@@ -89,7 +95,7 @@ void writeToCSV(){
     fpt = fopen("output.csv", "w+");
     fprintf(fpt, "Lexeme, Token, Count\n");
     for(int i=0;i<curr_size;i++){
-        fprintf(fpt, "\"%s\", %s, %d\n", Tokens[i].lexeme, TokenStrings[Tokens[i].TokenType], Tokens[i].count);
+        fprintf(fpt, "%s, %s, %d\n", Tokens[i].lexeme, TokenStrings[Tokens[i].TokenType], Tokens[i].count);
     }
     fclose(fpt);
     return ;
@@ -129,15 +135,17 @@ void pushBuffer(char* temp){
     return ;
 }
 
-void initBuffer(){
+void initBuffer(char* temp){
     string_buffer = (char*)malloc(INITIAL_BUFFER_SIZE*sizeof(char));
     buff_size_curr = 0;
     buff_size_max = INITIAL_BUFFER_SIZE;
     string_buffer[buff_size_curr] = '\0';
+    while(*temp) pushBuffer(temp++);
     return ;
 }
 
-void endBuffer(){
+void endBuffer(char* temp1){
+    while(*temp1) pushBuffer(temp1++);
     string_buffer[buff_size_curr]='\0';
     char* temp = strdup(string_buffer); 
     pushToken(LITERALS, temp);
@@ -159,4 +167,14 @@ char* convertExcapeChar(char x){
         showError("", BADEXCAPESEQ);
     }
     return res;
+}
+
+char* convertCurrState(int state){
+    char* res;
+    printf("%d\n", state);
+    if(state == 1) res = "comment";
+    else if(state == 2) res = "string";
+    else if(state == 3) res = "char";
+    else if(state == 4 || state == 5) res = "text block";
+    return res; 
 }

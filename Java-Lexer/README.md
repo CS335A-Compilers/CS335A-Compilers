@@ -55,8 +55,7 @@ Implemented a Lexical Analyzer for a toy programming language called CSEIITK. Th
 
 Before evaluating my lexical analyzer, one should keep in mind the following assumptions that I have made
 
-- I have assumed that numeric literals like '2.' will give me '2' as a literal and '.' as an operator (This because I followed the rules mentioned in the assignment and didn't wanted to change my code completely after reading your comment on piazza). I will club this '2' and '.' literal during lexical parsing.
-- I have assumed that '-' is only binary operator. Thus for unsigned numbers like -2, it will give '-' as an operator and '2' as a numeric literal. I will also club this '2' and '-' sign during lexical parsing.
+- I have assumed that '-' is only binary operator. Thus for signed numbers like -2, it will give '-' as an operator and '2' as a numeric literal. I will club this '2' and '-' sign during lexical parsing.
 - I have assumed that multiline strings are syntatically wrong (which in languages like C or C++ is) and thus my analyzer will throw error if such strings are found.
 - One can refer to my defintion section of "la.l" file for many other ambiguous rules (like which excape sequences I have assumed to be present in this language and so on).
 
