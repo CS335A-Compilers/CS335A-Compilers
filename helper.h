@@ -104,7 +104,7 @@ void writeToCSV(){
 void pushDotFuntion(char* temp){
     int n = strlen(temp);
     int pos = -1;
-    for(int i=0;i<n-1;i++){
+    for(int i=n-2;i>=0;i--){
         if(temp[i]==temp[i+1] && temp[i]=='.') {
             pos = i;
             break;   

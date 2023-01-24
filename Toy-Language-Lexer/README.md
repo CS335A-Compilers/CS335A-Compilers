@@ -6,7 +6,7 @@
 <h3 align="center">Lexical Analyzer for CSEIITK Language</h3>
 
   <p align="center">
-    Implemented a lexical analyzer which identifies different tokens and their attributes.
+    Implemented a lexical analyzer which identifies different tokens, their counts and attributes.
     <br />
     <br />
     <a href="https://github.com/Deepak-Sangle/CS335A-Compilers">View Demo</a>
@@ -55,8 +55,8 @@ Implemented a Lexical Analyzer for a toy programming language called CSEIITK. Th
 
 Before evaluating my lexical analyzer, one should keep in mind the following assumptions that I have made
 
-- I have assumed that numeric literals like '2.' will give me '2' as a literal and '.' as an operator (This because I followed the rules mentioned in the assignment and didn't wanted to change my code completely after reading your comment on piazza). I will club this '2' and '.' literal during lexical parsing.
-- I have assumed that '-' is only binary operator. Thus for unsigned numbers like -2, it will give '-' as an operator and '2' as a numeric literal. I will also club this '2' and '-' sign during lexical parsing.
+- The specification and syntax defintion of the toy programming language is strictly followed as given in the [assignment](https://github.com/Deepak-Sangle/CS335A-Compilers/blob/b248997c3b7ad322ddc432fce896b86ec399846e/assignment1.pdf). Refer to it in case you feel there is any syntatic discrepancy.
+- I have assumed that '-' is only binary operator. Thus for unsigned numbers like -2, it will give '-' as an operator and '2' as a numeric literal. I will club this '2' and '-' sign during lexical parsing.
 - I have assumed that multiline strings are syntatically wrong (which in languages like C or C++ is) and thus my analyzer will throw error if such strings are found.
 - One can refer to my defintion section of "la.l" file for many other ambiguous rules (like which excape sequences I have assumed to be present in this language and so on).
 
@@ -78,15 +78,24 @@ If you have any installation issues, you can refer to the [flex installation gui
 
 To evaluate different test cases present as .335 extensions in this folder you simply need to follow the below instructions.
 
-Firsly run make clean to start the repo freshly.
+Firstly, if you have to change the current working directory by 
+  ```sh
+  cd Toy-Language-Lexer
+  ```
+
+ Then run the make clean command to start freshly.
   ```sh
   make clean
   ```
-Then in order to run, say 2nd test case file (assuming name of the file is public2.335), you can execute the following instruction
+
+In order to evaluate the lexer on some file (say filename.java), enter the following command in the terminal.
+
   ```sh
-  make tc-2
+  make ./filename.335
   ```
-Else if you want to evaluate using other files (say filename.335) you can execute the following instructions line by line
+
+If the above command doesn't work you can always enter the following three commands in order.
+
   ```sh
   flex la.l
   gcc lex.yy.c
