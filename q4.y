@@ -2,7 +2,11 @@
     #include "helper.h"
     int yylex(void);
     void yyerror(char const*);
+    extern int yylineno;
+
 %}
+
+%locations
 
 %union{
     int integer;
@@ -47,12 +51,12 @@ Paragraph_body:     Sentence                                {}
 int main(){
     printf("\n");
     yyparse();
-    printf("Number of Chapters: %d\n", chapter_count);
+    printf("\nNumber of Chapters: %d\n", chapter_count);
     printf("Number of Sections: %d\n", section_count);
     printf("Number of words in paragraphs: %d\n", word_count);
     return 0;
 }
 
 void yyerror (char const *s) {
-  printf("Error: %s\n", s);
+  printf("\nError: %s at line number %d\n", s, yylineno);
 }

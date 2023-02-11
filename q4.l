@@ -3,7 +3,9 @@
     #include <stdio.h>
     #include <string.h>
     #include "q4.tab.h"
+    void yyerror(char const*);
 %}
+%option yylineno
 
 DIGIT		        [0-9]
 LETTER              [A-Za-z]
@@ -38,8 +40,7 @@ NEWLINES            [\n\r]
 {WHITESPACES}+          {yylval.string = strdup(yytext); return SPACE;}
 {NEWLINES}              {yylval.string = strdup(yytext); return NEWLINE;}
 
-
-.                       {}
+.                       {yyerror("Unrecognized input");}
 
 %%
 
