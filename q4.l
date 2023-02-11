@@ -41,6 +41,7 @@ NEWLINES            [\n\r]
 {NEWLINES}              {yylval.string = strdup(yytext); return NEWLINE;}
 
 .                       {yyerror("Unrecognized input");}
+<<EOF>>                 { static int once = 0; return once++ ? 0 : ENDOFFILELINE ; }
 
 %%
 
