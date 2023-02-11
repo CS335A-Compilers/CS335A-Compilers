@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "q4.tab.h"
 
-int yyerror(char *s);
+int word_count = 0;
+int section_count = 0;
+int chapter_count = 0;
