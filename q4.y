@@ -18,7 +18,7 @@
 
 %token  <string>    WORD INTEGER FLOAT SENTENCE_END NEWLINE WORD_SEPERATOR KEYWORDS_SEPERATOR KEYWORD SPACE CHAPTER TITLE SECTION
 
-%type   <string>    Sentence Sentence_body Maybe_space Paragraph Paragraph_body Keyword
+%type   <string>    Sentence Sentence_body Maybe_space Paragraph Paragraph_body Keyword MaybeNewline
 
 %%
 
@@ -27,21 +27,22 @@ Start:
     |   Start Keyword
     |   Start Paragraph
 
-Sentence:           Sentence_body SENTENCE_END              {}
+Sentence:           Sentence_body SENTENCE_END              {countSentence($2);}
 Sentence_body:                                              {}
                 |   Sentence_elements Sentence_body         {}
-                |   WORD WORD_SEPERATOR Sentence_body       {}
-Sentence_elements:  INTEGER | FLOAT | SPACE                 {}
+Sentence_elements:  INTEGER | FLOAT | SPACE | WORD_SEPERATOR {/*Assumed that there may be space between word seperators and words*/}
                 |   WORD                                    {word_count++;}
 
 Maybe_space:                                                {}
                 |   SPACE
+MaybeNewline:                                               {}
+                |   NEWLINE
 
 Keyword:            TITLE               {}
-                |   CHAPTER             {chapter_count++;}
-                |   SECTION             {section_count++;}
+                |   CHAPTER             {chapter_count++; chapterEnds();}
+                |   SECTION             {section_count++; sectionEnds();}
 
-Paragraph:          Paragraph_body Maybe_space NEWLINE      {}
+Paragraph:          Paragraph_body Maybe_space MaybeNewline      {paragraphCount();}
 Paragraph_body:     Sentence                                {}
                 |   Sentence Maybe_space Sentence                 {}
                 |   Paragraph_body Maybe_space Paragraph_body     {}
@@ -49,14 +50,12 @@ Paragraph_body:     Sentence                                {}
 %%
 
 int main(){
-    printf("\n");
+    init();
     yyparse();
-    printf("\nNumber of Chapters: %d\n", chapter_count);
-    printf("Number of Sections: %d\n", section_count);
-    printf("Number of words in paragraphs: %d\n", word_count);
+    printStatistics();
     return 0;
 }
 
 void yyerror (char const *s) {
-  printf("\nError: %s at line number %d\n", s, yylineno);
+  printf("\nError: %s at line number %d\n\n", s, yylineno);
 }
