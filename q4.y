@@ -18,7 +18,7 @@
 
 %token  <string>    WORD INTEGER FLOAT SENTENCE_END NEWLINE WORD_SEPERATOR KEYWORDS_SEPERATOR KEYWORD SPACE CHAPTER TITLE SECTION ENDOFFILELINE
 
-%type   <string>    Sentence Sentence_body Maybe_space Maybe_newline Paragraph Paragraph_body Keyword
+%type   <string>    Sentence Sentence_body Maybe_space Maybe_newline Paragraph Paragraph_body Keyword Paragraph_initial Paragraph_optional Paragraph_optional1
 
 %%
 
@@ -38,17 +38,24 @@ Maybe_space:                                                {}
                 |   SPACE
 
 Maybe_newline:                                              {}
-                |   NEWLINE Maybe_newline
+                |   NEWLINE Maybe_newline                   {}
 
 Keyword:            TITLE               {}
                 |   CHAPTER             {chapter_count++; chapterEnds();}
                 |   SECTION             {section_count++; sectionEnds();}
 
-Paragraph:          Paragraph_body Maybe_space NEWLINE NEWLINE Maybe_newline     {paragraphCount();}
-                |   Paragraph_body Maybe_space Maybe_newline ENDOFFILELINE Maybe_newline           {paragraphCount();}
-Paragraph_body:     Sentence                                        {}
-                |   Sentence Maybe_space Sentence                   {}
-                |   Paragraph_body Maybe_space Paragraph_body       {}
+Paragraph:          Paragraph_initial NEWLINE NEWLINE Maybe_newline     {paragraphCount();}
+                |   Paragraph_initial Maybe_newline ENDOFFILELINE Maybe_newline           {paragraphCount();}
+
+Paragraph_initial:  Paragraph_body Maybe_space
+
+Paragraph_body:     Sentence Paragraph_optional                                        {}
+
+Paragraph_optional:                                                 {}
+                |   Maybe_space Paragraph_optional1                            {}
+
+Paragraph_optional1:    Sentence
+                    |   Paragraph_body
 
 %%
 
