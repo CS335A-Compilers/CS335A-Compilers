@@ -18,7 +18,7 @@
 
 %token  <string>    WORD INTEGER FLOAT SENTENCE_END NEWLINE WORD_SEPERATOR KEYWORDS_SEPERATOR KEYWORD SPACE CHAPTER TITLE SECTION ENDOFFILELINE
 
-%type   <string>    Sentence Sentence_body Maybe_space Maybe_newline Paragraph Paragraph_body Keyword Paragraph_initial Paragraph_optional Paragraph_optional1
+%type   <string>    Sentence Sentence_body Maybe_space Maybe_newline Paragraph Paragraph_body Keyword Paragraph_initial Paragraph_optional Paragraph_optional1 error1
 
 %%
 
@@ -27,6 +27,7 @@ Start:
     |   Start Keyword
     |   Start Paragraph
     |   Start error                                         {}
+    |   Start error1                                         {}
 
 Sentence:           Sentence_body SENTENCE_END              {countSentence($2);}
 Sentence_body:                                              {}
@@ -44,7 +45,7 @@ Keyword:            TITLE               {}
                 |   CHAPTER             {chapter_count++; chapterEnds();}
                 |   SECTION             {section_count++; sectionEnds();}
 
-Paragraph:          Paragraph_initial NEWLINE NEWLINE Maybe_newline     {paragraphCount();}
+Paragraph:          Paragraph_initial NEWLINE Maybe_newline     {paragraphCount();}
                 |   Paragraph_initial Maybe_newline ENDOFFILELINE Maybe_newline           {paragraphCount();}
 
 Paragraph_initial:  Paragraph_body Maybe_space
@@ -56,6 +57,8 @@ Paragraph_optional:                                                 {}
 
 Paragraph_optional1:    Sentence
                     |   Paragraph_body
+error1:              Paragraph_initial NEWLINE Paragraph_initial         {yyerror("Two paragraphs must be seperated by atleast Two Newlines.")}           
+
 
 %%
 
