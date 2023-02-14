@@ -7,6 +7,7 @@ void yyerror(char const*);
 int word_count;
 int section_count;
 int chapter_count;
+int paragraph_count;
 
 int declarative_count;
 int exclamatory_count;
@@ -23,6 +24,7 @@ void init(){
     word_count = 0;
     section_count = 0;
     chapter_count = 0;
+    paragraph_count = 0;
     num_of_paragraph_in_section = 0;
     num_of_paragraph_in_chapter = 0;
     justStartedSection = 1;
@@ -34,6 +36,7 @@ void init(){
 }
 
 void paragraphCount(){
+    paragraph_count++;
     num_of_paragraph_in_chapter++;
     num_of_paragraph_in_section++;
 }
@@ -77,6 +80,7 @@ void printStatistics(){
     printf("\n--------------------------Statistics--------------------------\n");
     printf("Number of Chapters: %d\n", chapter_count);
     printf("Number of Sections: %d\n", section_count);
+    printf("Number of Paragraphs: %d\n", paragraph_count);
     printf("Number of words in paragraphs: %d\n", word_count);
     printf("Number of Declarative sentences in the dissertation: %d\n", declarative_count);
     printf("Number of Interrogative sentences in the dissertation: %d\n", interrogative_count);
