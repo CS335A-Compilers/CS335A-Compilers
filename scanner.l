@@ -18,11 +18,7 @@ JAVA_LETTER                 [a-zA-Z]|{UNDERSCORE}
 LINE_TERMINATOR             [\n\r]
 BLANK_SPACE                 [ \t\f]
 
-OPERATOR                    "="|">"|"<"|"!"|"~"|"?"|":"|"->"|"=="|">="|"<="|"!="|"&&"|"||"|"++"|"--"|"+"|"-"|"*"|"/"|"&"|"|"|"^"|"%"|"<<"|">>"|">>>"|"+="|"-="|"*="|"/="|"&="|"|="|"^="|"%="|"<<="|">>="|">>>="
-ASSIGNMENT_OPERATOR         "="|"*="|"/="|"%="|"+="|"-="|"<<="|">>="|">>>="|"&="|"^="|"|="
-KEYWORD                     "abstract"|"continue"|"for"|"new"|"switch"|"assert"|"default"|"if"|"package"|"synchronized"|"boolean"|"do"|"goto"|"private"|"this"|"break"|"double"|"implements"|"protected"|"throw"|"byte"|"else"|"import"|"public"|"throws"|"case"|"enum"|"instanceof"|"return"|"transient"|"catch"|"extends"|"int"|"short"|"try"|"char"|"final"|"interface"|"static"|"void"|"class"|"finally"|"long"|"strictfp"|"volatile"|"const"|"float"|"native"|"super"|"while"|"_"
 PRIMITIVE_TYPE_KEYWORD      "byte"|"short"|"int"|"long"|"char"|"float"|"double"|"boolean"
-SEPARATOR                   ","|"."|";"|"("|")"|"["|"]"|"..."|"{"|"}"|"@"|"::"
 IDENTIFIER                  {JAVA_LETTER}{JAVA_LETTER_OR_DIGIT}*
 
 NUM_LITERALS                {INT_LITERAL}|{FLOAT_LITERAL}|{BOOL_LITERAL}|{NULL_LITERAL}
@@ -87,6 +83,109 @@ OCTAL_EXCAPE                \\{OCTAL_DIGIT}|\\{OCTAL_DIGIT}{OCTAL_DIGIT}|\\[0-3]
 
 %%
 
+"abstract"                      { return(ABSTRACT_KEYWORD); }
+"continue"                      { return(CONTINUE_KEYWORD); }
+"for"                   { return(FOR_KEYWORD); }
+"new"                   { return(NEW_KEYWORD); }
+"switch"                        { return(SWITCH_KEYWORD); }
+"assert"                        { return(ASSERT_KEYWORD); }
+"default"                       { return(DEFAULT_KEYWORD); }
+"if"                    { return(IF_KEYWORD); }
+"package"                       { return(PACKAGE_KEYWORD); }
+"synchronized"                  { return(SYNCHRONIZED_KEYWORD); }
+"boolean"                       { return(BOOLEAN_KEYWORD); }
+"do"                    { return(DO_KEYWORD); }
+"goto"                  { return(GOTO_KEYWORD); }
+"private"                       { return(PRIVATE_KEYWORD); }
+"this"                  { return(THIS_KEYWORD); }
+"break"                 { return(BREAK_KEYWORD); }
+"double"                        { return(DOUBLE_KEYWORD); }
+"implements"                    { return(IMPLEMENTS_KEYWORD); }
+"protected"                     { return(PROTECTED_KEYWORD); }
+"throw"                 { return(THROW_KEYWORD); }
+"byte"                  { return(BYTE_KEYWORD); }
+"else"                  { return(ELSE_KEYWORD); }
+"import"                        { return(IMPORT_KEYWORD); }
+"public"                        { return(PUBLIC_KEYWORD); }
+"throws"                        { return(THROWS_KEYWORD); }
+"case"                  { return(CASE_KEYWORD); }
+"enum"                  { return(ENUM_KEYWORD); }
+"instanceof"                    { return(INSTANCEOF_KEYWORD); }
+"return"                        { return(RETURN_KEYWORD); }
+"transient"                     { return(TRANSIENT_KEYWORD); }
+"catch"                 { return(CATCH_KEYWORD); }
+"extends"                       { return(EXTENDS_KEYWORD); }
+"int"                   { return(INT_KEYWORD); }
+"short"                 { return(SHORT_KEYWORD); }
+"try"                   { return(TRY_KEYWORD); }
+"char"                  { return(CHAR_KEYWORD); }
+"final"                 { return(FINAL_KEYWORD); }
+"interface"                     { return(INTERFACE_KEYWORD); }
+"static"                        { return(STATIC_KEYWORD); }
+"void"                  { return(VOID_KEYWORD); }
+"class"                 { return(CLASS_KEYWORD); }
+"finally"                       { return(FINALLY_KEYWORD); }
+"long"                  { return(LONG_KEYWORD); }
+"strictfp"                      { return(STRICTFP_KEYWORD); }
+"volatile"                      { return(VOLATILE_KEYWORD); }
+"const"                 { return(CONST_KEYWORD); }
+"float"                 { return(FLOAT_KEYWORD); }
+"native"                        { return(NATIVE_KEYWORD); }
+"super"                 { return(SUPER_KEYWORD); }
+"while"                 { return(WHILE_KEYWORD); }
+"_"                     { return(__KEYWORD); }
+
+"="                     { return('='); }
+">"                     { return('>'); }
+"<"                     { return('<'); }
+"!"                     { return('!'); }
+"~"                     { return('~'); }
+"?"                     { return('?'); }
+":"                     { return(':'); }
+"->"                    { return(PTR_OP); }
+"=="                    { return(EQ_OP); }
+">="                    { return(GE_OP); }
+"<="                    { return(LE_OP); }
+"!="                    { return(NE_OP); }
+"&&"                    { return(AND_OP); }
+"||"                    { return(OR_OP); }
+"++"                    { return(INC_OP); }
+"--"                    { return(DEC_OP); }
+"+"                     { return('+'); }
+"-"                     { return('-'); }
+"*"                     { return('*'); }
+"/"                     { return('/'); }
+"&"                     { return('&'); }
+"|"                     { return('|'); }
+"^"                     { return('^'); }
+"%"                     { return('%'); }
+"<<"                    { return(LEFT_OP); }
+">>"                    { return(RIGHT_OP); }
+">>>"                   { return(BIT_RIGHT_SHFT_OP); }
+"+="                    { return(ADD_ASSIGN); }
+"-="                    { return(SUB_ASSIGN); }
+"*="                    { return(MUL_ASSIGN); }
+"/="                    { return(DIV_ASSIGN); }
+"&="                    { return(AND_ASSIGN); }
+"|="                    { return(OR_ASSIGN); }
+"^="                    { return(XOR_ASSIGN); }
+"%="                    { return(MOD_ASSIGN); }
+"<<="                   { return(LEFT_ASSIGN); }
+">>="                   { return(RIGHT_ASSIGN); }
+">>>="                  { return(BIT_RIGHT_SHFT_ASSIGN); }
+","                     { return(','); }
+"."                     { return('.'); }
+";"                     { return(';'); }
+"("                     { return('('); }
+")"                     { return(')'); }
+"["                     { return('['); }
+"]"                     { return(']'); }
+"..."                   { return(ELLIPSIS); }
+"{"                     { return('{'); }
+"}"                     { return('}'); }
+"@"                     { return('@'); }
+"::"                    { return(DOUBLE_COLON); }
+
 "/*"                        {BEGIN(comment);}
 <comment>[^*\n]+            {}
 <comment>"*"+[^*/\n]*       {}
@@ -116,16 +215,7 @@ OCTAL_EXCAPE                \\{OCTAL_DIGIT}|\\{OCTAL_DIGIT}{OCTAL_DIGIT}|\\[0-3]
 <text_block_chars>["]["]["]                 {BEGIN(INITIAL); char* temp = strdup(yytext); endBuffer(temp); return LITERALS;}
 
 {NUM_LITERALS}              {ECHO; return LITERALS;}
-"switch"                    {ECHO; return SWITCH_KEYWORDS;}
-"case"                      {ECHO; return CASE_KEYWORDS;}
-"default"                   {ECHO; return DEFAULT_KEYWORDS;}
-"("                         {return OPEN_BRCKT;}
-")"                         {return CLOSE_BRCKT;}
 {PRIMITIVE_TYPE_KEYWORD}    {ECHO; return PRIMITIVE_TYPE_KEYWORDS;}
-{ASSIGNMENT_OPERATOR}       {printf("oper"); ECHO; return ASSIGNMENT_OPERATORS;}
-{KEYWORD}                   {ECHO; return KEYWORDS;}
-{OPERATOR}                  {ECHO; return OPERATORS;}
-{SEPARATOR}                 {ECHO; return SEPARATORS;}
 {IDENTIFIER}                {printf("ident"); ECHO; return IDENTIFIERS;}
 
 {BLANK_SPACE}+              {}
