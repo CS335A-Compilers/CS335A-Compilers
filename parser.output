@@ -1,0 +1,1982 @@
+Terminals unused in grammar
+
+   KEYWORDS
+   SEPARATORS
+   OPERATORS
+   SWITCH_KEYWORDS
+   CASE_KEYWORDS
+   DEFAULT_KEYWORDS
+
+
+Rules useless in parser due to conflicts
+
+   45 pre_increment_expression: '+' '+' unary_expression
+
+   46 pre_decrement_expression: '-' '-' unary_expression
+
+
+State 6 conflicts: 2 reduce/reduce
+State 18 conflicts: 1 shift/reduce
+State 20 conflicts: 1 shift/reduce
+State 23 conflicts: 2 shift/reduce
+State 25 conflicts: 1 shift/reduce
+State 30 conflicts: 2 shift/reduce
+State 70 conflicts: 14 reduce/reduce
+State 71 conflicts: 14 reduce/reduce
+State 77 conflicts: 1 shift/reduce
+State 82 conflicts: 2 shift/reduce
+State 84 conflicts: 2 shift/reduce
+State 87 conflicts: 1 shift/reduce
+State 88 conflicts: 1 shift/reduce
+State 99 conflicts: 1 shift/reduce
+State 102 conflicts: 2 shift/reduce
+State 103 conflicts: 2 shift/reduce
+
+
+Grammar
+
+    0 $accept: primary $end
+
+    1 primary: primary_no_new_array
+    2        | error
+
+    3 primary_no_new_array: LITERALS
+    4                     | OPEN_BRCKT expression CLOSE_BRCKT
+
+    5 expression: assignment_expression
+    6           | IDENTIFIERS
+
+    7 assignment_expression: condtional_expression
+    8                      | assignment
+
+    9 condtional_expression: conditional_or_expression
+   10                      | conditional_or_expression '?' expression ':' condtional_expression
+
+   11 conditional_or_expression: conditional_and_expression
+   12                          | conditional_or_expression '|' '|' conditional_and_expression
+
+   13 conditional_and_expression: inclusive_or_expression
+   14                           | conditional_and_expression '&' '&' inclusive_or_expression
+
+   15 inclusive_or_expression: exclusive_or_expression
+   16                        | inclusive_or_expression '|' exclusive_or_expression
+
+   17 exclusive_or_expression: and_expression
+   18                        | exclusive_or_expression '^' and_expression
+
+   19 and_expression: equality_expression
+   20               | and_expression '&' equality_expression
+
+   21 equality_expression: relational_expression
+   22                    | equality_expression '=' '=' relational_expression
+   23                    | equality_expression '!' '=' relational_expression
+
+   24 relational_expression: shift_expression
+   25                      | relational_expression '<' shift_expression
+   26                      | relational_expression '>' shift_expression
+   27                      | relational_expression '<' '=' shift_expression
+   28                      | relational_expression '>' '=' shift_expression
+
+   29 shift_expression: additive_expression
+   30                 | shift_expression '<' '<' additive_expression
+   31                 | shift_expression '>' '>' additive_expression
+   32                 | shift_expression '>' '>' '>' additive_expression
+
+   33 additive_expression: multiplicative_expression
+   34                    | additive_expression '+' multiplicative_expression
+   35                    | additive_expression '-' multiplicative_expression
+
+   36 multiplicative_expression: unary_expression
+   37                          | multiplicative_expression '*' unary_expression
+   38                          | multiplicative_expression '&' unary_expression
+   39                          | multiplicative_expression '/' unary_expression
+
+   40 unary_expression: pre_increment_expression
+   41                 | pre_decrement_expression
+   42                 | '+' unary_expression
+   43                 | '-' unary_expression
+   44                 | unary_expression_not_plus_minus
+
+   45 pre_increment_expression: '+' '+' unary_expression
+
+   46 pre_decrement_expression: '-' '-' unary_expression
+
+   47 unary_expression_not_plus_minus: postfix_expression
+   48                                | '~' unary_expression
+   49                                | '!' unary_expression
+   50                                | cast_expression
+
+   51 postfix_expression: primary
+   52                   | expression_name
+   53                   | post_increment_expression
+   54                   | post_decrement_expression
+
+   55 expression_name: IDENTIFIERS
+   56                | ambigous_name '.' IDENTIFIERS
+
+   57 ambigous_name: IDENTIFIERS
+   58              | ambigous_name '.' IDENTIFIERS
+
+   59 post_increment_expression: postfix_expression '+' '+'
+
+   60 post_decrement_expression: postfix_expression '-' '-'
+
+   61 cast_expression: '(' PRIMITIVE_TYPE_KEYWORDS ')' unary_expression
+
+   62 assignment: left_hand_side ASSIGNMENT_OPERATORS expression
+
+   63 left_hand_side: expression_name
+
+
+Terminals, with rules where they appear
+
+$end (0) 0
+'!' (33) 23 49
+'&' (38) 14 20 38
+'(' (40) 61
+')' (41) 61
+'*' (42) 37
+'+' (43) 34 42 45 59
+'-' (45) 35 43 46 60
+'.' (46) 56 58
+'/' (47) 39
+':' (58) 10
+'<' (60) 25 27 30
+'=' (61) 22 23 27 28
+'>' (62) 26 28 31 32
+'?' (63) 10
+'^' (94) 18
+'|' (124) 12 16
+'~' (126) 48
+error (256) 2
+KEYWORDS (258)
+IDENTIFIERS (259) 6 55 56 57 58
+SEPARATORS (260)
+OPERATORS (261)
+LITERALS (262) 3
+PRIMITIVE_TYPE_KEYWORDS (263) 61
+SWITCH_KEYWORDS (264)
+CASE_KEYWORDS (265)
+DEFAULT_KEYWORDS (266)
+ASSIGNMENT_OPERATORS (267) 62
+OPEN_BRCKT (268) 4
+CLOSE_BRCKT (269) 4
+
+
+Nonterminals, with rules where they appear
+
+$accept (32)
+    on left: 0
+primary (33)
+    on left: 1 2, on right: 0 51
+primary_no_new_array (34)
+    on left: 3 4, on right: 1
+expression (35)
+    on left: 5 6, on right: 4 10 62
+assignment_expression (36)
+    on left: 7 8, on right: 5
+condtional_expression (37)
+    on left: 9 10, on right: 7 10
+conditional_or_expression (38)
+    on left: 11 12, on right: 9 10 12
+conditional_and_expression (39)
+    on left: 13 14, on right: 11 12 14
+inclusive_or_expression (40)
+    on left: 15 16, on right: 13 14 16
+exclusive_or_expression (41)
+    on left: 17 18, on right: 15 16 18
+and_expression (42)
+    on left: 19 20, on right: 17 18 20
+equality_expression (43)
+    on left: 21 22 23, on right: 19 20 22 23
+relational_expression (44)
+    on left: 24 25 26 27 28, on right: 21 22 23 25 26 27 28
+shift_expression (45)
+    on left: 29 30 31 32, on right: 24 25 26 27 28 30 31 32
+additive_expression (46)
+    on left: 33 34 35, on right: 29 30 31 32 34 35
+multiplicative_expression (47)
+    on left: 36 37 38 39, on right: 33 34 35 37 38 39
+unary_expression (48)
+    on left: 40 41 42 43 44, on right: 36 37 38 39 42 43 45 46 48 49
+    61
+pre_increment_expression (49)
+    on left: 45, on right: 40
+pre_decrement_expression (50)
+    on left: 46, on right: 41
+unary_expression_not_plus_minus (51)
+    on left: 47 48 49 50, on right: 44
+postfix_expression (52)
+    on left: 51 52 53 54, on right: 47 59 60
+expression_name (53)
+    on left: 55 56, on right: 52 63
+ambigous_name (54)
+    on left: 57 58, on right: 56 58
+post_increment_expression (55)
+    on left: 59, on right: 53
+post_decrement_expression (56)
+    on left: 60, on right: 54
+cast_expression (57)
+    on left: 61, on right: 50
+assignment (58)
+    on left: 62, on right: 8
+left_hand_side (59)
+    on left: 63, on right: 62
+
+
+state 0
+
+    0 $accept: . primary $end
+
+    error       shift, and go to state 1
+    LITERALS    shift, and go to state 2
+    OPEN_BRCKT  shift, and go to state 3
+
+    primary               go to state 4
+    primary_no_new_array  go to state 5
+
+
+state 1
+
+    2 primary: error .
+
+    $default  reduce using rule 2 (primary)
+
+
+state 2
+
+    3 primary_no_new_array: LITERALS .
+
+    $default  reduce using rule 3 (primary_no_new_array)
+
+
+state 3
+
+    4 primary_no_new_array: OPEN_BRCKT . expression CLOSE_BRCKT
+
+    error        shift, and go to state 1
+    IDENTIFIERS  shift, and go to state 6
+    LITERALS     shift, and go to state 2
+    OPEN_BRCKT   shift, and go to state 3
+    '!'          shift, and go to state 7
+    '+'          shift, and go to state 8
+    '-'          shift, and go to state 9
+    '~'          shift, and go to state 10
+    '('          shift, and go to state 11
+
+    primary                          go to state 12
+    primary_no_new_array             go to state 5
+    expression                       go to state 13
+    assignment_expression            go to state 14
+    condtional_expression            go to state 15
+    conditional_or_expression        go to state 16
+    conditional_and_expression       go to state 17
+    inclusive_or_expression          go to state 18
+    exclusive_or_expression          go to state 19
+    and_expression                   go to state 20
+    equality_expression              go to state 21
+    relational_expression            go to state 22
+    shift_expression                 go to state 23
+    additive_expression              go to state 24
+    multiplicative_expression        go to state 25
+    unary_expression                 go to state 26
+    pre_increment_expression         go to state 27
+    pre_decrement_expression         go to state 28
+    unary_expression_not_plus_minus  go to state 29
+    postfix_expression               go to state 30
+    expression_name                  go to state 31
+    ambigous_name                    go to state 32
+    post_increment_expression        go to state 33
+    post_decrement_expression        go to state 34
+    cast_expression                  go to state 35
+    assignment                       go to state 36
+    left_hand_side                   go to state 37
+
+
+state 4
+
+    0 $accept: primary . $end
+
+    $end  shift, and go to state 38
+
+
+state 5
+
+    1 primary: primary_no_new_array .
+
+    $default  reduce using rule 1 (primary)
+
+
+state 6
+
+    6 expression: IDENTIFIERS .
+   55 expression_name: IDENTIFIERS .
+   57 ambigous_name: IDENTIFIERS .
+
+    CLOSE_BRCKT  reduce using rule 6 (expression)
+    CLOSE_BRCKT  [reduce using rule 55 (expression_name)]
+    ':'          reduce using rule 6 (expression)
+    ':'          [reduce using rule 55 (expression_name)]
+    '.'          reduce using rule 57 (ambigous_name)
+    $default     reduce using rule 55 (expression_name)
+
+
+state 7
+
+   49 unary_expression_not_plus_minus: '!' . unary_expression
+
+    error        shift, and go to state 1
+    IDENTIFIERS  shift, and go to state 39
+    LITERALS     shift, and go to state 2
+    OPEN_BRCKT   shift, and go to state 3
+    '!'          shift, and go to state 7
+    '+'          shift, and go to state 8
+    '-'          shift, and go to state 9
+    '~'          shift, and go to state 10
+    '('          shift, and go to state 11
+
+    primary                          go to state 12
+    primary_no_new_array             go to state 5
+    unary_expression                 go to state 40
+    pre_increment_expression         go to state 27
+    pre_decrement_expression         go to state 28
+    unary_expression_not_plus_minus  go to state 29
+    postfix_expression               go to state 30
+    expression_name                  go to state 41
+    ambigous_name                    go to state 32
+    post_increment_expression        go to state 33
+    post_decrement_expression        go to state 34
+    cast_expression                  go to state 35
+
+
+state 8
+
+   42 unary_expression: '+' . unary_expression
+   45 pre_increment_expression: '+' . '+' unary_expression
+
+    error        shift, and go to state 1
+    IDENTIFIERS  shift, and go to state 39
+    LITERALS     shift, and go to state 2
+    OPEN_BRCKT   shift, and go to state 3
+    '!'          shift, and go to state 7
+    '+'          shift, and go to state 42
+    '-'          shift, and go to state 9
+    '~'          shift, and go to state 10
+    '('          shift, and go to state 11
+
+    primary                          go to state 12
+    primary_no_new_array             go to state 5
+    unary_expression                 go to state 43
+    pre_increment_expression         go to state 27
+    pre_decrement_expression         go to state 28
+    unary_expression_not_plus_minus  go to state 29
+    postfix_expression               go to state 30
+    expression_name                  go to state 41
+    ambigous_name                    go to state 32
+    post_increment_expression        go to state 33
+    post_decrement_expression        go to state 34
+    cast_expression                  go to state 35
+
+
+state 9
+
+   43 unary_expression: '-' . unary_expression
+   46 pre_decrement_expression: '-' . '-' unary_expression
+
+    error        shift, and go to state 1
+    IDENTIFIERS  shift, and go to state 39
+    LITERALS     shift, and go to state 2
+    OPEN_BRCKT   shift, and go to state 3
+    '!'          shift, and go to state 7
+    '+'          shift, and go to state 8
+    '-'          shift, and go to state 44
+    '~'          shift, and go to state 10
+    '('          shift, and go to state 11
+
+    primary                          go to state 12
+    primary_no_new_array             go to state 5
+    unary_expression                 go to state 45
+    pre_increment_expression         go to state 27
+    pre_decrement_expression         go to state 28
+    unary_expression_not_plus_minus  go to state 29
+    postfix_expression               go to state 30
+    expression_name                  go to state 41
+    ambigous_name                    go to state 32
+    post_increment_expression        go to state 33
+    post_decrement_expression        go to state 34
+    cast_expression                  go to state 35
+
+
+state 10
+
+   48 unary_expression_not_plus_minus: '~' . unary_expression
+
+    error        shift, and go to state 1
+    IDENTIFIERS  shift, and go to state 39
+    LITERALS     shift, and go to state 2
+    OPEN_BRCKT   shift, and go to state 3
+    '!'          shift, and go to state 7
+    '+'          shift, and go to state 8
+    '-'          shift, and go to state 9
+    '~'          shift, and go to state 10
+    '('          shift, and go to state 11
+
+    primary                          go to state 12
+    primary_no_new_array             go to state 5
+    unary_expression                 go to state 46
+    pre_increment_expression         go to state 27
+    pre_decrement_expression         go to state 28
+    unary_expression_not_plus_minus  go to state 29
+    postfix_expression               go to state 30
+    expression_name                  go to state 41
+    ambigous_name                    go to state 32
+    post_increment_expression        go to state 33
+    post_decrement_expression        go to state 34
+    cast_expression                  go to state 35
+
+
+state 11
+
+   61 cast_expression: '(' . PRIMITIVE_TYPE_KEYWORDS ')' unary_expression
+
+    PRIMITIVE_TYPE_KEYWORDS  shift, and go to state 47
+
+
+state 12
+
+   51 postfix_expression: primary .
+
+    $default  reduce using rule 51 (postfix_expression)
+
+
+state 13
+
+    4 primary_no_new_array: OPEN_BRCKT expression . CLOSE_BRCKT
+
+    CLOSE_BRCKT  shift, and go to state 48
+
+
+state 14
+
+    5 expression: assignment_expression .
+
+    $default  reduce using rule 5 (expression)
+
+
+state 15
+
+    7 assignment_expression: condtional_expression .
+
+    $default  reduce using rule 7 (assignment_expression)
+
+
+state 16
+
+    9 condtional_expression: conditional_or_expression .
+   10                      | conditional_or_expression . '?' expression ':' condtional_expression
+   12 conditional_or_expression: conditional_or_expression . '|' '|' conditional_and_expression
+
+    '?'  shift, and go to state 49
+    '|'  shift, and go to state 50
+
+    $default  reduce using rule 9 (condtional_expression)
+
+
+state 17
+
+   11 conditional_or_expression: conditional_and_expression .
+   14 conditional_and_expression: conditional_and_expression . '&' '&' inclusive_or_expression
+
+    '&'  shift, and go to state 51
+
+    $default  reduce using rule 11 (conditional_or_expression)
+
+
+state 18
+
+   13 conditional_and_expression: inclusive_or_expression .
+   16 inclusive_or_expression: inclusive_or_expression . '|' exclusive_or_expression
+
+    '|'  shift, and go to state 52
+
+    '|'       [reduce using rule 13 (conditional_and_expression)]
+    $default  reduce using rule 13 (conditional_and_expression)
+
+
+state 19
+
+   15 inclusive_or_expression: exclusive_or_expression .
+   18 exclusive_or_expression: exclusive_or_expression . '^' and_expression
+
+    '^'  shift, and go to state 53
+
+    $default  reduce using rule 15 (inclusive_or_expression)
+
+
+state 20
+
+   17 exclusive_or_expression: and_expression .
+   20 and_expression: and_expression . '&' equality_expression
+
+    '&'  shift, and go to state 54
+
+    '&'       [reduce using rule 17 (exclusive_or_expression)]
+    $default  reduce using rule 17 (exclusive_or_expression)
+
+
+state 21
+
+   19 and_expression: equality_expression .
+   22 equality_expression: equality_expression . '=' '=' relational_expression
+   23                    | equality_expression . '!' '=' relational_expression
+
+    '='  shift, and go to state 55
+    '!'  shift, and go to state 56
+
+    $default  reduce using rule 19 (and_expression)
+
+
+state 22
+
+   21 equality_expression: relational_expression .
+   25 relational_expression: relational_expression . '<' shift_expression
+   26                      | relational_expression . '>' shift_expression
+   27                      | relational_expression . '<' '=' shift_expression
+   28                      | relational_expression . '>' '=' shift_expression
+
+    '<'  shift, and go to state 57
+    '>'  shift, and go to state 58
+
+    $default  reduce using rule 21 (equality_expression)
+
+
+state 23
+
+   24 relational_expression: shift_expression .
+   30 shift_expression: shift_expression . '<' '<' additive_expression
+   31                 | shift_expression . '>' '>' additive_expression
+   32                 | shift_expression . '>' '>' '>' additive_expression
+
+    '<'  shift, and go to state 59
+    '>'  shift, and go to state 60
+
+    '<'       [reduce using rule 24 (relational_expression)]
+    '>'       [reduce using rule 24 (relational_expression)]
+    $default  reduce using rule 24 (relational_expression)
+
+
+state 24
+
+   29 shift_expression: additive_expression .
+   34 additive_expression: additive_expression . '+' multiplicative_expression
+   35                    | additive_expression . '-' multiplicative_expression
+
+    '+'  shift, and go to state 61
+    '-'  shift, and go to state 62
+
+    $default  reduce using rule 29 (shift_expression)
+
+
+state 25
+
+   33 additive_expression: multiplicative_expression .
+   37 multiplicative_expression: multiplicative_expression . '*' unary_expression
+   38                          | multiplicative_expression . '&' unary_expression
+   39                          | multiplicative_expression . '/' unary_expression
+
+    '&'  shift, and go to state 63
+    '*'  shift, and go to state 64
+    '/'  shift, and go to state 65
+
+    '&'       [reduce using rule 33 (additive_expression)]
+    $default  reduce using rule 33 (additive_expression)
+
+
+state 26
+
+   36 multiplicative_expression: unary_expression .
+
+    $default  reduce using rule 36 (multiplicative_expression)
+
+
+state 27
+
+   40 unary_expression: pre_increment_expression .
+
+    $default  reduce using rule 40 (unary_expression)
+
+
+state 28
+
+   41 unary_expression: pre_decrement_expression .
+
+    $default  reduce using rule 41 (unary_expression)
+
+
+state 29
+
+   44 unary_expression: unary_expression_not_plus_minus .
+
+    $default  reduce using rule 44 (unary_expression)
+
+
+state 30
+
+   47 unary_expression_not_plus_minus: postfix_expression .
+   59 post_increment_expression: postfix_expression . '+' '+'
+   60 post_decrement_expression: postfix_expression . '-' '-'
+
+    '+'  shift, and go to state 66
+    '-'  shift, and go to state 67
+
+    '+'       [reduce using rule 47 (unary_expression_not_plus_minus)]
+    '-'       [reduce using rule 47 (unary_expression_not_plus_minus)]
+    $default  reduce using rule 47 (unary_expression_not_plus_minus)
+
+
+state 31
+
+   52 postfix_expression: expression_name .
+   63 left_hand_side: expression_name .
+
+    ASSIGNMENT_OPERATORS  reduce using rule 63 (left_hand_side)
+    $default              reduce using rule 52 (postfix_expression)
+
+
+state 32
+
+   56 expression_name: ambigous_name . '.' IDENTIFIERS
+   58 ambigous_name: ambigous_name . '.' IDENTIFIERS
+
+    '.'  shift, and go to state 68
+
+
+state 33
+
+   53 postfix_expression: post_increment_expression .
+
+    $default  reduce using rule 53 (postfix_expression)
+
+
+state 34
+
+   54 postfix_expression: post_decrement_expression .
+
+    $default  reduce using rule 54 (postfix_expression)
+
+
+state 35
+
+   50 unary_expression_not_plus_minus: cast_expression .
+
+    $default  reduce using rule 50 (unary_expression_not_plus_minus)
+
+
+state 36
+
+    8 assignment_expression: assignment .
+
+    $default  reduce using rule 8 (assignment_expression)
+
+
+state 37
+
+   62 assignment: left_hand_side . ASSIGNMENT_OPERATORS expression
+
+    ASSIGNMENT_OPERATORS  shift, and go to state 69
+
+
+state 38
+
+    0 $accept: primary $end .
+
+    $default  accept
+
+
+state 39
+
+   55 expression_name: IDENTIFIERS .
+   57 ambigous_name: IDENTIFIERS .
+
+    '.'       reduce using rule 57 (ambigous_name)
+    $default  reduce using rule 55 (expression_name)
+
+
+state 40
+
+   49 unary_expression_not_plus_minus: '!' unary_expression .
+
+    $default  reduce using rule 49 (unary_expression_not_plus_minus)
+
+
+state 41
+
+   52 postfix_expression: expression_name .
+
+    $default  reduce using rule 52 (postfix_expression)
+
+
+state 42
+
+   42 unary_expression: '+' . unary_expression
+   45 pre_increment_expression: '+' . '+' unary_expression
+   45                         | '+' '+' . unary_expression
+
+    error        shift, and go to state 1
+    IDENTIFIERS  shift, and go to state 39
+    LITERALS     shift, and go to state 2
+    OPEN_BRCKT   shift, and go to state 3
+    '!'          shift, and go to state 7
+    '+'          shift, and go to state 42
+    '-'          shift, and go to state 9
+    '~'          shift, and go to state 10
+    '('          shift, and go to state 11
+
+    primary                          go to state 12
+    primary_no_new_array             go to state 5
+    unary_expression                 go to state 70
+    pre_increment_expression         go to state 27
+    pre_decrement_expression         go to state 28
+    unary_expression_not_plus_minus  go to state 29
+    postfix_expression               go to state 30
+    expression_name                  go to state 41
+    ambigous_name                    go to state 32
+    post_increment_expression        go to state 33
+    post_decrement_expression        go to state 34
+    cast_expression                  go to state 35
+
+
+state 43
+
+   42 unary_expression: '+' unary_expression .
+
+    $default  reduce using rule 42 (unary_expression)
+
+
+state 44
+
+   43 unary_expression: '-' . unary_expression
+   46 pre_decrement_expression: '-' . '-' unary_expression
+   46                         | '-' '-' . unary_expression
+
+    error        shift, and go to state 1
+    IDENTIFIERS  shift, and go to state 39
+    LITERALS     shift, and go to state 2
+    OPEN_BRCKT   shift, and go to state 3
+    '!'          shift, and go to state 7
+    '+'          shift, and go to state 8
+    '-'          shift, and go to state 44
+    '~'          shift, and go to state 10
+    '('          shift, and go to state 11
+
+    primary                          go to state 12
+    primary_no_new_array             go to state 5
+    unary_expression                 go to state 71
+    pre_increment_expression         go to state 27
+    pre_decrement_expression         go to state 28
+    unary_expression_not_plus_minus  go to state 29
+    postfix_expression               go to state 30
+    expression_name                  go to state 41
+    ambigous_name                    go to state 32
+    post_increment_expression        go to state 33
+    post_decrement_expression        go to state 34
+    cast_expression                  go to state 35
+
+
+state 45
+
+   43 unary_expression: '-' unary_expression .
+
+    $default  reduce using rule 43 (unary_expression)
+
+
+state 46
+
+   48 unary_expression_not_plus_minus: '~' unary_expression .
+
+    $default  reduce using rule 48 (unary_expression_not_plus_minus)
+
+
+state 47
+
+   61 cast_expression: '(' PRIMITIVE_TYPE_KEYWORDS . ')' unary_expression
+
+    ')'  shift, and go to state 72
+
+
+state 48
+
+    4 primary_no_new_array: OPEN_BRCKT expression CLOSE_BRCKT .
+
+    $default  reduce using rule 4 (primary_no_new_array)
+
+
+state 49
+
+   10 condtional_expression: conditional_or_expression '?' . expression ':' condtional_expression
+
+    error        shift, and go to state 1
+    IDENTIFIERS  shift, and go to state 6
+    LITERALS     shift, and go to state 2
+    OPEN_BRCKT   shift, and go to state 3
+    '!'          shift, and go to state 7
+    '+'          shift, and go to state 8
+    '-'          shift, and go to state 9
+    '~'          shift, and go to state 10
+    '('          shift, and go to state 11
+
+    primary                          go to state 12
+    primary_no_new_array             go to state 5
+    expression                       go to state 73
+    assignment_expression            go to state 14
+    condtional_expression            go to state 15
+    conditional_or_expression        go to state 16
+    conditional_and_expression       go to state 17
+    inclusive_or_expression          go to state 18
+    exclusive_or_expression          go to state 19
+    and_expression                   go to state 20
+    equality_expression              go to state 21
+    relational_expression            go to state 22
+    shift_expression                 go to state 23
+    additive_expression              go to state 24
+    multiplicative_expression        go to state 25
+    unary_expression                 go to state 26
+    pre_increment_expression         go to state 27
+    pre_decrement_expression         go to state 28
+    unary_expression_not_plus_minus  go to state 29
+    postfix_expression               go to state 30
+    expression_name                  go to state 31
+    ambigous_name                    go to state 32
+    post_increment_expression        go to state 33
+    post_decrement_expression        go to state 34
+    cast_expression                  go to state 35
+    assignment                       go to state 36
+    left_hand_side                   go to state 37
+
+
+state 50
+
+   12 conditional_or_expression: conditional_or_expression '|' . '|' conditional_and_expression
+
+    '|'  shift, and go to state 74
+
+
+state 51
+
+   14 conditional_and_expression: conditional_and_expression '&' . '&' inclusive_or_expression
+
+    '&'  shift, and go to state 75
+
+
+state 52
+
+   16 inclusive_or_expression: inclusive_or_expression '|' . exclusive_or_expression
+
+    error        shift, and go to state 1
+    IDENTIFIERS  shift, and go to state 39
+    LITERALS     shift, and go to state 2
+    OPEN_BRCKT   shift, and go to state 3
+    '!'          shift, and go to state 7
+    '+'          shift, and go to state 8
+    '-'          shift, and go to state 9
+    '~'          shift, and go to state 10
+    '('          shift, and go to state 11
+
+    primary                          go to state 12
+    primary_no_new_array             go to state 5
+    exclusive_or_expression          go to state 76
+    and_expression                   go to state 20
+    equality_expression              go to state 21
+    relational_expression            go to state 22
+    shift_expression                 go to state 23
+    additive_expression              go to state 24
+    multiplicative_expression        go to state 25
+    unary_expression                 go to state 26
+    pre_increment_expression         go to state 27
+    pre_decrement_expression         go to state 28
+    unary_expression_not_plus_minus  go to state 29
+    postfix_expression               go to state 30
+    expression_name                  go to state 41
+    ambigous_name                    go to state 32
+    post_increment_expression        go to state 33
+    post_decrement_expression        go to state 34
+    cast_expression                  go to state 35
+
+
+state 53
+
+   18 exclusive_or_expression: exclusive_or_expression '^' . and_expression
+
+    error        shift, and go to state 1
+    IDENTIFIERS  shift, and go to state 39
+    LITERALS     shift, and go to state 2
+    OPEN_BRCKT   shift, and go to state 3
+    '!'          shift, and go to state 7
+    '+'          shift, and go to state 8
+    '-'          shift, and go to state 9
+    '~'          shift, and go to state 10
+    '('          shift, and go to state 11
+
+    primary                          go to state 12
+    primary_no_new_array             go to state 5
+    and_expression                   go to state 77
+    equality_expression              go to state 21
+    relational_expression            go to state 22
+    shift_expression                 go to state 23
+    additive_expression              go to state 24
+    multiplicative_expression        go to state 25
+    unary_expression                 go to state 26
+    pre_increment_expression         go to state 27
+    pre_decrement_expression         go to state 28
+    unary_expression_not_plus_minus  go to state 29
+    postfix_expression               go to state 30
+    expression_name                  go to state 41
+    ambigous_name                    go to state 32
+    post_increment_expression        go to state 33
+    post_decrement_expression        go to state 34
+    cast_expression                  go to state 35
+
+
+state 54
+
+   20 and_expression: and_expression '&' . equality_expression
+
+    error        shift, and go to state 1
+    IDENTIFIERS  shift, and go to state 39
+    LITERALS     shift, and go to state 2
+    OPEN_BRCKT   shift, and go to state 3
+    '!'          shift, and go to state 7
+    '+'          shift, and go to state 8
+    '-'          shift, and go to state 9
+    '~'          shift, and go to state 10
+    '('          shift, and go to state 11
+
+    primary                          go to state 12
+    primary_no_new_array             go to state 5
+    equality_expression              go to state 78
+    relational_expression            go to state 22
+    shift_expression                 go to state 23
+    additive_expression              go to state 24
+    multiplicative_expression        go to state 25
+    unary_expression                 go to state 26
+    pre_increment_expression         go to state 27
+    pre_decrement_expression         go to state 28
+    unary_expression_not_plus_minus  go to state 29
+    postfix_expression               go to state 30
+    expression_name                  go to state 41
+    ambigous_name                    go to state 32
+    post_increment_expression        go to state 33
+    post_decrement_expression        go to state 34
+    cast_expression                  go to state 35
+
+
+state 55
+
+   22 equality_expression: equality_expression '=' . '=' relational_expression
+
+    '='  shift, and go to state 79
+
+
+state 56
+
+   23 equality_expression: equality_expression '!' . '=' relational_expression
+
+    '='  shift, and go to state 80
+
+
+state 57
+
+   25 relational_expression: relational_expression '<' . shift_expression
+   27                      | relational_expression '<' . '=' shift_expression
+
+    error        shift, and go to state 1
+    IDENTIFIERS  shift, and go to state 39
+    LITERALS     shift, and go to state 2
+    OPEN_BRCKT   shift, and go to state 3
+    '='          shift, and go to state 81
+    '!'          shift, and go to state 7
+    '+'          shift, and go to state 8
+    '-'          shift, and go to state 9
+    '~'          shift, and go to state 10
+    '('          shift, and go to state 11
+
+    primary                          go to state 12
+    primary_no_new_array             go to state 5
+    shift_expression                 go to state 82
+    additive_expression              go to state 24
+    multiplicative_expression        go to state 25
+    unary_expression                 go to state 26
+    pre_increment_expression         go to state 27
+    pre_decrement_expression         go to state 28
+    unary_expression_not_plus_minus  go to state 29
+    postfix_expression               go to state 30
+    expression_name                  go to state 41
+    ambigous_name                    go to state 32
+    post_increment_expression        go to state 33
+    post_decrement_expression        go to state 34
+    cast_expression                  go to state 35
+
+
+state 58
+
+   26 relational_expression: relational_expression '>' . shift_expression
+   28                      | relational_expression '>' . '=' shift_expression
+
+    error        shift, and go to state 1
+    IDENTIFIERS  shift, and go to state 39
+    LITERALS     shift, and go to state 2
+    OPEN_BRCKT   shift, and go to state 3
+    '='          shift, and go to state 83
+    '!'          shift, and go to state 7
+    '+'          shift, and go to state 8
+    '-'          shift, and go to state 9
+    '~'          shift, and go to state 10
+    '('          shift, and go to state 11
+
+    primary                          go to state 12
+    primary_no_new_array             go to state 5
+    shift_expression                 go to state 84
+    additive_expression              go to state 24
+    multiplicative_expression        go to state 25
+    unary_expression                 go to state 26
+    pre_increment_expression         go to state 27
+    pre_decrement_expression         go to state 28
+    unary_expression_not_plus_minus  go to state 29
+    postfix_expression               go to state 30
+    expression_name                  go to state 41
+    ambigous_name                    go to state 32
+    post_increment_expression        go to state 33
+    post_decrement_expression        go to state 34
+    cast_expression                  go to state 35
+
+
+state 59
+
+   30 shift_expression: shift_expression '<' . '<' additive_expression
+
+    '<'  shift, and go to state 85
+
+
+state 60
+
+   31 shift_expression: shift_expression '>' . '>' additive_expression
+   32                 | shift_expression '>' . '>' '>' additive_expression
+
+    '>'  shift, and go to state 86
+
+
+state 61
+
+   34 additive_expression: additive_expression '+' . multiplicative_expression
+
+    error        shift, and go to state 1
+    IDENTIFIERS  shift, and go to state 39
+    LITERALS     shift, and go to state 2
+    OPEN_BRCKT   shift, and go to state 3
+    '!'          shift, and go to state 7
+    '+'          shift, and go to state 8
+    '-'          shift, and go to state 9
+    '~'          shift, and go to state 10
+    '('          shift, and go to state 11
+
+    primary                          go to state 12
+    primary_no_new_array             go to state 5
+    multiplicative_expression        go to state 87
+    unary_expression                 go to state 26
+    pre_increment_expression         go to state 27
+    pre_decrement_expression         go to state 28
+    unary_expression_not_plus_minus  go to state 29
+    postfix_expression               go to state 30
+    expression_name                  go to state 41
+    ambigous_name                    go to state 32
+    post_increment_expression        go to state 33
+    post_decrement_expression        go to state 34
+    cast_expression                  go to state 35
+
+
+state 62
+
+   35 additive_expression: additive_expression '-' . multiplicative_expression
+
+    error        shift, and go to state 1
+    IDENTIFIERS  shift, and go to state 39
+    LITERALS     shift, and go to state 2
+    OPEN_BRCKT   shift, and go to state 3
+    '!'          shift, and go to state 7
+    '+'          shift, and go to state 8
+    '-'          shift, and go to state 9
+    '~'          shift, and go to state 10
+    '('          shift, and go to state 11
+
+    primary                          go to state 12
+    primary_no_new_array             go to state 5
+    multiplicative_expression        go to state 88
+    unary_expression                 go to state 26
+    pre_increment_expression         go to state 27
+    pre_decrement_expression         go to state 28
+    unary_expression_not_plus_minus  go to state 29
+    postfix_expression               go to state 30
+    expression_name                  go to state 41
+    ambigous_name                    go to state 32
+    post_increment_expression        go to state 33
+    post_decrement_expression        go to state 34
+    cast_expression                  go to state 35
+
+
+state 63
+
+   38 multiplicative_expression: multiplicative_expression '&' . unary_expression
+
+    error        shift, and go to state 1
+    IDENTIFIERS  shift, and go to state 39
+    LITERALS     shift, and go to state 2
+    OPEN_BRCKT   shift, and go to state 3
+    '!'          shift, and go to state 7
+    '+'          shift, and go to state 8
+    '-'          shift, and go to state 9
+    '~'          shift, and go to state 10
+    '('          shift, and go to state 11
+
+    primary                          go to state 12
+    primary_no_new_array             go to state 5
+    unary_expression                 go to state 89
+    pre_increment_expression         go to state 27
+    pre_decrement_expression         go to state 28
+    unary_expression_not_plus_minus  go to state 29
+    postfix_expression               go to state 30
+    expression_name                  go to state 41
+    ambigous_name                    go to state 32
+    post_increment_expression        go to state 33
+    post_decrement_expression        go to state 34
+    cast_expression                  go to state 35
+
+
+state 64
+
+   37 multiplicative_expression: multiplicative_expression '*' . unary_expression
+
+    error        shift, and go to state 1
+    IDENTIFIERS  shift, and go to state 39
+    LITERALS     shift, and go to state 2
+    OPEN_BRCKT   shift, and go to state 3
+    '!'          shift, and go to state 7
+    '+'          shift, and go to state 8
+    '-'          shift, and go to state 9
+    '~'          shift, and go to state 10
+    '('          shift, and go to state 11
+
+    primary                          go to state 12
+    primary_no_new_array             go to state 5
+    unary_expression                 go to state 90
+    pre_increment_expression         go to state 27
+    pre_decrement_expression         go to state 28
+    unary_expression_not_plus_minus  go to state 29
+    postfix_expression               go to state 30
+    expression_name                  go to state 41
+    ambigous_name                    go to state 32
+    post_increment_expression        go to state 33
+    post_decrement_expression        go to state 34
+    cast_expression                  go to state 35
+
+
+state 65
+
+   39 multiplicative_expression: multiplicative_expression '/' . unary_expression
+
+    error        shift, and go to state 1
+    IDENTIFIERS  shift, and go to state 39
+    LITERALS     shift, and go to state 2
+    OPEN_BRCKT   shift, and go to state 3
+    '!'          shift, and go to state 7
+    '+'          shift, and go to state 8
+    '-'          shift, and go to state 9
+    '~'          shift, and go to state 10
+    '('          shift, and go to state 11
+
+    primary                          go to state 12
+    primary_no_new_array             go to state 5
+    unary_expression                 go to state 91
+    pre_increment_expression         go to state 27
+    pre_decrement_expression         go to state 28
+    unary_expression_not_plus_minus  go to state 29
+    postfix_expression               go to state 30
+    expression_name                  go to state 41
+    ambigous_name                    go to state 32
+    post_increment_expression        go to state 33
+    post_decrement_expression        go to state 34
+    cast_expression                  go to state 35
+
+
+state 66
+
+   59 post_increment_expression: postfix_expression '+' . '+'
+
+    '+'  shift, and go to state 92
+
+
+state 67
+
+   60 post_decrement_expression: postfix_expression '-' . '-'
+
+    '-'  shift, and go to state 93
+
+
+state 68
+
+   56 expression_name: ambigous_name '.' . IDENTIFIERS
+   58 ambigous_name: ambigous_name '.' . IDENTIFIERS
+
+    IDENTIFIERS  shift, and go to state 94
+
+
+state 69
+
+   62 assignment: left_hand_side ASSIGNMENT_OPERATORS . expression
+
+    error        shift, and go to state 1
+    IDENTIFIERS  shift, and go to state 6
+    LITERALS     shift, and go to state 2
+    OPEN_BRCKT   shift, and go to state 3
+    '!'          shift, and go to state 7
+    '+'          shift, and go to state 8
+    '-'          shift, and go to state 9
+    '~'          shift, and go to state 10
+    '('          shift, and go to state 11
+
+    primary                          go to state 12
+    primary_no_new_array             go to state 5
+    expression                       go to state 95
+    assignment_expression            go to state 14
+    condtional_expression            go to state 15
+    conditional_or_expression        go to state 16
+    conditional_and_expression       go to state 17
+    inclusive_or_expression          go to state 18
+    exclusive_or_expression          go to state 19
+    and_expression                   go to state 20
+    equality_expression              go to state 21
+    relational_expression            go to state 22
+    shift_expression                 go to state 23
+    additive_expression              go to state 24
+    multiplicative_expression        go to state 25
+    unary_expression                 go to state 26
+    pre_increment_expression         go to state 27
+    pre_decrement_expression         go to state 28
+    unary_expression_not_plus_minus  go to state 29
+    postfix_expression               go to state 30
+    expression_name                  go to state 31
+    ambigous_name                    go to state 32
+    post_increment_expression        go to state 33
+    post_decrement_expression        go to state 34
+    cast_expression                  go to state 35
+    assignment                       go to state 36
+    left_hand_side                   go to state 37
+
+
+state 70
+
+   42 unary_expression: '+' unary_expression .
+   45 pre_increment_expression: '+' '+' unary_expression .
+
+    CLOSE_BRCKT  reduce using rule 42 (unary_expression)
+    CLOSE_BRCKT  [reduce using rule 45 (pre_increment_expression)]
+    '?'          reduce using rule 42 (unary_expression)
+    '?'          [reduce using rule 45 (pre_increment_expression)]
+    ':'          reduce using rule 42 (unary_expression)
+    ':'          [reduce using rule 45 (pre_increment_expression)]
+    '|'          reduce using rule 42 (unary_expression)
+    '|'          [reduce using rule 45 (pre_increment_expression)]
+    '&'          reduce using rule 42 (unary_expression)
+    '&'          [reduce using rule 45 (pre_increment_expression)]
+    '^'          reduce using rule 42 (unary_expression)
+    '^'          [reduce using rule 45 (pre_increment_expression)]
+    '='          reduce using rule 42 (unary_expression)
+    '='          [reduce using rule 45 (pre_increment_expression)]
+    '!'          reduce using rule 42 (unary_expression)
+    '!'          [reduce using rule 45 (pre_increment_expression)]
+    '<'          reduce using rule 42 (unary_expression)
+    '<'          [reduce using rule 45 (pre_increment_expression)]
+    '>'          reduce using rule 42 (unary_expression)
+    '>'          [reduce using rule 45 (pre_increment_expression)]
+    '+'          reduce using rule 42 (unary_expression)
+    '+'          [reduce using rule 45 (pre_increment_expression)]
+    '-'          reduce using rule 42 (unary_expression)
+    '-'          [reduce using rule 45 (pre_increment_expression)]
+    '*'          reduce using rule 42 (unary_expression)
+    '*'          [reduce using rule 45 (pre_increment_expression)]
+    '/'          reduce using rule 42 (unary_expression)
+    '/'          [reduce using rule 45 (pre_increment_expression)]
+    $default     reduce using rule 42 (unary_expression)
+
+
+state 71
+
+   43 unary_expression: '-' unary_expression .
+   46 pre_decrement_expression: '-' '-' unary_expression .
+
+    CLOSE_BRCKT  reduce using rule 43 (unary_expression)
+    CLOSE_BRCKT  [reduce using rule 46 (pre_decrement_expression)]
+    '?'          reduce using rule 43 (unary_expression)
+    '?'          [reduce using rule 46 (pre_decrement_expression)]
+    ':'          reduce using rule 43 (unary_expression)
+    ':'          [reduce using rule 46 (pre_decrement_expression)]
+    '|'          reduce using rule 43 (unary_expression)
+    '|'          [reduce using rule 46 (pre_decrement_expression)]
+    '&'          reduce using rule 43 (unary_expression)
+    '&'          [reduce using rule 46 (pre_decrement_expression)]
+    '^'          reduce using rule 43 (unary_expression)
+    '^'          [reduce using rule 46 (pre_decrement_expression)]
+    '='          reduce using rule 43 (unary_expression)
+    '='          [reduce using rule 46 (pre_decrement_expression)]
+    '!'          reduce using rule 43 (unary_expression)
+    '!'          [reduce using rule 46 (pre_decrement_expression)]
+    '<'          reduce using rule 43 (unary_expression)
+    '<'          [reduce using rule 46 (pre_decrement_expression)]
+    '>'          reduce using rule 43 (unary_expression)
+    '>'          [reduce using rule 46 (pre_decrement_expression)]
+    '+'          reduce using rule 43 (unary_expression)
+    '+'          [reduce using rule 46 (pre_decrement_expression)]
+    '-'          reduce using rule 43 (unary_expression)
+    '-'          [reduce using rule 46 (pre_decrement_expression)]
+    '*'          reduce using rule 43 (unary_expression)
+    '*'          [reduce using rule 46 (pre_decrement_expression)]
+    '/'          reduce using rule 43 (unary_expression)
+    '/'          [reduce using rule 46 (pre_decrement_expression)]
+    $default     reduce using rule 43 (unary_expression)
+
+
+state 72
+
+   61 cast_expression: '(' PRIMITIVE_TYPE_KEYWORDS ')' . unary_expression
+
+    error        shift, and go to state 1
+    IDENTIFIERS  shift, and go to state 39
+    LITERALS     shift, and go to state 2
+    OPEN_BRCKT   shift, and go to state 3
+    '!'          shift, and go to state 7
+    '+'          shift, and go to state 8
+    '-'          shift, and go to state 9
+    '~'          shift, and go to state 10
+    '('          shift, and go to state 11
+
+    primary                          go to state 12
+    primary_no_new_array             go to state 5
+    unary_expression                 go to state 96
+    pre_increment_expression         go to state 27
+    pre_decrement_expression         go to state 28
+    unary_expression_not_plus_minus  go to state 29
+    postfix_expression               go to state 30
+    expression_name                  go to state 41
+    ambigous_name                    go to state 32
+    post_increment_expression        go to state 33
+    post_decrement_expression        go to state 34
+    cast_expression                  go to state 35
+
+
+state 73
+
+   10 condtional_expression: conditional_or_expression '?' expression . ':' condtional_expression
+
+    ':'  shift, and go to state 97
+
+
+state 74
+
+   12 conditional_or_expression: conditional_or_expression '|' '|' . conditional_and_expression
+
+    error        shift, and go to state 1
+    IDENTIFIERS  shift, and go to state 39
+    LITERALS     shift, and go to state 2
+    OPEN_BRCKT   shift, and go to state 3
+    '!'          shift, and go to state 7
+    '+'          shift, and go to state 8
+    '-'          shift, and go to state 9
+    '~'          shift, and go to state 10
+    '('          shift, and go to state 11
+
+    primary                          go to state 12
+    primary_no_new_array             go to state 5
+    conditional_and_expression       go to state 98
+    inclusive_or_expression          go to state 18
+    exclusive_or_expression          go to state 19
+    and_expression                   go to state 20
+    equality_expression              go to state 21
+    relational_expression            go to state 22
+    shift_expression                 go to state 23
+    additive_expression              go to state 24
+    multiplicative_expression        go to state 25
+    unary_expression                 go to state 26
+    pre_increment_expression         go to state 27
+    pre_decrement_expression         go to state 28
+    unary_expression_not_plus_minus  go to state 29
+    postfix_expression               go to state 30
+    expression_name                  go to state 41
+    ambigous_name                    go to state 32
+    post_increment_expression        go to state 33
+    post_decrement_expression        go to state 34
+    cast_expression                  go to state 35
+
+
+state 75
+
+   14 conditional_and_expression: conditional_and_expression '&' '&' . inclusive_or_expression
+
+    error        shift, and go to state 1
+    IDENTIFIERS  shift, and go to state 39
+    LITERALS     shift, and go to state 2
+    OPEN_BRCKT   shift, and go to state 3
+    '!'          shift, and go to state 7
+    '+'          shift, and go to state 8
+    '-'          shift, and go to state 9
+    '~'          shift, and go to state 10
+    '('          shift, and go to state 11
+
+    primary                          go to state 12
+    primary_no_new_array             go to state 5
+    inclusive_or_expression          go to state 99
+    exclusive_or_expression          go to state 19
+    and_expression                   go to state 20
+    equality_expression              go to state 21
+    relational_expression            go to state 22
+    shift_expression                 go to state 23
+    additive_expression              go to state 24
+    multiplicative_expression        go to state 25
+    unary_expression                 go to state 26
+    pre_increment_expression         go to state 27
+    pre_decrement_expression         go to state 28
+    unary_expression_not_plus_minus  go to state 29
+    postfix_expression               go to state 30
+    expression_name                  go to state 41
+    ambigous_name                    go to state 32
+    post_increment_expression        go to state 33
+    post_decrement_expression        go to state 34
+    cast_expression                  go to state 35
+
+
+state 76
+
+   16 inclusive_or_expression: inclusive_or_expression '|' exclusive_or_expression .
+   18 exclusive_or_expression: exclusive_or_expression . '^' and_expression
+
+    '^'  shift, and go to state 53
+
+    $default  reduce using rule 16 (inclusive_or_expression)
+
+
+state 77
+
+   18 exclusive_or_expression: exclusive_or_expression '^' and_expression .
+   20 and_expression: and_expression . '&' equality_expression
+
+    '&'  shift, and go to state 54
+
+    '&'       [reduce using rule 18 (exclusive_or_expression)]
+    $default  reduce using rule 18 (exclusive_or_expression)
+
+
+state 78
+
+   20 and_expression: and_expression '&' equality_expression .
+   22 equality_expression: equality_expression . '=' '=' relational_expression
+   23                    | equality_expression . '!' '=' relational_expression
+
+    '='  shift, and go to state 55
+    '!'  shift, and go to state 56
+
+    $default  reduce using rule 20 (and_expression)
+
+
+state 79
+
+   22 equality_expression: equality_expression '=' '=' . relational_expression
+
+    error        shift, and go to state 1
+    IDENTIFIERS  shift, and go to state 39
+    LITERALS     shift, and go to state 2
+    OPEN_BRCKT   shift, and go to state 3
+    '!'          shift, and go to state 7
+    '+'          shift, and go to state 8
+    '-'          shift, and go to state 9
+    '~'          shift, and go to state 10
+    '('          shift, and go to state 11
+
+    primary                          go to state 12
+    primary_no_new_array             go to state 5
+    relational_expression            go to state 100
+    shift_expression                 go to state 23
+    additive_expression              go to state 24
+    multiplicative_expression        go to state 25
+    unary_expression                 go to state 26
+    pre_increment_expression         go to state 27
+    pre_decrement_expression         go to state 28
+    unary_expression_not_plus_minus  go to state 29
+    postfix_expression               go to state 30
+    expression_name                  go to state 41
+    ambigous_name                    go to state 32
+    post_increment_expression        go to state 33
+    post_decrement_expression        go to state 34
+    cast_expression                  go to state 35
+
+
+state 80
+
+   23 equality_expression: equality_expression '!' '=' . relational_expression
+
+    error        shift, and go to state 1
+    IDENTIFIERS  shift, and go to state 39
+    LITERALS     shift, and go to state 2
+    OPEN_BRCKT   shift, and go to state 3
+    '!'          shift, and go to state 7
+    '+'          shift, and go to state 8
+    '-'          shift, and go to state 9
+    '~'          shift, and go to state 10
+    '('          shift, and go to state 11
+
+    primary                          go to state 12
+    primary_no_new_array             go to state 5
+    relational_expression            go to state 101
+    shift_expression                 go to state 23
+    additive_expression              go to state 24
+    multiplicative_expression        go to state 25
+    unary_expression                 go to state 26
+    pre_increment_expression         go to state 27
+    pre_decrement_expression         go to state 28
+    unary_expression_not_plus_minus  go to state 29
+    postfix_expression               go to state 30
+    expression_name                  go to state 41
+    ambigous_name                    go to state 32
+    post_increment_expression        go to state 33
+    post_decrement_expression        go to state 34
+    cast_expression                  go to state 35
+
+
+state 81
+
+   27 relational_expression: relational_expression '<' '=' . shift_expression
+
+    error        shift, and go to state 1
+    IDENTIFIERS  shift, and go to state 39
+    LITERALS     shift, and go to state 2
+    OPEN_BRCKT   shift, and go to state 3
+    '!'          shift, and go to state 7
+    '+'          shift, and go to state 8
+    '-'          shift, and go to state 9
+    '~'          shift, and go to state 10
+    '('          shift, and go to state 11
+
+    primary                          go to state 12
+    primary_no_new_array             go to state 5
+    shift_expression                 go to state 102
+    additive_expression              go to state 24
+    multiplicative_expression        go to state 25
+    unary_expression                 go to state 26
+    pre_increment_expression         go to state 27
+    pre_decrement_expression         go to state 28
+    unary_expression_not_plus_minus  go to state 29
+    postfix_expression               go to state 30
+    expression_name                  go to state 41
+    ambigous_name                    go to state 32
+    post_increment_expression        go to state 33
+    post_decrement_expression        go to state 34
+    cast_expression                  go to state 35
+
+
+state 82
+
+   25 relational_expression: relational_expression '<' shift_expression .
+   30 shift_expression: shift_expression . '<' '<' additive_expression
+   31                 | shift_expression . '>' '>' additive_expression
+   32                 | shift_expression . '>' '>' '>' additive_expression
+
+    '<'  shift, and go to state 59
+    '>'  shift, and go to state 60
+
+    '<'       [reduce using rule 25 (relational_expression)]
+    '>'       [reduce using rule 25 (relational_expression)]
+    $default  reduce using rule 25 (relational_expression)
+
+
+state 83
+
+   28 relational_expression: relational_expression '>' '=' . shift_expression
+
+    error        shift, and go to state 1
+    IDENTIFIERS  shift, and go to state 39
+    LITERALS     shift, and go to state 2
+    OPEN_BRCKT   shift, and go to state 3
+    '!'          shift, and go to state 7
+    '+'          shift, and go to state 8
+    '-'          shift, and go to state 9
+    '~'          shift, and go to state 10
+    '('          shift, and go to state 11
+
+    primary                          go to state 12
+    primary_no_new_array             go to state 5
+    shift_expression                 go to state 103
+    additive_expression              go to state 24
+    multiplicative_expression        go to state 25
+    unary_expression                 go to state 26
+    pre_increment_expression         go to state 27
+    pre_decrement_expression         go to state 28
+    unary_expression_not_plus_minus  go to state 29
+    postfix_expression               go to state 30
+    expression_name                  go to state 41
+    ambigous_name                    go to state 32
+    post_increment_expression        go to state 33
+    post_decrement_expression        go to state 34
+    cast_expression                  go to state 35
+
+
+state 84
+
+   26 relational_expression: relational_expression '>' shift_expression .
+   30 shift_expression: shift_expression . '<' '<' additive_expression
+   31                 | shift_expression . '>' '>' additive_expression
+   32                 | shift_expression . '>' '>' '>' additive_expression
+
+    '<'  shift, and go to state 59
+    '>'  shift, and go to state 60
+
+    '<'       [reduce using rule 26 (relational_expression)]
+    '>'       [reduce using rule 26 (relational_expression)]
+    $default  reduce using rule 26 (relational_expression)
+
+
+state 85
+
+   30 shift_expression: shift_expression '<' '<' . additive_expression
+
+    error        shift, and go to state 1
+    IDENTIFIERS  shift, and go to state 39
+    LITERALS     shift, and go to state 2
+    OPEN_BRCKT   shift, and go to state 3
+    '!'          shift, and go to state 7
+    '+'          shift, and go to state 8
+    '-'          shift, and go to state 9
+    '~'          shift, and go to state 10
+    '('          shift, and go to state 11
+
+    primary                          go to state 12
+    primary_no_new_array             go to state 5
+    additive_expression              go to state 104
+    multiplicative_expression        go to state 25
+    unary_expression                 go to state 26
+    pre_increment_expression         go to state 27
+    pre_decrement_expression         go to state 28
+    unary_expression_not_plus_minus  go to state 29
+    postfix_expression               go to state 30
+    expression_name                  go to state 41
+    ambigous_name                    go to state 32
+    post_increment_expression        go to state 33
+    post_decrement_expression        go to state 34
+    cast_expression                  go to state 35
+
+
+state 86
+
+   31 shift_expression: shift_expression '>' '>' . additive_expression
+   32                 | shift_expression '>' '>' . '>' additive_expression
+
+    error        shift, and go to state 1
+    IDENTIFIERS  shift, and go to state 39
+    LITERALS     shift, and go to state 2
+    OPEN_BRCKT   shift, and go to state 3
+    '!'          shift, and go to state 7
+    '>'          shift, and go to state 105
+    '+'          shift, and go to state 8
+    '-'          shift, and go to state 9
+    '~'          shift, and go to state 10
+    '('          shift, and go to state 11
+
+    primary                          go to state 12
+    primary_no_new_array             go to state 5
+    additive_expression              go to state 106
+    multiplicative_expression        go to state 25
+    unary_expression                 go to state 26
+    pre_increment_expression         go to state 27
+    pre_decrement_expression         go to state 28
+    unary_expression_not_plus_minus  go to state 29
+    postfix_expression               go to state 30
+    expression_name                  go to state 41
+    ambigous_name                    go to state 32
+    post_increment_expression        go to state 33
+    post_decrement_expression        go to state 34
+    cast_expression                  go to state 35
+
+
+state 87
+
+   34 additive_expression: additive_expression '+' multiplicative_expression .
+   37 multiplicative_expression: multiplicative_expression . '*' unary_expression
+   38                          | multiplicative_expression . '&' unary_expression
+   39                          | multiplicative_expression . '/' unary_expression
+
+    '&'  shift, and go to state 63
+    '*'  shift, and go to state 64
+    '/'  shift, and go to state 65
+
+    '&'       [reduce using rule 34 (additive_expression)]
+    $default  reduce using rule 34 (additive_expression)
+
+
+state 88
+
+   35 additive_expression: additive_expression '-' multiplicative_expression .
+   37 multiplicative_expression: multiplicative_expression . '*' unary_expression
+   38                          | multiplicative_expression . '&' unary_expression
+   39                          | multiplicative_expression . '/' unary_expression
+
+    '&'  shift, and go to state 63
+    '*'  shift, and go to state 64
+    '/'  shift, and go to state 65
+
+    '&'       [reduce using rule 35 (additive_expression)]
+    $default  reduce using rule 35 (additive_expression)
+
+
+state 89
+
+   38 multiplicative_expression: multiplicative_expression '&' unary_expression .
+
+    $default  reduce using rule 38 (multiplicative_expression)
+
+
+state 90
+
+   37 multiplicative_expression: multiplicative_expression '*' unary_expression .
+
+    $default  reduce using rule 37 (multiplicative_expression)
+
+
+state 91
+
+   39 multiplicative_expression: multiplicative_expression '/' unary_expression .
+
+    $default  reduce using rule 39 (multiplicative_expression)
+
+
+state 92
+
+   59 post_increment_expression: postfix_expression '+' '+' .
+
+    $default  reduce using rule 59 (post_increment_expression)
+
+
+state 93
+
+   60 post_decrement_expression: postfix_expression '-' '-' .
+
+    $default  reduce using rule 60 (post_decrement_expression)
+
+
+state 94
+
+   56 expression_name: ambigous_name '.' IDENTIFIERS .
+   58 ambigous_name: ambigous_name '.' IDENTIFIERS .
+
+    '.'       reduce using rule 58 (ambigous_name)
+    $default  reduce using rule 56 (expression_name)
+
+
+state 95
+
+   62 assignment: left_hand_side ASSIGNMENT_OPERATORS expression .
+
+    $default  reduce using rule 62 (assignment)
+
+
+state 96
+
+   61 cast_expression: '(' PRIMITIVE_TYPE_KEYWORDS ')' unary_expression .
+
+    $default  reduce using rule 61 (cast_expression)
+
+
+state 97
+
+   10 condtional_expression: conditional_or_expression '?' expression ':' . condtional_expression
+
+    error        shift, and go to state 1
+    IDENTIFIERS  shift, and go to state 39
+    LITERALS     shift, and go to state 2
+    OPEN_BRCKT   shift, and go to state 3
+    '!'          shift, and go to state 7
+    '+'          shift, and go to state 8
+    '-'          shift, and go to state 9
+    '~'          shift, and go to state 10
+    '('          shift, and go to state 11
+
+    primary                          go to state 12
+    primary_no_new_array             go to state 5
+    condtional_expression            go to state 107
+    conditional_or_expression        go to state 16
+    conditional_and_expression       go to state 17
+    inclusive_or_expression          go to state 18
+    exclusive_or_expression          go to state 19
+    and_expression                   go to state 20
+    equality_expression              go to state 21
+    relational_expression            go to state 22
+    shift_expression                 go to state 23
+    additive_expression              go to state 24
+    multiplicative_expression        go to state 25
+    unary_expression                 go to state 26
+    pre_increment_expression         go to state 27
+    pre_decrement_expression         go to state 28
+    unary_expression_not_plus_minus  go to state 29
+    postfix_expression               go to state 30
+    expression_name                  go to state 41
+    ambigous_name                    go to state 32
+    post_increment_expression        go to state 33
+    post_decrement_expression        go to state 34
+    cast_expression                  go to state 35
+
+
+state 98
+
+   12 conditional_or_expression: conditional_or_expression '|' '|' conditional_and_expression .
+   14 conditional_and_expression: conditional_and_expression . '&' '&' inclusive_or_expression
+
+    '&'  shift, and go to state 51
+
+    $default  reduce using rule 12 (conditional_or_expression)
+
+
+state 99
+
+   14 conditional_and_expression: conditional_and_expression '&' '&' inclusive_or_expression .
+   16 inclusive_or_expression: inclusive_or_expression . '|' exclusive_or_expression
+
+    '|'  shift, and go to state 52
+
+    '|'       [reduce using rule 14 (conditional_and_expression)]
+    $default  reduce using rule 14 (conditional_and_expression)
+
+
+state 100
+
+   22 equality_expression: equality_expression '=' '=' relational_expression .
+   25 relational_expression: relational_expression . '<' shift_expression
+   26                      | relational_expression . '>' shift_expression
+   27                      | relational_expression . '<' '=' shift_expression
+   28                      | relational_expression . '>' '=' shift_expression
+
+    '<'  shift, and go to state 57
+    '>'  shift, and go to state 58
+
+    $default  reduce using rule 22 (equality_expression)
+
+
+state 101
+
+   23 equality_expression: equality_expression '!' '=' relational_expression .
+   25 relational_expression: relational_expression . '<' shift_expression
+   26                      | relational_expression . '>' shift_expression
+   27                      | relational_expression . '<' '=' shift_expression
+   28                      | relational_expression . '>' '=' shift_expression
+
+    '<'  shift, and go to state 57
+    '>'  shift, and go to state 58
+
+    $default  reduce using rule 23 (equality_expression)
+
+
+state 102
+
+   27 relational_expression: relational_expression '<' '=' shift_expression .
+   30 shift_expression: shift_expression . '<' '<' additive_expression
+   31                 | shift_expression . '>' '>' additive_expression
+   32                 | shift_expression . '>' '>' '>' additive_expression
+
+    '<'  shift, and go to state 59
+    '>'  shift, and go to state 60
+
+    '<'       [reduce using rule 27 (relational_expression)]
+    '>'       [reduce using rule 27 (relational_expression)]
+    $default  reduce using rule 27 (relational_expression)
+
+
+state 103
+
+   28 relational_expression: relational_expression '>' '=' shift_expression .
+   30 shift_expression: shift_expression . '<' '<' additive_expression
+   31                 | shift_expression . '>' '>' additive_expression
+   32                 | shift_expression . '>' '>' '>' additive_expression
+
+    '<'  shift, and go to state 59
+    '>'  shift, and go to state 60
+
+    '<'       [reduce using rule 28 (relational_expression)]
+    '>'       [reduce using rule 28 (relational_expression)]
+    $default  reduce using rule 28 (relational_expression)
+
+
+state 104
+
+   30 shift_expression: shift_expression '<' '<' additive_expression .
+   34 additive_expression: additive_expression . '+' multiplicative_expression
+   35                    | additive_expression . '-' multiplicative_expression
+
+    '+'  shift, and go to state 61
+    '-'  shift, and go to state 62
+
+    $default  reduce using rule 30 (shift_expression)
+
+
+state 105
+
+   32 shift_expression: shift_expression '>' '>' '>' . additive_expression
+
+    error        shift, and go to state 1
+    IDENTIFIERS  shift, and go to state 39
+    LITERALS     shift, and go to state 2
+    OPEN_BRCKT   shift, and go to state 3
+    '!'          shift, and go to state 7
+    '+'          shift, and go to state 8
+    '-'          shift, and go to state 9
+    '~'          shift, and go to state 10
+    '('          shift, and go to state 11
+
+    primary                          go to state 12
+    primary_no_new_array             go to state 5
+    additive_expression              go to state 108
+    multiplicative_expression        go to state 25
+    unary_expression                 go to state 26
+    pre_increment_expression         go to state 27
+    pre_decrement_expression         go to state 28
+    unary_expression_not_plus_minus  go to state 29
+    postfix_expression               go to state 30
+    expression_name                  go to state 41
+    ambigous_name                    go to state 32
+    post_increment_expression        go to state 33
+    post_decrement_expression        go to state 34
+    cast_expression                  go to state 35
+
+
+state 106
+
+   31 shift_expression: shift_expression '>' '>' additive_expression .
+   34 additive_expression: additive_expression . '+' multiplicative_expression
+   35                    | additive_expression . '-' multiplicative_expression
+
+    '+'  shift, and go to state 61
+    '-'  shift, and go to state 62
+
+    $default  reduce using rule 31 (shift_expression)
+
+
+state 107
+
+   10 condtional_expression: conditional_or_expression '?' expression ':' condtional_expression .
+
+    $default  reduce using rule 10 (condtional_expression)
+
+
+state 108
+
+   32 shift_expression: shift_expression '>' '>' '>' additive_expression .
+   34 additive_expression: additive_expression . '+' multiplicative_expression
+   35                    | additive_expression . '-' multiplicative_expression
+
+    '+'  shift, and go to state 61
+    '-'  shift, and go to state 62
+
+    $default  reduce using rule 32 (shift_expression)
