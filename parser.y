@@ -211,6 +211,196 @@ variable_initializer
             :   expression
             |   array_initializer
 
+//vartika-Productions from §9 (Interfaces)
+
+InterfaceDeclaration
+            :   normal_interface_declaration
+            |   annotation_interface_declaration 
+
+normal_interface_declaration
+            :   interface_modifier_zero_or_more INTERFACE_KEYWORD type_identifier type_parameters_zero_or_one interface_extends_zero_or_one interface_permits_zero_or_one interface_body
+type_identifier
+            : IDENTIFIERS //but not permits, record, sealed, var, or yield ...need to edit
+
+interface_modifier_zero_or_more
+            :  
+            |   interface_modifier interface_modifier_zero_or_more
+
+type_parameters_zero_or_one
+            :
+            | type_parameters //shreyasi
+
+type_parameter
+            :type_parameter_modifier_zero_or_more type_identifier type_bound_zero_or_one
+
+type_parameter_modifier_zero_or_more
+            :
+            | type_parameter_modifier type_parameter_modifier_zero_or_more
+
+type_parameter_modifier
+            : annotation //defined by Shreyasi
+
+type_bound_zero_or_one
+            :
+            | type_bound 
+type_bound
+        : EXTENDS_KEYWORD type_variable
+        | EXTENDS_KEYWORD class_or_interface_type additional_bound_zero_or_more
+
+type_variable
+        : annotation_zero_or_more type_identifier
+
+annotation_zero_or_more
+        : 
+        | annotation annotation_zero_or_more
+
+additional_bound_zero_or_more
+        :
+        | additional_bound additional_bound_zero_or_more
+
+additional_bound
+        : '&' interface_type
+
+interface_type
+        : class_type
+
+class_type
+        : annotation_zero_or_more type_identifier type_arguments_zero_or_one
+        | package_name '.' annotation_zero_or_more type_identifier type_arguments_zero_or_one
+        | class_or_interface_type '.' annotation_zero_or_more type_identifier type_arguments_zero_or_one
+
+package_name
+        : IDENTIFIERS
+        | package_name '.' IDENTIFIERS
+
+type_arguments_zero_or_one
+                        :
+                        | type_arguments
+
+type_arguments
+            :'<' type_argument_list '>'
+
+type_argument_list
+            : type_argument comma_type_arguement_zero_or_more
+
+comma_type_arguement_zero_or_more
+                                 : 
+                                 | ',' type_argument comma_type_arguement_zero_or_more
+type_argument
+          : reference_type
+          | wild_card
+
+wild_card
+      : annotation_zero_or_more '?' wild_card_bounds_zero_or_one
+
+wild_card_bounds_zero_or_one
+                        :
+                        | wild_card_bounds
+    
+wild_card_bounds
+            : EXTENDS_KEYWORD reference_type
+            | SUPER_KEYWORD reference_type
+
+reference_type
+            : class_or_interface_type
+            |type_variable
+            | array_type
+array_type
+        : primitive_type dims
+        | class_or_interface_type dims
+        | type_variable dims
+interface_extends_zero_or_one
+            :
+            | interface_extends
+
+interface_permits_zero_or_one
+            :
+            | interface_permits
+
+interface_modifier
+            :'(' OR_OP ')'
+            | annotation PUBLIC_KEYWORD PROTECTED_KEYWORD PRIVATE_KEYWORD
+            | ABSTRACT_KEYWORD STATIC_KEYWORD SEALED_KEYWORD NONSEALED_KEYWORD STRICTFP_KEYWORD
+
+interface_extends
+            :
+            | EXTENDS_KEYWORD interface_type_list //shreyasi
+
+interface_permits
+            : PERMITS_KEYWORD type_name comma_type_name_zero_or_more //type_name : deepak
+
+comma_type_name_zero_or_more
+            :
+            | ',' type_name comma_type_name_zero_or_more
+
+interface_body
+        : '{' interface_member_decleration_zero_or_more '}'
+
+interface_member_decleration_zero_or_more
+                                    :
+                                    | interface_member_decleration interface_member_decleration_zero_or_more
+
+interface_member_decleration
+                        : constant_declaration
+                        | interface_method_declaration
+                        | class_declaration //shreyasi
+                        | interface_declaration
+
+constant_declaration
+                : constant_modifier_zero_or_more unann_type variable_declarator_list //unann shreyasi
+
+constant_modifier_zero_or_more
+                            :
+                            | constant_modifier constant_modifier_zero_or_more
+
+constant_modifier
+               :'(' OR_OP ')'
+               | annotation PUBLIC_KEYWORD 
+               |STATIC_KEYWORD FINAL_KEYWORD
+
+interface_method_declaration
+                        : interface_method_modifier_zero_or_more method_header method_body 
+
+interface_method_modifier_zero_or_more
+                                    :
+                                    | interface_method_modifier interface_method_modifier_zero_or_more            
+
+interface_method_modifier
+                      : '(' OR_OP ')'
+                      | annotation PUBLIC_KEYWORD PRIVATE_KEYWORD
+                      | ABSTRACT_KEYWORD DEFAULT_KEYWORD STATIC_KEYWORD STRICTFP_KEYWORD
+
+annotation_interface_declaration
+                            : interface_modifier_zero_or_more '@' INTERFACE_KEYWORD type_identifier annotation_interface_body  
+
+annotation_interface_body
+                    :'{' annotation_interface_member_declaration '}'
+
+annotation_interface_member_declaration
+                                    : annotation_interface_element_declaration
+                                    | constant_declaration
+                                    | class_declaration
+                                    | interface_declaration
+
+annotation_interface_element_declaration
+                                    : annotation_interface_element_modifier_zero_or_more Unann_type IDENTIFIERS '(' ')' dims_zero_or_one default_value_zero_or_one
+
+annotation_interface_element_modifier_zero_or_more
+                                            :
+                                            | annotation_interface_element_modifier annotation_interface_element_modifier_zero_or_more
+default_value_zero_or_one
+                        :
+                        | default_value  
+
+annotation_interface_element_modifier
+                                :'(' OR_OP ')'
+                                | annotation PUBLIC_KEYWORD
+                                | ABSTRACT_KEYWORD
+
+default_value
+          : DEFAULT_KEYWORD element_value   
+                                         
+//vartika-Productions from §9 (Interfaces)
 
 
 
