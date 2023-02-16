@@ -18,7 +18,6 @@ JAVA_LETTER                 [a-zA-Z]|{UNDERSCORE}
 LINE_TERMINATOR             [\n\r]
 BLANK_SPACE                 [ \t\f]
 
-PRIMITIVE_TYPE_KEYWORD      "byte"|"short"|"int"|"long"|"char"|"float"|"double"|"boolean"
 IDENTIFIER                  {JAVA_LETTER}{JAVA_LETTER_OR_DIGIT}*
 
 NUM_LITERALS                {INT_LITERAL}|{FLOAT_LITERAL}|{BOOL_LITERAL}|{NULL_LITERAL}
@@ -185,6 +184,8 @@ OCTAL_EXCAPE                \\{OCTAL_DIGIT}|\\{OCTAL_DIGIT}{OCTAL_DIGIT}|\\[0-3]
 "@"                     {return('@');}
 "::"                    {return(DOUBLE_COLON);}
 
+"[]"                     {return(EMPTY_ARRAY);}
+
 "/*"                        {BEGIN(comment);}
 <comment>[^*\n]+            {}
 <comment>"*"+[^*/\n]*       {}
@@ -214,7 +215,6 @@ OCTAL_EXCAPE                \\{OCTAL_DIGIT}|\\{OCTAL_DIGIT}{OCTAL_DIGIT}|\\[0-3]
 <text_block_chars>["]["]["]                 {BEGIN(INITIAL); char* temp = strdup(yytext); endBuffer(temp); return LITERALS;}
 
 {NUM_LITERALS}              {return LITERALS;}
-{PRIMITIVE_TYPE_KEYWORD}    {return PRIMITIVE_TYPE_KEYWORDS;}
 {IDENTIFIER}                {return IDENTIFIERS;}
 
 {BLANK_SPACE}+              {}
