@@ -152,6 +152,7 @@ OCTAL_EXCAPE                \\{OCTAL_DIGIT}|\\{OCTAL_DIGIT}{OCTAL_DIGIT}|\\[0-3]
 "="                     {return('=');}
 ">"                     {return('>');}
 "<"                     {return('<');}
+"<>"                    {return(DIAMOND);}
 "!"                     {return('!');}
 "~"                     {return('~');}
 "?"                     {return('?');}
