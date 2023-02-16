@@ -206,6 +206,23 @@ variable_initializer
             :   expression
             |   array_initializer
 
+//vartika-Productions from §9 (Interfaces)
+
+InterfaceDeclaration
+            :   normal_interface_declaration
+            |   annotation_interface_declaration 
+
+normal_interface_declaration
+            :   interface_modifier_zero_or_more INTERFACE_KEYWORD type_identifier type_parameters_zero_or_one interface_extends_zero_or_one interface_permits_zero_or_one interface_body
+
+interface_modifier_zero_or_more
+            :  
+            |   interface_modifier
+interface_modifier
+            :'(' OR_OP ')'
+            | annotation PUBLIC_KEYWORD PROTECTED_KEYWORD PRIVATE_KEYWORD
+            | ABSTRACT_KEYWORD STATIC_KEYWORD  STRICTFP_KEYWORD
+//vartika-Productions from §9 (Interfaces)
 
 %%
 
