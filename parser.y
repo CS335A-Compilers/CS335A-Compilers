@@ -19,9 +19,108 @@
 %token EXPORTS_KEYWORD OPENS_KEYWORD REQUIRES_KEYWORD USES_KEYWORD MODULE_KEYWORD PERMITS_KEYWORD SEALED_KEYWORD VAR_KEYWORD NONSEALED_KEYWORD PROVIDES_KEYWORD TO_KEYWORD WITH_KEYWORD OPEN_KEYWORD RECORD_KEYWORD TRANSITIVE_KEYWORD YIELD_KEYWORD
 %token IDENTIFIERS  LITERALS  PTR_OP EQ_OP GE_OP  LE_OP  NE_OP  AND_OP  OR_OP  INC_OP  DEC_OP  LEFT_OP  RIGHT_OP  BIT_RIGHT_SHFT_OP ADD_ASSIGN  SUB_ASSIGN  MUL_ASSIGN  DIV_ASSIGN  AND_ASSIGN  OR_ASSIGN  XOR_ASSIGN  MOD_ASSIGN  LEFT_ASSIGN  RIGHT_ASSIGN  BIT_RIGHT_SHFT_ASSIGN  ELLIPSIS  DOUBLE_COLON
 
-%token EMPTY_ARRAY
+%token EMPTY_ARRAY DIAMOND
 
 %%
+
+//  ########   COMPILATION UNIT   ########  
+
+compilation_unit
+            :   ordinary_compilation_unit
+            |   modular_compilation_unit
+
+ordinary_compilation_unit
+            :   package_declaration_zero_or_one import_declaration_zero_or_more top_level_class_or_interface_declaration_zero_or_more
+
+package_declaration_zero_or_one
+            :
+            |   package_declaration
+
+import_declaration_zero_or_more
+            :   
+            |   import_declaration import_declaration_zero_or_more
+
+top_level_class_or_interface_declaration_zero_or_more
+            :
+            |   top_level_class_or_interface_declaration top_level_class_or_interface_declaration_zero_or_more
+
+modular_compilation_unit
+            :   
+            |   import_declaration_zero_or_more module_declaration
+
+package_declaration
+            :   package_modifier_zero_or_more PACKAGE_KEYWORD IDENTIFIERS dot_identifier_zero_or_more ';'
+
+dot_identifier_zero_or_more
+            :
+            |   '.' IDENTIFIERS dot_identifier_zero_or_more
+
+package_modifier_zero_or_more
+            :   
+            |   package_modifier package_modifier_zero_or_more
+
+package_modifier
+            :   annotation
+
+import_declaration
+            :   single_type_import_declaration
+            |   type_import_on_demand_declaration
+            |   single_static_import_declaration
+            |   static_import_on_demand_declaration
+
+single_type_import_declaration
+            :   IMPORT_KEYWORD type_name ';'
+
+type_import_on_demand_declaration
+            :   IMPORT_KEYWORD package_or_type_name '.' '*' ';'                         {/* may not work */}
+
+single_static_import_declaration
+            :   IMPORT_KEYWORD STATIC_KEYWORD type_name '.' IDENTIFIERS ';'
+
+static_import_on_demand_declaration
+            :   IMPORT_KEYWORD STATIC_KEYWORD type_name '.' '*' ';'
+
+top_level_class_or_interface_declaration
+            :   class_declaration
+            |   interface_declaration
+            |   ';'
+
+module_declaration
+            :   annotation_zero_or_more OPEN_zero_or_one MODULE_KEYWORD IDENTIFIERS dot_identifier_zero_or_more '{' module_directive '}'
+
+OPEN_zero_or_one
+            :
+            |   OPEN_KEYWORD
+
+module_directive
+            :   REQUIRES_KEYWORD requires_modifier_zero_or_more module_name ';'
+            |   EXPORTS_KEYWORD package_name ';'
+            |   EXPORTS_KEYWORD package_name TO_KEYWORD module_name comma_module_name_zero_or_more ';'
+            |   OPENS_KEYWORD package_name ';'
+            |   OPENS_KEYWORD package_name TO_KEYWORD module_name comma_module_name_zero_or_more ';'
+            |   USES_KEYWORD type_name ';'
+            |   PROVIDES_KEYWORD type_name WITH_KEYWORD type_name comma_type_name_zero_or_more ';'
+
+comma_type_name_zero_or_more
+            :   
+            |   ',' type_name comma_type_name_zero_or_more 
+
+comma_module_name_zero_or_more
+            :
+            |   ',' module_name comma_module_name_zero_or_more
+
+requires_modifier_zero_or_more
+            :   
+            |   requires_modifier requires_modifier_zero_or_more
+
+requires_modifier
+            :   TRANSIENT_KEYWORD
+            |   STATIC_KEYWORD
+
+module_name
+            :   IDENTIFIERS
+            |   module_name '.' IDENTIFIERS
+
 //  ########   EXPRESSIONS   ########  
 
 primary
@@ -30,12 +129,20 @@ primary
 
 primary_no_new_array
             :   LITERALS
+            |   class_literal
+            |   THIS_KEYWORD
+            |   type_name '.' THIS_KEYWORD
             |   '(' expression ')'
+            |   class_instance_creation_expression
+//            |   field_access
+//            |   array_access
+//            |   method_invocation
+//            |   method_reference
 
 expression
             :   assignment_expression
             |   IDENTIFIERS
-//            |   lambda_expression
+            |   lambda_expression
 
 assignment_expression
             :   condtional_expression
@@ -114,7 +221,7 @@ unary_expression_not_plus_minus
             |   '~' unary_expression
             |   '!' unary_expression
             |   cast_expression
-//            |   switch_expression
+            |   switch_expression
 
 postfix_expression
             :   primary
@@ -139,8 +246,77 @@ post_decrement_expression
 cast_expression
             :   '(' primitive_type ')' unary_expression
 
+switch_expression
+            :   SWITCH_KEYWORD '(' expression ')' switch_block
+
+switch_block
+            :   '{' switch_rule_zero_or_more switch_rule_zero_or_more '}'
+            |   '{' switch_block_statement_group_zero_or_more switch_label_colon_zero_or_more '}'
+
+switch_rule_zero_or_more
+            :   
+            |   switch_rule switch_rule_zero_or_more
+
+ switch_block_statement_group_zero_or_more
+            :   
+            |   switch_block_statement_group switch_block_statement_group_zero_or_more
+
+switch_label_colon_zero_or_more
+            :
+            |   switch_label ':' switch_label_colon_zero_or_more 
+
+switch_rule
+            :   switch_label PTR_OP expression ';'
+            |   switch_label block
+            |   switch_label throw_statement
+
+switch_block_statement_group
+            :   switch_label ':' switch_label_colon_zero_or_more block_statements
+
+switch_label
+            :   CASE_KEYWORD case_constant comma_case_constant_zero_or_more
+
+comma_case_constant_zero_or_more
+            :   
+            |   ',' case_constant comma_case_constant_zero_or_more
+
+case_constant
+            :   condtional_expression
+
+class_instance_creation_expression
+            :   unqualified_class_instance_creation_expression
+            |   expression_name '.' unqualified_class_instance_creation_expression
+            |   primary '.' unqualified_class_instance_creation_expression
+
+unqualified_class_instance_creation_expression
+            :   NEW_KEYWORD type_arguments_zero_or_one class_or_interface_type_to_instantiate '(' argument_list_zero_or_one ')' class_body_zero_or_one
+
+type_arguments_zero_or_one
+            :   
+            |   type_arguments
+
+argument_list 
+            :   expression comma_expression_zero_or_more
+
+comma_expression_zero_or_more
+            :   
+            |   ',' expression comma_expression_zero_or_more
+            
+
+class_or_interface_type_to_instantiate
+            :   annotation_zero_or_more IDENTIFIERS dot_annotation_identifier_zero_or_more type_arguments_or_diamond
+
+type_arguments_or_diamond
+            :
+            |   type_arguments
+            |   DIAMOND
+
+dot_annotation_identifier_zero_or_more
+            :
+            |   '.' annotation_zero_or_more IDENTIFIERS dot_annotation_identifier_zero_or_more
+
 assignment
-            :   left_hand_side ASSIGNMENT_OPERATORS expression
+            :   left_hand_side ASSIGNMENT_OPERATORS expression 
 
 ASSIGNMENT_OPERATORS 
             :  '='
@@ -164,8 +340,8 @@ left_hand_side
 array_creation_expression
             :   NEW_KEYWORD primitive_type dim_exprs dims_zero_or_one
             |   NEW_KEYWORD primitive_type dims array_initializer
-//            |   NEW_KEYWORD class_or_interface_type dim_exprs dims_zero_or_more               {/* VARTIKA DOING class_or_interface_type */}
-//            |   NEW_KEYWORD class_or_interface_type dims array_initializer                    {/* VARTIKA DOING class_or_interface_type */}
+//            |   NEW_KEYWORD class_or_interface_type dim_exprs dims_zero_or_more               {/* Someone DOING class_or_interface_type */}
+//            |   NEW_KEYWORD class_or_interface_type dims array_initializer                    {/* Someone DOING class_or_interface_type */}
 
 dims_zero_or_one
             :
@@ -176,13 +352,72 @@ dim_exprs
             |   dim_expr dim_exprs
 
 dim_expr    
-            :  '[' expression ']'
+            :  annotation_zero_or_more '[' expression ']'
 
 dims 
-            :  EMPTY_ARRAY                                                                      {/*  Rule not working :( */}
-            |  EMPTY_ARRAY dims
+            :  annotation_zero_or_more EMPTY_ARRAY                                                                      {/*  Rule not working :( */}
+            |  annotation_zero_or_more EMPTY_ARRAY dims
 
 primitive_type
+            :   annotation_zero_or_more numeric_type
+            |   annotation_zero_or_more BOOLEAN_KEYWORD
+
+annotation_zero_or_more
+            :   
+            |   annotation annotation_zero_or_more
+
+annotation
+            :   normal_annotation
+            |   marker_annotation
+            |   single_element_annotation
+
+normal_annotation
+            :   '@' type_name '(' element_value_pair_list_zero_or_one ')'
+
+element_value_pair_list_zero_or_one
+            :   
+            |   element_value_pair_list
+
+element_value_pair_list
+            :   element_value_pair comma_element_value_pair_zero_or_more
+
+comma_element_value_pair_zero_or_more
+            :   
+            |   ',' element_value_pair comma_element_value_pair_zero_or_more
+
+element_value_pair
+            :   IDENTIFIERS '=' element_value
+
+element_value
+            :   condtional_expression
+            |   element_value_array_initializer
+            |   annotation
+
+element_value_array_initializer
+            :   '{' element_value_list_zero_or_one comma_zero_or_one '}'
+
+element_value_list_zero_or_one
+            :   
+            |   element_value_list
+
+comma_zero_or_one
+            :   
+            |   ','
+
+element_value_list
+            :   element_value comma_element_value_zero_or_more
+
+comma_element_value_zero_or_more
+            :   
+            |   ',' element_value comma_element_value_zero_or_more
+
+marker_annotation
+            :   '@' type_name
+
+single_element_annotation
+            :   '@' type_name '(' element_value ')'
+
+numeric_type
             :   BYTE_KEYWORD
             |   SHORT_KEYWORD
             |   INT_KEYWORD
@@ -190,7 +425,6 @@ primitive_type
             |   CHAR_KEYWORD
             |   FLOAT_KEYWORD
             |   DOUBLE_KEYWORD
-            |   BOOLEAN_KEYWORD
 
 array_initializer
             :   '{' variable_initializer_list_zero_or_more commas_zero_or_more '}' 
@@ -211,7 +445,72 @@ variable_initializer
             :   expression
             |   array_initializer
 
-//vartika-Productions from §9 (Interfaces)
+lambda_expression
+            :   lambda_parameters PTR_OP lambda_body
+
+lambda_parameters
+            :   '(' lambda_parameter_list_zero_or_more ')'
+            |   IDENTIFIERS
+
+lambda_parameter_list_zero_or_one
+            :   
+            |   lambda_parameter_list
+
+lambda_parameter_list
+            :   lambda_parameter comma_lambda_parameter_zero_or_more
+            |   IDENTIFIERS comma_identifiers_zero_or_more
+
+comma_identifiers_zero_or_more
+            :   
+            |   ',' IDENTIFIERS comma_identifiers_zero_or_more
+
+comma_lambda_parameter_zero_or_more
+            :   
+            |   ',' lambda_parameter comma_lambda_parameter_zero_or_more
+
+lambda_parameter
+            :   variable_modifier_zero_or_more lambda_parameter_type variable_declarator_id
+            |   variable_arity_parameter
+
+variable_arity_parameter
+            :   variable_modifier_zero_or_more unann_type annotation_zero_or_more ELLIPSIS IDENTIFIERS
+
+variable_modifier_zero_or_more
+            :
+            |   variable_modifier variable_modifier_zero_or_more
+            
+variable_modifier
+            :   annotation
+            |   FINAL_KEYWORD
+
+variable_declarator_list
+            :   IDENTIFIERS dims_zero_or_one
+
+lambda_body
+            :   expression
+            |   block
+
+class_literal
+            :   type_name empty_array_zero_or_more '.' CLASS_KEYWORD
+            |   numeric_type empty_array_zero_or_more '.' CLASS_KEYWORD
+            |   BOOLEAN_KEYWORD empty_array_zero_or_more '.' CLASS_KEYWORD
+            |   VOID_KEYWORD empty_array_zero_or_more '.' CLASS_KEYWORD
+
+empty_array_zero_or_more
+            :   
+            |   EMPTY_ARRAY
+
+type_name
+            :   type_identifier
+            |   package_or_type_name '.' type_identifier
+
+package_or_type_name
+            :   IDENTIFIERS
+            |   package_or_type_name '.' IDENTIFIERS
+            
+            
+
+// ########   INTERFACES   ########  
 
 InterfaceDeclaration
             :   normal_interface_declaration
@@ -400,7 +699,6 @@ annotation_interface_element_modifier
 default_value
           : DEFAULT_KEYWORD element_value   
                                          
-//vartika-Productions from §9 (Interfaces)
 
 
 
@@ -491,7 +789,7 @@ statement_expression
         |  pre_decrement_expression
         |  post_increment_expression
         |  post_decrement_expression
-        |  method_invocation
+        // |  method_invocation
         |  class_instance_creation_expression
 
 if_then_statement
@@ -947,11 +1245,11 @@ explicit_constructor_invocation
         |  expression_name '.' type_arguments_zero_or_one SUPER_KEYWORD '(' argument_list_zero_or_one ')' ';'
         |  primary '.' type_arguments_zero_or_one SUPER_KEYWORD '(' argument_list_zero_or_one ')' ';'
 
-
 argument_list_zero_or_one
         : 
         |  argument_list
    
+
 %%
 
 int main(){
