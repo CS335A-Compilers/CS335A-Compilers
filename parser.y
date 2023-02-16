@@ -24,8 +24,7 @@
 
 primary
             :   primary_no_new_array
-            |   error
-//            |   array_creation_expression
+            |   array_creation_expression
 
 primary_no_new_array
             :   LITERALS
@@ -159,6 +158,56 @@ left_hand_side
             :   expression_name
 //            |   array_access
 //            |   field_access
+
+array_creation_expression
+            :   NEW_KEYWORD primitive_type dim_exprs dims_zero_or_one
+            |   NEW_KEYWORD primitive_type dims array_initializer
+//            |   NEW_KEYWORD class_or_interface_type dim_exprs dims_zero_or_more               {/* VARTIKA DOING class_or_interface_type */}
+//            |   NEW_KEYWORD class_or_interface_type dims array_initializer                    {/* VARTIKA DOING class_or_interface_type */}
+
+dims_zero_or_one
+            :
+            |   dims
+
+dim_exprs
+            :   dim_expr
+            |   dim_expr dim_exprs
+
+dim_expr    
+            :  '[' expression ']'
+
+dims 
+            :  '[' ']'                                                                      {/*  Rule not working :( */}
+            |  '[' ']' dims
+
+primitive_type
+            :   BYTE_KEYWORD
+            |   SHORT_KEYWORD
+            |   INT_KEYWORD
+            |   LONG_KEYWORD
+            |   CHAR_KEYWORD
+            |   FLOAT_KEYWORD
+            |   DOUBLE_KEYWORD
+            |   BOOLEAN_KEYWORD
+
+array_initializer
+            :   '{' variable_initializer_list_zero_or_more zero_or_more_commas '}' 
+
+variable_initializer_list_zero_or_more
+            :   
+            |   variable_initializer_list
+
+zero_or_more_commas
+            :  
+            |   ','
+
+variable_initializer_list
+            :   variable_initializer 
+            |   variable_initializer ',' variable_initializer_list
+
+variable_initializer
+            :   expression
+            |   array_initializer
 
 
 %%
