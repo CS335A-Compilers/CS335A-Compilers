@@ -192,11 +192,11 @@ array_initializer
 
 variable_initializer_list_zero_or_more
             :   
-            |   variable_initializer_list
+            |   variable_initializer_list variable_initializer_list_zero_or_more
 
 zero_or_more_commas
             :  
-            |   ','
+            |   ',' zero_or_more_commas
 
 variable_initializer_list
             :   variable_initializer 
@@ -205,6 +205,7 @@ variable_initializer_list
 variable_initializer
             :   expression
             |   array_initializer
+
 
 
 %%
