@@ -141,7 +141,7 @@ OCTAL_EXCAPE                \\{OCTAL_DIGIT}|\\{OCTAL_DIGIT}{OCTAL_DIGIT}|\\[0-3]
 "permits"               {return(PERMITS_KEYWORD);}
 "sealed"               {return(SEALED_KEYWORD);}
 "var"               {return(VAR_KEYWORD);}
-"non-sealed"               {return(NON-SEALED_KEYWORD);}
+"non-sealed"               {return(NONSEALED_KEYWORD);}
 "provides"               {return(PROVIDES_KEYWORD);}
 "to"               {return(TO_KEYWORD);}
 "with"               {return(WITH_KEYWORD);}
