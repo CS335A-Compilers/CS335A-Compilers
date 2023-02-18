@@ -21,11 +21,17 @@
 
 %token EMPTY_ARRAY DIAMOND
 
+%left AND_OP 
+%left OR_OP
+%left EQ_OP NE_OP
+%left RIGHT_OP LEFT_OP
+%left INC_OP DEC_OP
+
 %%
 
 //  ########   COMPILATION UNIT   ########  
 
-compilation_unit
+compilation_unit            
             :   ordinary_compilation_unit
             |   modular_compilation_unit
 
@@ -81,7 +87,7 @@ static_import_on_demand_declaration
             :   IMPORT_KEYWORD STATIC_KEYWORD type_name '.' '*' ';'
 
 top_level_class_or_interface_declaration
-            :   class_declaration
+            :   class_declaration                   
             |   interface_declaration
             |   ';'
 
@@ -134,14 +140,21 @@ primary_no_new_array
             |   type_name '.' THIS_KEYWORD
             |   '(' expression ')'
             |   class_instance_creation_expression
+            |   method_invocation
 //            |   field_access
 //            |   array_access
-//            |   method_invocation
 //            |   method_reference
+
+method_invocation
+            :   IDENTIFIERS '(' argument_list_zero_or_one ')'
+            |   type_name '.' type_arguments_zero_or_one IDENTIFIERS '(' argument_list_zero_or_one ')'            
+            |   expression_name '.' type_arguments_zero_or_one IDENTIFIERS '(' argument_list_zero_or_one ')'
+            |   primary '.' type_arguments_zero_or_one IDENTIFIERS '(' argument_list_zero_or_one ')'
+            |   SUPER_KEYWORD '.' type_arguments_zero_or_one IDENTIFIERS '(' argument_list_zero_or_one ')'
+            |   type_name '.' SUPER_KEYWORD '.' type_arguments_zero_or_one IDENTIFIERS '(' argument_list_zero_or_one ')'
 
 expression
             :   assignment_expression
-            |   IDENTIFIERS
             |   lambda_expression
 
 assignment_expression
@@ -238,8 +251,11 @@ expression_name
             |   ambigous_name '.' IDENTIFIERS
 
 ambigous_name
-            :   IDENTIFIERS
-            |   ambigous_name '.' IDENTIFIERS
+            :   IDENTIFIERS ambigous_name_right
+
+ambigous_name_right
+            :   /* empty */
+            |   '.' ambigous_name
 
 post_increment_expression
             :   postfix_expression INC_OP
@@ -513,8 +529,8 @@ empty_array_zero_or_more
             |   EMPTY_ARRAY
 
 type_name
-            :   type_identifier
-            |   package_or_type_name '.' type_identifier
+            :   IDENTIFIERS
+            |   package_or_type_name '.' IDENTIFIERS
 
 package_or_type_name
             :   IDENTIFIERS
@@ -529,9 +545,7 @@ interface_declaration
             |   annotation_interface_declaration 
 
 normal_interface_declaration
-            :   interface_modifier_zero_or_more INTERFACE_KEYWORD type_identifier type_parameters_zero_or_one interface_extends_zero_or_one interface_permits_zero_or_one interface_body
-type_identifier
-            : IDENTIFIERS 
+            :   interface_modifier_zero_or_more INTERFACE_KEYWORD IDENTIFIERS type_parameters_zero_or_one interface_extends_zero_or_one interface_permits_zero_or_one interface_body
 
 interface_modifier_zero_or_more
             :  /* empty */ 
@@ -542,7 +556,7 @@ type_parameters_zero_or_one
             |   type_parameters 
 
 type_parameter
-            :   type_parameter_modifier_zero_or_more type_identifier type_bound_zero_or_one
+            :   type_parameter_modifier_zero_or_more IDENTIFIERS type_bound_zero_or_one
 
 type_parameter_modifier_zero_or_more
             :   /* empty */ 
@@ -559,7 +573,7 @@ type_bound
             |   EXTENDS_KEYWORD class_or_interface_type additional_bound_zero_or_more
 
 type_variable
-        : annotation_zero_or_more type_identifier
+        : annotation_zero_or_more IDENTIFIERS
 
 annotation_zero_or_more
         : /* empty */ 
@@ -580,9 +594,9 @@ interface_type
         : class_type
 
 class_type
-        : annotation_zero_or_more type_identifier type_arguments_zero_or_one
-        | package_name '.' annotation_zero_or_more type_identifier type_arguments_zero_or_one
-        | class_or_interface_type '.' annotation_zero_or_more type_identifier type_arguments_zero_or_one
+        : annotation_zero_or_more IDENTIFIERS type_arguments_zero_or_one
+        | package_name '.' annotation_zero_or_more IDENTIFIERS type_arguments_zero_or_one
+        | class_or_interface_type '.' annotation_zero_or_more IDENTIFIERS type_arguments_zero_or_one
 
 package_name
         : IDENTIFIERS
@@ -686,7 +700,7 @@ interface_method_modifier
                       | ABSTRACT_KEYWORD DEFAULT_KEYWORD STATIC_KEYWORD STRICTFP_KEYWORD
 
 annotation_interface_declaration
-                            : interface_modifier_zero_or_more '@' INTERFACE_KEYWORD type_identifier annotation_interface_body  
+                            : interface_modifier_zero_or_more '@' INTERFACE_KEYWORD IDENTIFIERS annotation_interface_body  
 
 annotation_interface_body
                     :   '{' annotation_interface_member_declaration '}'
@@ -720,7 +734,7 @@ default_value
 //  ########   BLOCKS, STATEMENTS AND PATTERNS   ########  
 
 block
-        :   '{' block_statements_zero_or_one '}'
+        :   '{' block_statements_zero_or_one '}'                        {}
 
 block_statements_zero_or_one
         :   /* empty */ 
@@ -810,7 +824,7 @@ statement_expression
         |  pre_decrement_expression
         |  post_increment_expression
         |  post_decrement_expression
-        // |  method_invocation
+        |  method_invocation
         |  class_instance_creation_expression
 
 if_then_statement
@@ -973,7 +987,7 @@ class_declaration
         // |  record_declaration
 
 normal_class_declaration
-        :  class_modifier_zero_or_more CLASS_KEYWORD type_identifier type_parameters_zero_or_one
+        :  class_modifier_zero_or_more CLASS_KEYWORD IDENTIFIERS type_parameters_zero_or_one                
         |  class_extends_zero_or_one class_implements_zero_or_one class_permits_zero_or_one class_body
 
 class_modifier_zero_or_more
@@ -1053,7 +1067,7 @@ class_body_declaration
 
 class_member_declaration
         :  field_declaration
-        |  method_declaration
+        |  method_declaration               
         |  class_declaration
         |  interface_declaration
         |  ';'
@@ -1114,9 +1128,9 @@ unann_class_or_interface_type
         |  unann_interface_type
 
 unann_class_type
-        :  type_identifier type_arguments_zero_or_one
-        |  package_name '.' annotation_zero_or_more type_identifier type_arguments_zero_or_one
-        |  unann_class_or_interface_type '.' annotation_zero_or_more type_identifier
+        :  IDENTIFIERS type_arguments_zero_or_one
+        |  package_name '.' annotation_zero_or_more IDENTIFIERS type_arguments_zero_or_one
+        |  unann_class_or_interface_type '.' annotation_zero_or_more IDENTIFIERS
         |  type_arguments_zero_or_one
 
 type_arguments_zero_or_one
@@ -1127,7 +1141,7 @@ unann_interface_type
         :  unann_class_type
 
 unann_type_variable
-        :  type_identifier
+        :  IDENTIFIERS
 
 unann_array_type
         :  unann_primitive_type dims
@@ -1248,10 +1262,10 @@ constructor_declarator
         :  type_parameters_zero_or_one simple_type_name '(' reciever_parameter_comma_zero_or_one formal_parameter_list_zero_or_one ')'
 
 simple_type_name
-        :  type_identifier
+        :  IDENTIFIERS
 
 constructor_body
-        :  '{' explicit_constructor_invocation_zero_or_one block_statements_zero_or_one '}'
+        :  '{' explicit_constructor_invocation_zero_or_one block_statements_zero_or_one '}' 
 
 explicit_constructor_invocation_zero_or_one
         :  /* empty */ 
