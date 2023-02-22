@@ -18,6 +18,8 @@ JAVA_LETTER                 [a-zA-Z]|{UNDERSCORE}
 LINE_TERMINATOR             [\n\r]
 BLANK_SPACE                 [ \t\f]
 
+TYPE_IDENTIFIER_EXLCUDER    "permits"|"record"|"sealed"|"var"|"yield"
+
 IDENTIFIER                  {JAVA_LETTER}{JAVA_LETTER_OR_DIGIT}*
 NUM_LITERALS                {INT_LITERAL}|{FLOAT_LITERAL}|{BOOL_LITERAL}|{NULL_LITERAL}
 
