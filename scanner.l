@@ -20,8 +20,17 @@ BLANK_SPACE                 [ \t\f]
 
 TYPE_IDENTIFIER_EXLCUDER    "permits"|"record"|"sealed"|"var"|"yield"
 
+CONSTANT_MODIFIER           "public"|"static"|"final"
+FIELD_MODIFIER              "public"|"protected"|"private"|"static"
+CLASS_MODIFIER              "public"|"protected"|"private"|"static"|"abstract"|"strictfp"|"sealed"|"non-sealed"|"final"
+INTERFACE_METHOD_MODIFIER   "public"|"protected"|"private"|"static"|"abstract"|"strictfp"
+INTERFACE_MODIFIER          "public"|"protected"|"private"|"static"|"abstract"|"strictfp"|"sealed"|"non-sealed"
+METHOD_MODIFIER             "public"|"protected"|"private"|"static"|"abstract"|"strictfp"|"final"|"synchronized"|"native"
+
 IDENTIFIER                  {JAVA_LETTER}{JAVA_LETTER_OR_DIGIT}*
 NUM_LITERALS                {INT_LITERAL}|{FLOAT_LITERAL}|{BOOL_LITERAL}|{NULL_LITERAL}
+INTEGERAL_TYPE              "byte"|"short"|"int"|"long"|"char"
+FLOATING_TYPE               "float"|"double"
 
 INT_LITERAL                 {DECIMAL_INT_LITERAL}|{HEX_INT_LITERAL}|{OCT_INT_LITERAL}|{BIN_INT_LITERAL}
 FLOAT_LITERAL               {DECIMAL_FLOAT_LITERAL}|{HEX_FLOAT_LITERAL} 
