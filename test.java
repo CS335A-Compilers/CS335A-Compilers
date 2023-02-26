@@ -1,7 +1,5 @@
-class Point {
-    int x, y;
-    Point(int x, int y) { 
-        int a = 5;
-        this.y = y; 
-    }
+import lawda.ladw ;
+
+public class FieldSpy {
+    public boolean[][] b = {{ false, false }, { true, true } };
 }

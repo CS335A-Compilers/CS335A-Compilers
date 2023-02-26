@@ -832,8 +832,7 @@ class_declaration
         // |  record_declaration
 
 normal_class_declaration
-        :  class_modifier_zero_or_more CLASS_KEYWORD IDENTIFIERS type_parameters_zero_or_one                
-        |  class_extends_zero_or_one class_implements_zero_or_one class_permits_zero_or_one class_body
+        :  class_modifier_zero_or_more CLASS_KEYWORD IDENTIFIERS type_parameters_zero_or_one class_extends_zero_or_one class_implements_zero_or_one class_permits_zero_or_one class_body     {printf("uheuheuheuheu");}
 
 class_modifier_zero_or_more
         :  /* empty */ 
