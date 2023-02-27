@@ -31,16 +31,15 @@
 
 //  ########   COMPILATION UNIT   ########  
 
-compilation_unit            
+compilation_unit
             :   ordinary_compilation_unit
             |   modular_compilation_unit
 
 ordinary_compilation_unit
-            :   package_declaration_zero_or_one import_declaration_zero_or_more top_level_class_or_interface_declaration_zero_or_more
-
-package_declaration_zero_or_one
-            :   /* empty */ 
-            |   package_declaration
+            :   top_level_class_or_interface_declaration_zero_or_more
+            |   package_declaration top_level_class_or_interface_declaration_zero_or_more
+            |   import_declaration import_declaration_zero_or_more top_level_class_or_interface_declaration_zero_or_more
+            |   package_declaration import_declaration import_declaration_zero_or_more top_level_class_or_interface_declaration_zero_or_more
 
 import_declaration_zero_or_more
             :   /* empty */ 
@@ -55,11 +54,7 @@ modular_compilation_unit
 
 package_declaration
             :   PACKAGE_KEYWORD IDENTIFIERS ';'
-            |   PACKAGE_KEYWORD IDENTIFIERS dot_identifier_one_or_more ';'
-
-dot_identifier_one_or_more
-            :   '.' IDENTIFIERS 
-            |   '.' IDENTIFIERS dot_identifier_one_or_more
+            |   PACKAGE_KEYWORD type_name ';'
 
 import_declaration
             :   single_type_import_declaration
@@ -71,7 +66,7 @@ single_type_import_declaration
             :   IMPORT_KEYWORD type_name ';'
 
 type_import_on_demand_declaration
-            :   IMPORT_KEYWORD type_name '.' '*' ';'                         {/* may not work */}
+            :   IMPORT_KEYWORD type_name '.' '*' ';'
 
 single_static_import_declaration
             :   IMPORT_KEYWORD STATIC_KEYWORD type_name '.' IDENTIFIERS ';'
@@ -80,24 +75,28 @@ static_import_on_demand_declaration
             :   IMPORT_KEYWORD STATIC_KEYWORD type_name '.' '*' ';'
 
 top_level_class_or_interface_declaration
-            :   class_declaration                   
+            :   class_declaration
             |   interface_declaration
             |   ';'
 
 module_declaration
-            :   OPEN_zero_or_one MODULE_KEYWORD IDENTIFIERS  '{' module_directive '}'
-            |   OPEN_zero_or_one MODULE_KEYWORD IDENTIFIERS dot_identifier_one_or_more '{' module_directive '}'
+            :   OPEN_zero_or_one MODULE_KEYWORD type_name '{' '}'
+            |   OPEN_zero_or_one MODULE_KEYWORD type_name '{' module_directive_one_or_more '}'
 
 OPEN_zero_or_one
             :   /* empty */ 
             |   OPEN_KEYWORD
 
+module_directive_one_or_more
+            :   module_directive
+            |   module_directive module_directive_one_or_more
+
 module_directive
-            :   REQUIRES_KEYWORD requires_modifier_zero_or_more module_name ';'
+            :   REQUIRES_KEYWORD modifiers_zero_or_more type_name ';'
             |   EXPORTS_KEYWORD type_name ';'
-            |   EXPORTS_KEYWORD type_name TO_KEYWORD module_name comma_module_name_zero_or_more ';'
+            |   EXPORTS_KEYWORD type_name TO_KEYWORD type_name comma_module_name_zero_or_more ';'
             |   OPENS_KEYWORD type_name ';'
-            |   OPENS_KEYWORD type_name TO_KEYWORD module_name comma_module_name_zero_or_more ';'
+            |   OPENS_KEYWORD type_name TO_KEYWORD type_name comma_module_name_zero_or_more ';'
             |   USES_KEYWORD type_name ';'
             |   PROVIDES_KEYWORD type_name WITH_KEYWORD type_name comma_type_name_zero_or_more ';'
 
@@ -107,16 +106,7 @@ comma_type_name_zero_or_more
 
 comma_module_name_zero_or_more
             :   /* empty */ 
-            |   ',' module_name comma_module_name_zero_or_more
-
-requires_modifier_zero_or_more
-            :   /* empty */ 
-            |   TRANSIENT_KEYWORD requires_modifier_zero_or_more
-            |   STATIC_KEYWORD requires_modifier_zero_or_more
-
-module_name
-            :   IDENTIFIERS
-            |   module_name '.' IDENTIFIERS
+            |   ',' type_name comma_module_name_zero_or_more
 
 //  ########   EXPRESSIONS   ########  
 
@@ -358,6 +348,8 @@ array_creation_expression
             |   NEW_KEYWORD primitive_type dims array_initializer
             |   NEW_KEYWORD class_type dim_exprs dims_zero_or_one
             |   NEW_KEYWORD class_type dims array_initializer
+            |   NEW_KEYWORD IDENTIFIERS dim_exprs dims_zero_or_one
+            |   NEW_KEYWORD IDENTIFIERS dims array_initializer
 
 dims_zero_or_one
             :   /* empty */ 
@@ -371,8 +363,8 @@ dim_expr
             :  '[' expression ']'
 
 dims 
-            :   EMPTY_ARRAY                                                                      {/*  Rule not working :( */}
-            |   EMPTY_ARRAY dims
+            :   '[' ']'
+            |   '[' ']' dims
 
 primitive_type
             :   numeric_type
@@ -461,26 +453,32 @@ type_name
             :   IDENTIFIERS
             |   type_name '.' IDENTIFIERS
 
+// ########   MODIFIERS   ########  
+
+modifiers
+            :   PUBLIC_KEYWORD 
+            |   PROTECTED_KEYWORD 
+            |   PRIVATE_KEYWORD 
+            |   ABSTRACT_KEYWORD 
+            |   STATIC_KEYWORD 
+            |   SEALED_KEYWORD 
+            |   NONSEALED_KEYWORD 
+            |   STRICTFP_KEYWORD 
+            |   FINAL_KEYWORD
+            |   SYNCHRONIZED_KEYWORD
+
+modifiers_zero_or_more
+            :   /* empty */
+            |   modifiers modifiers_zero_or_more 
+
 // ########   INTERFACES   ########  
 
 interface_declaration
             :   normal_interface_declaration
 
 normal_interface_declaration
-            :   interface_modifier_zero_or_more INTERFACE_KEYWORD IDENTIFIERS interface_extends_zero_or_one interface_permits_zero_or_one interface_body
-            |   interface_modifier_zero_or_more INTERFACE_KEYWORD IDENTIFIERS type_parameters interface_extends_zero_or_one interface_permits_zero_or_one interface_body
-            |   interface_modifier_zero_or_more INTERFACE_KEYWORD IDENTIFIERS IDENTIFIERS EXTENDS_KEYWORD IDENTIFIERS interface_extends_zero_or_one interface_permits_zero_or_one interface_body
-
-interface_modifier_zero_or_more
-            :  /* empty */ 
-            |   PUBLIC_KEYWORD interface_modifier_zero_or_more
-            |   PROTECTED_KEYWORD interface_modifier_zero_or_more
-            |   PRIVATE_KEYWORD interface_modifier_zero_or_more
-            |   ABSTRACT_KEYWORD interface_modifier_zero_or_more
-            |   STATIC_KEYWORD interface_modifier_zero_or_more
-            |   SEALED_KEYWORD interface_modifier_zero_or_more
-            |   NONSEALED_KEYWORD interface_modifier_zero_or_more
-            |   STRICTFP_KEYWORD interface_modifier_zero_or_more
+            :   modifiers_zero_or_more INTERFACE_KEYWORD IDENTIFIERS interface_extends_zero_or_one interface_permits_zero_or_one interface_body
+            |   modifiers_zero_or_more INTERFACE_KEYWORD IDENTIFIERS type_parameters interface_extends_zero_or_one interface_permits_zero_or_one interface_body
 
 type_parameter
             :   IDENTIFIERS
@@ -496,6 +494,7 @@ additional_bound_zero_or_more
 
 additional_bound
             :   '&' class_type
+            |   '&' IDENTIFIERS
 
 class_type
             :   IDENTIFIERS type_arguments
@@ -557,26 +556,11 @@ interface_member_decleration
             |   interface_declaration
 
 constant_declaration
-            :   constant_modifier_zero_or_more unann_type variable_declarator_list ';'
-
-constant_modifier_zero_or_more
-            :   /* empty */
-            |   PUBLIC_KEYWORD constant_modifier_zero_or_more 
-            |   STATIC_KEYWORD constant_modifier_zero_or_more 
-            |   FINAL_KEYWORD constant_modifier_zero_or_more 
+            :   modifiers_zero_or_more unann_type variable_declarator_list ';'
 
 interface_method_declaration
-            :   interface_method_modifier_zero_or_more method_header block 
-            |   interface_method_modifier_zero_or_more method_header ';' 
-
-interface_method_modifier_zero_or_more
-            :   /* empty */ 
-            |   interface_method_modifier_zero_or_more PUBLIC_KEYWORD
-            |   interface_method_modifier_zero_or_more PRIVATE_KEYWORD
-            |   interface_method_modifier_zero_or_more ABSTRACT_KEYWORD
-            |   interface_method_modifier_zero_or_more DEFAULT_KEYWORD
-            |   interface_method_modifier_zero_or_more STATIC_KEYWORD
-            |   interface_method_modifier_zero_or_more STRICTFP_KEYWORD
+            :   modifiers_zero_or_more method_header block
+            |   modifiers_zero_or_more method_header ';' 
 
 //  ########   BLOCKS, STATEMENTS AND PATTERNS   ########  
 
@@ -832,19 +816,7 @@ class_declaration
         // |  record_declaration
 
 normal_class_declaration
-        :  class_modifier_zero_or_more CLASS_KEYWORD IDENTIFIERS type_parameters_zero_or_one class_extends_zero_or_one class_implements_zero_or_one class_permits_zero_or_one class_body     {printf("uheuheuheuheu");}
-
-class_modifier_zero_or_more
-        :  /* empty */ 
-        |  PUBLIC_KEYWORD class_modifier_zero_or_more
-        |  PROTECTED_KEYWORD class_modifier_zero_or_more
-        |  PRIVATE_KEYWORD class_modifier_zero_or_more
-        |  STATIC_KEYWORD class_modifier_zero_or_more
-        |  ABSTRACT_KEYWORD class_modifier_zero_or_more
-        |  FINAL_KEYWORD class_modifier_zero_or_more
-        |  SEALED_KEYWORD class_modifier_zero_or_more
-        |  NONSEALED_KEYWORD class_modifier_zero_or_more
-        |  STRICTFP_KEYWORD class_modifier_zero_or_more
+        :  modifiers_zero_or_more CLASS_KEYWORD IDENTIFIERS type_parameters_zero_or_one class_extends_zero_or_one class_implements_zero_or_one class_permits_zero_or_one class_body
 
 type_parameters_zero_or_one
         :   /* empty */ 
@@ -874,16 +846,19 @@ comma_type_parameter_zero_or_more
 
 class_extends
         :  EXTENDS_KEYWORD class_type
+        |  EXTENDS_KEYWORD IDENTIFIERS
 
 class_implements
         :  IMPLEMENTS_KEYWORD interface_type_list
 
 interface_type_list
-        :  class_type comma_interface_type_zero_or_more
+        :   class_type comma_interface_type_zero_or_more
+        |   IDENTIFIERS comma_identifiers_zero_or_more
 
 comma_interface_type_zero_or_more
         :  /* empty */ 
         |  ',' class_type comma_interface_type_zero_or_more
+        |  ',' IDENTIFIERS comma_interface_type_zero_or_more
 
 class_permits
         :  PERMITS_KEYWORD type_name comma_type_name_zero_or_more
@@ -909,13 +884,8 @@ class_member_declaration
         |  ';'
 
 field_declaration
-        :  field_modifier_zero_or_more unann_type variable_declarator_list ';'
-        |  ppfs_keywords unann_type variable_declarator_list ';'
-
-field_modifier_zero_or_more
-        :  /* empty */ 
-        |  field_modifier_zero_or_more TRANSIENT_KEYWORD 
-        |  field_modifier_zero_or_more VOLATILE_KEYWORD 
+        :  unann_type variable_declarator_list ';'
+        |  modifiers_zero_or_more unann_type variable_declarator_list ';'
 
 variable_declarator_list
         :  variable_declarator comma_variable_declarator_zero_or_more
@@ -954,41 +924,22 @@ unann_array_type
         |  IDENTIFIERS dims
 
 method_declaration
-        :  method_modifier_zero_or_more method_header block
-        |  method_modifier_zero_or_more method_header ';'
-        |  ppfs_keywords method_header block
-        |  ppfs_keywords method_header ';'
-
-method_modifier_zero_or_more
-        :   /* empty */ 
-        |   ABSTRACT_KEYWORD method_modifier_zero_or_more
-        |   SYNCHRONIZED_KEYWORD method_modifier_zero_or_more
-        |   NATIVE_KEYWORD method_modifier_zero_or_more
-        |   STRICTFP_KEYWORD method_modifier_zero_or_more
-
-ppfs_keywords
-        :   /* emoty */
-        |   PUBLIC_KEYWORD ppfs_keywords
-        |   PRIVATE_KEYWORD ppfs_keywords
-        |   PROTECTED_KEYWORD ppfs_keywords
-        |   FINAL_KEYWORD ppfs_keywords
-        |   STATIC_KEYWORD ppfs_keywords
+        :  modifiers_zero_or_more method_header block
+        |  modifiers_zero_or_more method_header ';'
 
 method_header
-        :  result method_declarator throws_zero_or_one
-        |  type_parameters result method_declarator throws_zero_or_one
+        :  unann_type method_declarator throws_zero_or_one
+        |  VOID_KEYWORD method_declarator throws_zero_or_one
+        |  type_parameters unann_type method_declarator throws_zero_or_one
+        |  type_parameters VOID_KEYWORD method_declarator throws_zero_or_one
 
 throws_zero_or_one
         :   /* empty */ 
         |   throws
 
-result
-        :  unann_type
-        |  VOID_KEYWORD
-
 method_declarator
-        :  IDENTIFIERS '('  formal_parameter_list_zero_or_one ')' dims_zero_or_one
-        :  IDENTIFIERS '(' reciever_parameter ',' formal_parameter_list_zero_or_one ')' dims_zero_or_one
+        :  IDENTIFIERS '(' formal_parameter_list_zero_or_one ')' dims_zero_or_one
+        |  IDENTIFIERS '(' reciever_parameter ',' formal_parameter_list_zero_or_one ')' dims_zero_or_one
 
 formal_parameter_list_zero_or_one
         :   /* empty */ 
@@ -1009,7 +960,7 @@ formal_parameter
         :  unann_type variable_declarator_id
         |  variable_modifier_one_or_more unann_type variable_declarator_id
         |  variable_arity_parameter
-    
+
 variable_arity_parameter
         :  unann_type ELLIPSIS IDENTIFIERS
         |  variable_modifier_one_or_more unann_type ELLIPSIS IDENTIFIERS
@@ -1019,36 +970,30 @@ throws
 
 exception_type_list 
         :  class_type comma_exception_type_zero_or_more
-        |  IDENTIFIERS comma_exception_type_zero_or_more
+        |  IDENTIFIERS comma_identifiers_zero_or_more
 
 comma_exception_type_zero_or_more
         :   /* empty */ 
         |  ',' class_type comma_exception_type_zero_or_more    
-        |  ',' IDENTIFIERS comma_exception_type_zero_or_more    
 
 static_initializer
         :  STATIC_KEYWORD block  
 
 constructor_declaration
-        :  constructor_declarator throws_zero_or_one
-        |  constructor_modifier_zero_or_more constructor_declarator throws_zero_or_one
-        |  constructor_body
-
-constructor_modifier_zero_or_more
-        :   /* empty */ 
-        | constructor_modifier_zero_or_more PUBLIC_KEYWORD 
-        | constructor_modifier_zero_or_more PROTECTED_KEYWORD 
-        | constructor_modifier_zero_or_more PRIVATE_KEYWORD 
+        :  constructor_declarator throws_zero_or_one constructor_body
+        |  modifiers_zero_or_more constructor_declarator throws_zero_or_one constructor_body
 
 constructor_declarator
-        :  type_parameters_zero_or_one IDENTIFIERS '(' formal_parameter_list_zero_or_one ')'
-        |  type_parameters_zero_or_one IDENTIFIERS '(' reciever_parameter ',' formal_parameter_list_zero_or_one ')'
+        :  IDENTIFIERS '(' formal_parameter_list_zero_or_one ')'
+        |  IDENTIFIERS '(' reciever_parameter ',' formal_parameter_list_zero_or_one ')'
+        |  type_parameters IDENTIFIERS '(' formal_parameter_list_zero_or_one ')'
+        |  type_parameters IDENTIFIERS '(' reciever_parameter ',' formal_parameter_list_zero_or_one ')'
 
 constructor_body
         :  '{' explicit_constructor_invocation '}' 
         |  '{' block_statements '}' 
         |  '{' explicit_constructor_invocation block_statements '}' 
-        |  '{'  '}'                                                                           {/* NEED TO WORK ON */} 
+        |  '{' '}'
 
 explicit_constructor_invocation
         :  THIS_KEYWORD '(' argument_list_zero_or_one ')' ';'

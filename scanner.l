@@ -18,14 +18,6 @@ JAVA_LETTER                 [a-zA-Z]|{UNDERSCORE}
 LINE_TERMINATOR             [\n\r]
 BLANK_SPACE                 [ \t\f]
 
-TYPE_IDENTIFIER_EXLCUDER    "permits"|"record"|"sealed"|"var"|"yield"
-
-CONSTANT_MODIFIER           "public"|"static"|"final"
-FIELD_MODIFIER              "public"|"protected"|"private"|"static"
-CLASS_MODIFIER              "public"|"protected"|"private"|"static"|"abstract"|"strictfp"|"sealed"|"non-sealed"|"final"
-INTERFACE_METHOD_MODIFIER   "public"|"protected"|"private"|"static"|"abstract"|"strictfp"
-INTERFACE_MODIFIER          "public"|"protected"|"private"|"static"|"abstract"|"strictfp"|"sealed"|"non-sealed"
-METHOD_MODIFIER             "public"|"protected"|"private"|"static"|"abstract"|"strictfp"|"final"|"synchronized"|"native"
 
 IDENTIFIER                  {JAVA_LETTER}{JAVA_LETTER_OR_DIGIT}*
 NUM_LITERALS                {INT_LITERAL}|{FLOAT_LITERAL}|{BOOL_LITERAL}|{NULL_LITERAL}
@@ -210,8 +202,6 @@ OCTAL_EXCAPE                \\{OCTAL_DIGIT}|\\{OCTAL_DIGIT}{OCTAL_DIGIT}|\\[0-3]
 "}"                     {return('}');}
 "@"                     {return('@');}
 "::"                    {return(DOUBLE_COLON);}
-
-"[]"                     {return(EMPTY_ARRAY);}
 
 "/*"                        {BEGIN(comment);}
 <comment>[^*\n]+            {}
