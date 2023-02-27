@@ -18,9 +18,11 @@ JAVA_LETTER                 [a-zA-Z]|{UNDERSCORE}
 LINE_TERMINATOR             [\n\r]
 BLANK_SPACE                 [ \t\f]
 
-IDENTIFIER                  {JAVA_LETTER}{JAVA_LETTER_OR_DIGIT}*
 
+IDENTIFIER                  {JAVA_LETTER}{JAVA_LETTER_OR_DIGIT}*
 NUM_LITERALS                {INT_LITERAL}|{FLOAT_LITERAL}|{BOOL_LITERAL}|{NULL_LITERAL}
+INTEGERAL_TYPE              "byte"|"short"|"int"|"long"|"char"
+FLOATING_TYPE               "float"|"double"
 
 INT_LITERAL                 {DECIMAL_INT_LITERAL}|{HEX_INT_LITERAL}|{OCT_INT_LITERAL}|{BIN_INT_LITERAL}
 FLOAT_LITERAL               {DECIMAL_FLOAT_LITERAL}|{HEX_FLOAT_LITERAL} 
@@ -200,8 +202,6 @@ OCTAL_EXCAPE                \\{OCTAL_DIGIT}|\\{OCTAL_DIGIT}{OCTAL_DIGIT}|\\[0-3]
 "}"                     {return('}');}
 "@"                     {return('@');}
 "::"                    {return(DOUBLE_COLON);}
-
-"[]"                     {return(EMPTY_ARRAY);}
 
 "/*"                        {BEGIN(comment);}
 <comment>[^*\n]+            {}
