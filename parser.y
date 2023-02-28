@@ -1,5 +1,7 @@
 %{
-    #include "header.h"
+    #include "ast.h"
+    #include <stdio.h>
+    #include <stdlib.h>
     int yylex(void);
     void yyerror(char const*);
     extern int yylineno;
@@ -8,18 +10,14 @@
 %locations
 
 %union{
-    int integer;
-    float floating;
-    char* string;
-    char character;
+    Node* node;
 }
-
 
 %token ABSTRACT_KEYWORD CONTINUE_KEYWORD FOR_KEYWORD NEW_KEYWORD SWITCH_KEYWORD ASSERT_KEYWORD DEFAULT_KEYWORD IF_KEYWORD PACKAGE_KEYWORD SYNCHRONIZED_KEYWORD BOOLEAN_KEYWORD DO_KEYWORD GOTO_KEYWORD PRIVATE_KEYWORD THIS_KEYWORD BREAK_KEYWORD DOUBLE_KEYWORD IMPLEMENTS_KEYWORD PROTECTED_KEYWORD THROW_KEYWORD BYTE_KEYWORD ELSE_KEYWORD IMPORT_KEYWORD PUBLIC_KEYWORD THROWS_KEYWORD CASE_KEYWORD ENUM_KEYWORD INSTANCEOF_KEYWORD RETURN_KEYWORD TRANSIENT_KEYWORD CATCH_KEYWORD EXTENDS_KEYWORD INT_KEYWORD SHORT_KEYWORD TRY_KEYWORD CHAR_KEYWORD FINAL_KEYWORD INTERFACE_KEYWORD STATIC_KEYWORD VOID_KEYWORD CLASS_KEYWORD FINALLY_KEYWORD LONG_KEYWORD STRICTFP_KEYWORD VOLATILE_KEYWORD CONST_KEYWORD FLOAT_KEYWORD NATIVE_KEYWORD SUPER_KEYWORD WHILE_KEYWORD __KEYWORD  
 %token EXPORTS_KEYWORD OPENS_KEYWORD REQUIRES_KEYWORD USES_KEYWORD MODULE_KEYWORD PERMITS_KEYWORD SEALED_KEYWORD VAR_KEYWORD NONSEALED_KEYWORD PROVIDES_KEYWORD TO_KEYWORD WITH_KEYWORD OPEN_KEYWORD RECORD_KEYWORD TRANSITIVE_KEYWORD YIELD_KEYWORD
-%token IDENTIFIERS  LITERALS  PTR_OP EQ_OP GE_OP  LE_OP  NE_OP  AND_OP  OR_OP  INC_OP  DEC_OP  LEFT_OP  RIGHT_OP  BIT_RIGHT_SHFT_OP ADD_ASSIGN  SUB_ASSIGN  MUL_ASSIGN  DIV_ASSIGN  AND_ASSIGN  OR_ASSIGN  XOR_ASSIGN  MOD_ASSIGN  LEFT_ASSIGN  RIGHT_ASSIGN  BIT_RIGHT_SHFT_ASSIGN  ELLIPSIS  DOUBLE_COLON
+%token IDENTIFIERS  LITERALS  PTR_OP EQ_OP GE_OP  LE_OP  NE_OP  AND_OP  OR_OP  INC_OP  DEC_OP  LEFT_OP  RIGHT_OP  BIT_RIGHT_SHFT_OP ADD_ASSIGN  SUB_ASSIGN  MUL_ASSIGN  DIV_ASSIGN  AND_ASSIGN  OR_ASSIGN  XOR_ASSIGN  MOD_ASSIGN  LEFT_ASSIGN  RIGHT_ASSIGN  BIT_RIGHT_SHFT_ASSIGN  ELLIPSIS  DOUBLE_COLON DIAMOND
 
-%token DIAMOND
+// Vartika writing nonterminals
 
 %left AND_OP 
 %left OR_OP
@@ -32,12 +30,12 @@
 //  ########   COMPILATION UNIT   ########  
 
 compilation_unit
-            :   ordinary_compilation_unit
-            |   modular_compilation_unit
+            :   ordinary_compilation_unit               {Node* node = createNode(""); node.addChildren($1); $$ = node;}
+            |   modular_compilation_unit                {Node* node = createNode(""); node.addChildren($1); $$ = node;}
 
 ordinary_compilation_unit
             :   top_level_class_or_interface_declaration_zero_or_more
-            |   package_declaration top_level_class_or_interface_declaration_zero_or_more
+            |   package_declaration top_level_class_or_interface_declaration_zero_or_more       {Node* node = createNode("ordinary compilation unit"); node.addChildren($1, $2); $$ = node;}
             |   import_declaration import_declaration_zero_or_more top_level_class_or_interface_declaration_zero_or_more
             |   package_declaration import_declaration import_declaration_zero_or_more top_level_class_or_interface_declaration_zero_or_more
 
