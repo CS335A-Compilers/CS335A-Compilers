@@ -1,6 +1,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <bits/stdc++.h>
+
+using namespace std;
 
 #define INITIAL_BUFFER_SIZE 100
 

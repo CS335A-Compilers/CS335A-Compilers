@@ -7,8 +7,9 @@
 
 %{
     #include "parser.tab.h"
+    #include <stdio.h>
+    #include <stdlib.h>
     #include "helper.h"
-    #include "header.h"
 %}
 
 %option yylineno
