@@ -19,7 +19,7 @@
 %token EXPORTS_KEYWORD OPENS_KEYWORD REQUIRES_KEYWORD USES_KEYWORD MODULE_KEYWORD PERMITS_KEYWORD SEALED_KEYWORD VAR_KEYWORD NONSEALED_KEYWORD PROVIDES_KEYWORD TO_KEYWORD WITH_KEYWORD OPEN_KEYWORD RECORD_KEYWORD TRANSITIVE_KEYWORD YIELD_KEYWORD
 %token IDENTIFIERS  LITERALS  PTR_OP EQ_OP GE_OP  LE_OP  NE_OP  AND_OP  OR_OP  INC_OP  DEC_OP  LEFT_OP  RIGHT_OP  BIT_RIGHT_SHFT_OP ADD_ASSIGN  SUB_ASSIGN  MUL_ASSIGN  DIV_ASSIGN  AND_ASSIGN  OR_ASSIGN  XOR_ASSIGN  MOD_ASSIGN  LEFT_ASSIGN  RIGHT_ASSIGN  BIT_RIGHT_SHFT_ASSIGN  ELLIPSIS  DOUBLE_COLON
 
-%token EMPTY_ARRAY DIAMOND
+%token DIAMOND
 
 %left AND_OP 
 %left OR_OP
@@ -53,8 +53,7 @@ modular_compilation_unit
             :   import_declaration_zero_or_more module_declaration
 
 package_declaration
-            :   PACKAGE_KEYWORD IDENTIFIERS ';'
-            |   PACKAGE_KEYWORD type_name ';'
+            :   PACKAGE_KEYWORD type_name ';'
 
 import_declaration
             :   single_type_import_declaration
@@ -132,12 +131,14 @@ field_access
             |   type_name '.' SUPER_KEYWORD '.' IDENTIFIERS
 
 array_access
-            :   type_name '[' expression ']'
+            :   expression_name '[' expression ']'
+            |   IDENTIFIERS  '[' expression ']'
             |   primary_no_new_array '[' expression ']' 
 
 method_reference
-            :   type_name DOUBLE_COLON IDENTIFIERS
-            |   primary DOUBLE_COLON IDENTIFIERS
+            :   type_name DOUBLE_COLON IDENTIFIERS               {printf("1hueheuh");}
+            |   IDENTIFIERS DOUBLE_COLON IDENTIFIERS             {printf("h2ueheuh");}
+            |   primary DOUBLE_COLON IDENTIFIERS                    {printf("3hueheuh");}
             |   SUPER_KEYWORD DOUBLE_COLON IDENTIFIERS
             |   type_name '.' SUPER_KEYWORD DOUBLE_COLON IDENTIFIERS
         //     |   class_type DOUBLE_COLON NEW_KEYWORD
@@ -150,14 +151,14 @@ method_reference
 
 method_invocation
             :   IDENTIFIERS '(' argument_list_zero_or_one ')'
-            |   type_name '.' IDENTIFIERS '(' argument_list_zero_or_one ')'            
+            |   expression_name '.' IDENTIFIERS '(' argument_list_zero_or_one ')'            
             |   primary '.' IDENTIFIERS '(' argument_list_zero_or_one ')'
             |   SUPER_KEYWORD '.' IDENTIFIERS '(' argument_list_zero_or_one ')'
-            |   type_name '.' SUPER_KEYWORD '.' IDENTIFIERS '(' argument_list_zero_or_one ')'
-            |   type_name '.' type_arguments IDENTIFIERS '(' argument_list_zero_or_one ')'            
+            |   expression_name '.' SUPER_KEYWORD '.' IDENTIFIERS '(' argument_list_zero_or_one ')'
+            |   expression_name '.' type_arguments IDENTIFIERS '(' argument_list_zero_or_one ')'            
             |   primary '.' type_arguments IDENTIFIERS '(' argument_list_zero_or_one ')'
             |   SUPER_KEYWORD '.' type_arguments IDENTIFIERS '(' argument_list_zero_or_one ')'
-            |   type_name '.' SUPER_KEYWORD '.' type_arguments IDENTIFIERS '(' argument_list_zero_or_one ')'
+            |   expression_name '.' SUPER_KEYWORD '.' type_arguments IDENTIFIERS '(' argument_list_zero_or_one ')'
 
 expression
             :   assignment_expression
@@ -205,9 +206,15 @@ relational_expression
             |   relational_expression GE_OP shift_expression
             |   instance_of_expression
 
+unann_array_type
+        :  primitive_type dims
+        |  unann_class_type dims   
+        |  IDENTIFIERS dims
+
 instance_of_expression
             :   relational_expression INSTANCEOF_KEYWORD reference_type
             |   relational_expression INSTANCEOF_KEYWORD pattern
+            |   relational_expression INSTANCEOF_KEYWORD primitive_type dims
 
 shift_expression
             :   additive_expression
@@ -248,9 +255,13 @@ unary_expression_not_plus_minus
 
 postfix_expression
             :   primary
-            |   type_name
+            |   expression_name
             |   post_increment_expression
             |   post_decrement_expression
+
+expression_name
+            :   IDENTIFIERS
+            |   expression_name  '.' IDENTIFIERS 
 
 post_increment_expression
             :   postfix_expression INC_OP
@@ -260,19 +271,23 @@ post_decrement_expression
 
 cast_expression
             :   '(' primitive_type ')' unary_expression
+            |   '(' IDENTIFIERS ')' unary_expression
+            |   '(' type_name ')' unary_expression
+            |   '(' IDENTIFIERS additional_bound ')' unary_expression
+            |   '(' type_name additional_bound ')' unary_expression
 
 switch_expression
             :   SWITCH_KEYWORD '(' expression ')' switch_block
 
 switch_block
-            :   '{' switch_rule_zero_or_more switch_rule_zero_or_more '}'
+            :   '{' switch_rule switch_rule_zero_or_more '}'
             |   '{' switch_block_statement_group_zero_or_more switch_label_colon_zero_or_more '}'
 
 switch_rule_zero_or_more
             :   /* empty */ 
             |   switch_rule switch_rule_zero_or_more
 
- switch_block_statement_group_zero_or_more
+switch_block_statement_group_zero_or_more
             :   /* empty */ 
             |   switch_block_statement_group switch_block_statement_group_zero_or_more
 
@@ -282,14 +297,15 @@ switch_label_colon_zero_or_more
 
 switch_rule
             :   switch_label PTR_OP expression ';'
-            |   switch_label block
-            |   switch_label throw_statement
+            |   switch_label PTR_OP block
+            |   switch_label PTR_OP throw_statement
 
 switch_block_statement_group
             :   switch_label ':' switch_label_colon_zero_or_more block_statements
 
 switch_label
             :   CASE_KEYWORD case_constant comma_case_constant_zero_or_more
+            |   DEFAULT_KEYWORD
 
 comma_case_constant_zero_or_more
             :   /* empty */ 
@@ -319,15 +335,15 @@ argument_list
 comma_expression_zero_or_more
             :   /* empty */ 
             |   ',' expression comma_expression_zero_or_more
-            
+
 class_or_interface_type_to_instantiate
             :   IDENTIFIERS DIAMOND
             |   IDENTIFIERS type_arguments
 
 assignment
-            :   type_name ASSIGNMENT_OPERATORS expression 
-            |   field_access ASSIGNMENT_OPERATORS expression 
-            |   array_access ASSIGNMENT_OPERATORS expression 
+            :   expression_name ASSIGNMENT_OPERATORS expression    
+            |   field_access ASSIGNMENT_OPERATORS expression
+            |   array_access ASSIGNMENT_OPERATORS expression
 
 ASSIGNMENT_OPERATORS 
             :   '='
@@ -344,20 +360,18 @@ ASSIGNMENT_OPERATORS
             |   BIT_RIGHT_SHFT_ASSIGN
 
 array_creation_expression
-            :   NEW_KEYWORD primitive_type dim_exprs dims_zero_or_one
+            :   NEW_KEYWORD primitive_type dim_expr dim_exprs dims_zero_or_one
             |   NEW_KEYWORD primitive_type dims array_initializer
-            |   NEW_KEYWORD class_type dim_exprs dims_zero_or_one
+            |   NEW_KEYWORD class_type dim_expr dim_exprs dims_zero_or_one
             |   NEW_KEYWORD class_type dims array_initializer
-            |   NEW_KEYWORD IDENTIFIERS dim_exprs dims_zero_or_one
-            |   NEW_KEYWORD IDENTIFIERS dims array_initializer
 
 dims_zero_or_one
             :   /* empty */ 
             |   dims
 
 dim_exprs
-            :   dim_expr
-            |   dim_expr dim_exprs
+            :   /* empty */
+            |   dim_exprs dim_expr
 
 dim_expr    
             :  '[' expression ']'
@@ -401,10 +415,10 @@ variable_initializer
 lambda_expression
             :   lambda_parameters PTR_OP expression
             |   lambda_parameters PTR_OP block
+            |   IDENTIFIERS PTR_OP block
 
 lambda_parameters
             :   '(' lambda_parameter_list_zero_or_one ')'
-            |   IDENTIFIERS
 
 lambda_parameter_list_zero_or_one
             :   /* empty */ 
@@ -433,7 +447,7 @@ lambda_parameter_type
 
 variable_modifier_one_or_more
             :   FINAL_KEYWORD 
-            |   FINAL_KEYWORD variable_modifier_one_or_more
+            |   variable_modifier_one_or_more FINAL_KEYWORD
             
 class_literal
             :   type_name '.' CLASS_KEYWORD
@@ -446,8 +460,8 @@ class_literal
             |   VOID_KEYWORD empty_array_one_or_more '.' CLASS_KEYWORD
 
 empty_array_one_or_more
-            :   EMPTY_ARRAY 
-            |   EMPTY_ARRAY empty_array_one_or_more
+            :   '[' ']' 
+            |   '[' ']' empty_array_one_or_more
 
 type_name
             :   IDENTIFIERS
@@ -480,13 +494,8 @@ normal_interface_declaration
             :   modifiers_zero_or_more INTERFACE_KEYWORD IDENTIFIERS interface_extends_zero_or_one interface_permits_zero_or_one interface_body
             |   modifiers_zero_or_more INTERFACE_KEYWORD IDENTIFIERS type_parameters interface_extends_zero_or_one interface_permits_zero_or_one interface_body
 
-type_parameter
-            :   IDENTIFIERS
-            |   IDENTIFIERS type_bound
-
 type_bound
-            :   EXTENDS_KEYWORD IDENTIFIERS additional_bound_zero_or_more
-            |   EXTENDS_KEYWORD class_type additional_bound_zero_or_more
+            :   EXTENDS_KEYWORD class_type additional_bound_zero_or_more
 
 additional_bound_zero_or_more
             :   /* empty */ 
@@ -494,11 +503,10 @@ additional_bound_zero_or_more
 
 additional_bound
             :   '&' class_type
-            |   '&' IDENTIFIERS
 
 class_type
             :   IDENTIFIERS type_arguments
-            |   type_name '.' IDENTIFIERS
+            |   type_name 
             |   class_type '.' IDENTIFIERS
             |   type_name '.' IDENTIFIERS type_arguments
             |   class_type '.' IDENTIFIERS type_arguments
@@ -508,28 +516,30 @@ type_arguments
 
 type_argument_list
             :   type_argument comma_type_arguement_zero_or_more
+            |   primitive_type dims comma_type_arguement_zero_or_more
 
 comma_type_arguement_zero_or_more
             :   /* empty */ 
             |   ',' type_argument comma_type_arguement_zero_or_more
+            |   ',' primitive_type dims comma_type_arguement_zero_or_more
+            
 type_argument
             :   reference_type
             |   wild_card
 
 wild_card
             :   '?'
-            |   '?' EXTENDS_KEYWORD IDENTIFIERS
             |   '?' EXTENDS_KEYWORD reference_type
-            |   '?' SUPER_KEYWORD IDENTIFIERS
+            |   '?' EXTENDS_KEYWORD primitive_type dims
             |   '?' SUPER_KEYWORD reference_type
+            |   '?' SUPER_KEYWORD primitive_type dims
 
 reference_type
             :   class_type
             |   array_type
+
 array_type
-            :   primitive_type dims
-            |   class_type dims
-            |   IDENTIFIERS dims
+            :   class_type dims
 
 interface_extends_zero_or_one
             :   /* empty */ 
@@ -591,12 +601,12 @@ local_variable_declaration_statement
         :   local_variable_declaration ';'
 
 local_variable_declaration
-        :   local_variable_type variable_declarator_list
-        |   variable_modifier_one_or_more local_variable_type variable_declarator_list
-
-local_variable_type
-        :   unann_type
-        |   VAR_KEYWORD
+        :   VAR_KEYWORD variable_declarator_list
+        |   numeric_type dims variable_declarator_list
+        |   BOOLEAN_KEYWORD dims variable_declarator_list
+        |   unann_type variable_declarator_list
+        |   FINAL_KEYWORD VAR_KEYWORD variable_declarator_list
+        |   FINAL_KEYWORD unann_type variable_declarator_list
 
 statement
         :   statement_without_trailing_substatement
@@ -670,7 +680,6 @@ assert_statement
 
 while_statement
         :  WHILE_KEYWORD '(' expression ')' statement  
-
 
 while_statement_no_short_if
         :  WHILE_KEYWORD '(' expression ')' statement_no_short_if
@@ -838,27 +847,26 @@ type_parameters
         :  '<' type_parameter_list '>'
 
 type_parameter_list
-        :  type_parameter comma_type_parameter_zero_or_more
+        :  IDENTIFIERS comma_type_parameter_zero_or_more
+        |  IDENTIFIERS type_bound comma_type_parameter_zero_or_more
 
 comma_type_parameter_zero_or_more
         :  /* empty */ 
-        |  ',' type_parameter comma_type_parameter_zero_or_more
+        |  ',' IDENTIFIERS comma_type_parameter_zero_or_more
+        |  ',' IDENTIFIERS type_bound comma_type_parameter_zero_or_more
 
 class_extends
         :  EXTENDS_KEYWORD class_type
-        |  EXTENDS_KEYWORD IDENTIFIERS
 
 class_implements
         :  IMPLEMENTS_KEYWORD interface_type_list
 
 interface_type_list
         :   class_type comma_interface_type_zero_or_more
-        |   IDENTIFIERS comma_identifiers_zero_or_more
 
 comma_interface_type_zero_or_more
         :  /* empty */ 
         |  ',' class_type comma_interface_type_zero_or_more
-        |  ',' IDENTIFIERS comma_interface_type_zero_or_more
 
 class_permits
         :  PERMITS_KEYWORD type_name comma_type_name_zero_or_more
@@ -884,15 +892,14 @@ class_member_declaration
         |  ';'
 
 field_declaration
-        :  unann_type variable_declarator_list ';'
-        |  modifiers_zero_or_more unann_type variable_declarator_list ';'
+        :  modifiers_zero_or_more unann_type variable_declarator_list ';'
 
 variable_declarator_list
         :  variable_declarator comma_variable_declarator_zero_or_more
 
 comma_variable_declarator_zero_or_more
         :  /* empty */ 
-        |  ',' variable_declarator comma_variable_declarator_zero_or_more
+        |  comma_variable_declarator_zero_or_more ',' variable_declarator
 
 variable_declarator
         :  variable_declarator_id equals_variable_initializer_zero_or_one
@@ -917,11 +924,6 @@ unann_class_type
         :  type_name
         |  type_name type_arguments
         |  unann_class_type '.' IDENTIFIERS
-
-unann_array_type
-        :  primitive_type dims
-        |  unann_class_type dims
-        |  IDENTIFIERS dims
 
 method_declaration
         :  modifiers_zero_or_more method_header block
@@ -970,7 +972,6 @@ throws
 
 exception_type_list 
         :  class_type comma_exception_type_zero_or_more
-        |  IDENTIFIERS comma_identifiers_zero_or_more
 
 comma_exception_type_zero_or_more
         :   /* empty */ 
@@ -980,8 +981,7 @@ static_initializer
         :  STATIC_KEYWORD block  
 
 constructor_declaration
-        :  constructor_declarator throws_zero_or_one constructor_body
-        |  modifiers_zero_or_more constructor_declarator throws_zero_or_one constructor_body
+        :  modifiers_zero_or_more constructor_declarator throws_zero_or_one constructor_body
 
 constructor_declarator
         :  IDENTIFIERS '(' formal_parameter_list_zero_or_one ')'
@@ -998,11 +998,11 @@ constructor_body
 explicit_constructor_invocation
         :  THIS_KEYWORD '(' argument_list_zero_or_one ')' ';'
         |  SUPER_KEYWORD '(' argument_list_zero_or_one ')' ';'
-        |  type_name '.' SUPER_KEYWORD '(' argument_list_zero_or_one ')' ';'
+        |  expression_name '.' SUPER_KEYWORD '(' argument_list_zero_or_one ')' ';'
         |  primary '.' SUPER_KEYWORD '(' argument_list_zero_or_one ')' ';'
         |  type_arguments THIS_KEYWORD '(' argument_list_zero_or_one ')' ';'
         |  type_arguments SUPER_KEYWORD '(' argument_list_zero_or_one ')' ';'
-        |  type_name '.' type_arguments SUPER_KEYWORD '(' argument_list_zero_or_one ')' ';'
+        |  expression_name '.' type_arguments SUPER_KEYWORD '(' argument_list_zero_or_one ')' ';'
         |  primary '.' type_arguments SUPER_KEYWORD '(' argument_list_zero_or_one ')' ';'
 
 argument_list_zero_or_one
