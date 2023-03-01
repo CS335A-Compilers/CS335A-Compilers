@@ -34,20 +34,6 @@ char* spaceToUnderscore(char* word){
     return word;
 }
 
-// void writeEdges(Node* root, FILE* file){
-//     if(root == NULL) return ;
-//     int n = root->children.size();
-//     // if(n==0) return ;
-//     for(int i=0;i<n;i++){
-//         char* a = spaceToUnderscore(root->lexeme), *b = spaceToUnderscore(root->children[i]->lexeme);
-//         fprintf(file, "\t%s -> %s\n", a, b);
-//     }
-//     for(int i=0;i<n;i++){
-//         writeEdges(root->children[i], file);
-//     }
-//     return ;
-// }
-
 void writeEdges(Node* root, FILE* file){
     if(root == NULL) return ;
     int n = root->children.size();

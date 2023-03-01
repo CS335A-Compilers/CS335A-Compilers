@@ -464,10 +464,10 @@ class_literal
             |   numeric_type DOT_OP CLASS_KEYWORD {Node* node = createNode("class literal"); node->addChildren({$1,$2,$3}); $$ = node;}
             |   BOOLEAN_KEYWORD DOT_OP CLASS_KEYWORD {Node* node = createNode("class literal"); node->addChildren({$1,$2,$3}); $$ = node;}
             |   VOID_KEYWORD DOT_OP CLASS_KEYWORD {Node* node = createNode("class literal"); node->addChildren({$1,$2,$3}); $$ = node;}
-            |   type_name empty_array_one_or_more DOT_OP CLASS_KEYWORD {Node* node = createNode("class literal"); node->addChildren({$1,$2,$3}); $$ = node;}
-            |   numeric_type empty_array_one_or_more DOT_OP CLASS_KEYWORD {Node* node = createNode("class literal"); node->addChildren({$1,$2,$3}); $$ = node;}
-            |   BOOLEAN_KEYWORD empty_array_one_or_more DOT_OP CLASS_KEYWORD {Node* node = createNode("class literal"); node->addChildren({$1,$2,$3}); $$ = node;}
-            |   VOID_KEYWORD empty_array_one_or_more DOT_OP CLASS_KEYWORD {Node* node = createNode("class literal"); node->addChildren({$1,$2,$3}); $$ = node;}
+            |   type_name empty_array_one_or_more DOT_OP CLASS_KEYWORD {Node* node = createNode("class literal"); node->addChildren({$1,$2,$3,$4}); $$ = node;}
+            |   numeric_type empty_array_one_or_more DOT_OP CLASS_KEYWORD {Node* node = createNode("class literal"); node->addChildren({$1,$2,$3,$4}); $$ = node;}
+            |   BOOLEAN_KEYWORD empty_array_one_or_more DOT_OP CLASS_KEYWORD {Node* node = createNode("class literal"); node->addChildren({$1,$2,$3,$4}); $$ = node;}
+            |   VOID_KEYWORD empty_array_one_or_more DOT_OP CLASS_KEYWORD {Node* node = createNode("class literal"); node->addChildren({$1,$2,$3,$4}); $$ = node;}
 
 empty_array_one_or_more
             :   OP_SQR_BRCKT CLOSE_SQR_BRCKT {Node* node = createNode("empty array one or more"); node->addChildren({$1,$2}); $$ = node;}
@@ -488,6 +488,7 @@ modifiers
             |   SEALED_KEYWORD  {Node* node = createNode("modifiers"); node->addChildren({$1}); $$ = node;}
             |   NONSEALED_KEYWORD  {Node* node = createNode("modifiers"); node->addChildren({$1}); $$ = node;}
             |   STRICTFP_KEYWORD  {Node* node = createNode("modifiers"); node->addChildren({$1}); $$ = node;}
+            |   TRANSITIVE_KEYWORD  {Node* node = createNode("modifiers"); node->addChildren({$1}); $$ = node;}
             |   FINAL_KEYWORD {Node* node = createNode("modifiers"); node->addChildren({$1}); $$ = node;}
             |   SYNCHRONIZED_KEYWORD {Node* node = createNode("modifiers"); node->addChildren({$1}); $$ = node;}
 
