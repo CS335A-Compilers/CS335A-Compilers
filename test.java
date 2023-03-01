@@ -1,6 +1,9 @@
+package strange;
+import java.util.Vector;
+import Vector.Mosquito;
 class Test {
-    public static void name() {
-        
+    public static void main(String[] args) {
+        System.out.println(new Vector().getClass());
+        System.out.println(new Mosquito().getClass());
     }
 }
-

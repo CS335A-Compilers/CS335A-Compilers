@@ -1,20 +1,24 @@
-#include<bits/stdc++.h>
-#include<stack>
-#include<vector>
-#include<iostream>
-#include<unordered_set>
-#include<utility>
-#include<iterator>
-#include<algorithm>
-#include<numeric>
+#include "bits/stdc++.h"
+#include <stack>
+#include <vector>
+#include <iostream>
+#include <unordered_set>
+#include <utility>
+#include <iterator>
+#include <algorithm>
+#include <numeric>
+
 using namespace std;
+
 #define f first
 #define pb push_back
 #define s second 
+
 using ll = long long;
 using vi = vector<int>;
 using vc = vector<char>;
 using vl = vector<long long int>;
+
 #define rep(i,a,b) for (int i = (a); i < (b); i++)
 
 int main(){

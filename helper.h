@@ -1,9 +1,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <bits/stdc++.h>
 
 using namespace std;
+
+#include "bits/stdc++.h"
+
 
 // enum TokenKind {KEYWORDS, IDENTIFIERS, SEPARATORS, OPERATORS, LITERALS, PRIMITIVE_TYPE_KEYWORDS};
 enum ErrorKind {MULTI_LINE_ERROR, LEXICAL_ERROR, EOF_ERROR, ILLEGALCHAR, BADEXCAPESEQ};
@@ -20,19 +22,19 @@ void showError(string temp, enum ErrorKind errorCode){
     // printf("Error at line num: %d\nError: %s\n", yylineno, LexicalErrors[errorCode]);
     switch (errorCode){
         case BADEXCAPESEQ:
-            printf("Bad escape sequence: %s\n", temp);
+            printf("Bad escape sequence: %s\n", temp.c_str());
             break;
         case ILLEGALCHAR:
-            printf("Illegal Character: %s\n", temp);
+            printf("Illegal Character: %s\n", temp.c_str());
             break;
         case LEXICAL_ERROR:
-            printf("Bad Lexical Sequence starts from: %s\n", temp);
+            printf("Bad Lexical Sequence starts from: %s\n", temp.c_str());
             break;
         case EOF_ERROR:
-            printf("Unbalanced %s present.\n", temp);
+            printf("Unbalanced %s present.\n", temp.c_str());
             break;
         default:
-            printf("Error: %s\n", temp);
+            printf("Error: %s\n", temp.c_str());
             break;
     }
     return ;

@@ -1,12 +1,12 @@
-#include<bits/stdc++.h>
+#include "bits/stdc++.h"
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
 #include <fstream>
 
-#include "ast.h"
-
 using namespace std;
+
+#include "ast.h"
 
 Node* createNode(string str){
     char* lex = strcpy(new char[str.length() + 1], str.c_str());

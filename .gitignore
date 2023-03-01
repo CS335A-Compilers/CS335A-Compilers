@@ -57,3 +57,5 @@ dkms.conf
 
 # For testing purposes
 /dev
+
+.DS_Store
