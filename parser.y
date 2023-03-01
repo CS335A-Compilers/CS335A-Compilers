@@ -492,6 +492,7 @@ modifiers
             |   STRICTFP_KEYWORD  {Node* node = createNode("modifiers"); node->addChildren({$1}); $$ = node;}
             |   FINAL_KEYWORD {Node* node = createNode("modifiers"); node->addChildren({$1}); $$ = node;}
             |   SYNCHRONIZED_KEYWORD {Node* node = createNode("modifiers"); node->addChildren({$1}); $$ = node;}
+            |   TRANSITIVE_KEYWORD  {Node* node = createNode("modifiers"); node->addChildren({$1}); $$ = node;}
 
 modifiers_zero_or_more
             :   /* empty */ {Node* node = createNode("modifiers zero or more"); node->addChildren({}); $$ = node;}
