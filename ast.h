@@ -9,11 +9,14 @@ using namespace std;
 class Node {
 
     public:
-        string lexeme;
+        char* lexeme;
         vector<Node*> children;
-        Node(string lex){
+        bool isTerminal;        // Need to implement this 
+        long long int id;       // Need to implement this 
+        Node(char* lex){
             lexeme = lex;
             children.resize(0);
+            isTerminal = false;
         }
         void addChildren(vector<Node*> childrens){
             int n = childrens.size();

@@ -8,8 +8,9 @@
 
 using namespace std;
 
-Node* createNode(string lexeme){
-    Node* node = new Node(lexeme);
+Node* createNode(string str){
+    char* lex = strcpy(new char[str.length() + 1], str.c_str());
+    Node* node = new Node(lex);
     return node;
 }
 
@@ -25,12 +26,21 @@ Node* convertToAST(Node* root){
     return mainRoot;
 }
 
+char* spaceToUnderscore(char* word){
+    int n = strlen(word);
+    for(int i=0;i<n;i++){
+        if(word[i]==' ') word[i]='_';
+    }
+    return word;
+}
+
 void writeEdges(Node* root, FILE* file){
     if(root == NULL) return ;
     int n = root->children.size();
     if(n==0) return ;
     for(int i=0;i<n;i++){
-        fprintf(file, "%s -> %s", root->lexeme, root->children[i]->lexeme);
+        char* a = spaceToUnderscore(root->lexeme), *b = spaceToUnderscore(root->children[i]->lexeme);
+        fprintf(file, "\t%s -> %s\n", a, b);
     }
     for(int i=0;i<n;i++){
         writeEdges(root->children[i], file);
