@@ -65,9 +65,9 @@ void writeEdges(Node* root, FILE* file){
     return ;
 }
 
-void createDOT(Node* root){
+void createDOT(Node* root, char* output_file){
     FILE *file; //file pointer
-    file = fopen("ast.dot","w");
+    file = fopen(output_file,"w");
     fprintf(file, "digraph AST{\n");
     writeEdges(root, file);
     fprintf(file, "}");
@@ -75,8 +75,8 @@ void createDOT(Node* root){
     return ;
 }
 
-void createAST(Node* root){
+void createAST(Node* root, char* output_file){
     Node* ast_root = convertToAST(root);
-    createDOT(ast_root);
+    createDOT(ast_root, output_file);
     return ;
 }

@@ -1,10 +1,13 @@
 %{
     #include <stdio.h>
+    #include <string.h>
     #include "ast_helper.h"
 
     int yylex(void);
     void yyerror(char const*);
     extern int yylineno;
+
+    char* output_file;
 %}
 
 %locations
@@ -38,7 +41,7 @@
 //  ########   COMPILATION UNIT   ########  
 
 start_state 
-            :   compilation_unit                                                                                                                {$$ = $1; createAST($$);}
+            :   compilation_unit                                                                                                                {$$ = $1; createAST($$, output_file);}
 
 // compilation_unit
 //                :   IDENTIFIERS INT_KEYWORD                                                                                                   {Node* node = createNode("compilation_unit"); Node* temp = createNode($1);  Node* temp1 = createNode($2); node->addChildren({temp, temp1}); $$ = node;}
@@ -1363,13 +1366,39 @@ LITERALS
 int main(int argc, char **argv){
     // 3 arguments are compulsory 
     /*
-        ./myASTGenerator --input='../tests/test5.java' −−output='test5.dot'
+        ./myASTGenerator --input=../tests/test5.java −−output=test5.dot
     */
 
     // Lets look at the error cases first
     if (argc != 3){
-        printf("Please provide the input file to be parsed and the output file ...");
+        printf("Please provide both the input file to be parsed and the output file ...\n");
     }
+
+    // Get input file
+    char* input_file;
+
+    // Extract the first token
+    char * token_in = strtok(argv[1], "=");
+    // loop through the string to extract all other tokens
+    while( token_in != NULL ) {
+       strcpy(input_file, token_in);
+       token_in = strtok(NULL, "=");
+    }
+    // Now we have the input file
+    printf("INPUT FILE : %s\n", input_file);
+
+    // // Get output file
+    // char* output_file;
+
+    // Extract the first token
+    char * token_out = strtok(argv[2], "=");
+    // loop through the string to extract all other tokens
+    while( token_out != NULL ) {
+        strcpy(output_file, token_out);
+        token_out = strtok(NULL, "=");
+    }
+    // Now we have the input file
+    printf("OUTPUT FILE : %s\n", output_file);
 
     
     yyparse();
