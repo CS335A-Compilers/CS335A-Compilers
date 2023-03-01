@@ -84,124 +84,124 @@ OCTAL_EXCAPE                \\{OCTAL_DIGIT}|\\{OCTAL_DIGIT}{OCTAL_DIGIT}|\\[0-3]
 
 %%
 
-"abstract"              {(yylval.node)->lexeme = strdup(yytext); return(ABSTRACT_KEYWORD);}
-"continue"              {(yylval.node)->lexeme = strdup(yytext); return(CONTINUE_KEYWORD);}
-"for"                   {(yylval.node)->lexeme = strdup(yytext); return(FOR_KEYWORD);}
-"new"                   {(yylval.node)->lexeme = strdup(yytext); return(NEW_KEYWORD);}
-"switch"                {(yylval.node)->lexeme = strdup(yytext); return(SWITCH_KEYWORD);}
-"assert"                {(yylval.node)->lexeme = strdup(yytext); return(ASSERT_KEYWORD);}
-"default"               {(yylval.node)->lexeme = strdup(yytext); return(DEFAULT_KEYWORD);}
-"if"                    {(yylval.node)->lexeme = strdup(yytext); return(IF_KEYWORD);}
-"package"               {(yylval.node)->lexeme = strdup(yytext); return(PACKAGE_KEYWORD);}
-"synchronized"          {(yylval.node)->lexeme = strdup(yytext); return(SYNCHRONIZED_KEYWORD);}
-"boolean"               {(yylval.node)->lexeme = strdup(yytext); return(BOOLEAN_KEYWORD);}
-"do"                    {(yylval.node)->lexeme = strdup(yytext); return(DO_KEYWORD);}
-"goto"                  {(yylval.node)->lexeme = strdup(yytext); return(GOTO_KEYWORD);}
-"private"               {(yylval.node)->lexeme = strdup(yytext); return(PRIVATE_KEYWORD);}
-"this"                  {(yylval.node)->lexeme = strdup(yytext); return(THIS_KEYWORD);}
-"break"                 {(yylval.node)->lexeme = strdup(yytext); return(BREAK_KEYWORD);}
-"double"                {(yylval.node)->lexeme = strdup(yytext); return(DOUBLE_KEYWORD);}
-"implements"            {(yylval.node)->lexeme = strdup(yytext); return(IMPLEMENTS_KEYWORD);}
-"protected"             {(yylval.node)->lexeme = strdup(yytext); return(PROTECTED_KEYWORD);}
-"throw"                 {(yylval.node)->lexeme = strdup(yytext); return(THROW_KEYWORD);}
-"byte"                  {(yylval.node)->lexeme = strdup(yytext); return(BYTE_KEYWORD);}
-"else"                  {(yylval.node)->lexeme = strdup(yytext); return(ELSE_KEYWORD);}
-"import"                {(yylval.node)->lexeme = strdup(yytext); return(IMPORT_KEYWORD);}
-"public"                {(yylval.node)->lexeme = strdup(yytext); return(PUBLIC_KEYWORD);}
-"throws"                {(yylval.node)->lexeme = strdup(yytext); return(THROWS_KEYWORD);}
-"case"                  {(yylval.node)->lexeme = strdup(yytext); return(CASE_KEYWORD);}
-"enum"                  {(yylval.node)->lexeme = strdup(yytext); return(ENUM_KEYWORD);}
-"instanceof"            {(yylval.node)->lexeme = strdup(yytext); return(INSTANCEOF_KEYWORD);}
-"return"                {(yylval.node)->lexeme = strdup(yytext); return(RETURN_KEYWORD);}
-"transient"             {(yylval.node)->lexeme = strdup(yytext); return(TRANSIENT_KEYWORD);}
-"catch"                 {(yylval.node)->lexeme = strdup(yytext); return(CATCH_KEYWORD);}
-"extends"               {(yylval.node)->lexeme = strdup(yytext); return(EXTENDS_KEYWORD);}
-"int"                   {(yylval.node)->lexeme = strdup(yytext); return(INT_KEYWORD);}
-"short"                 {(yylval.node)->lexeme = strdup(yytext); return(SHORT_KEYWORD);}
-"try"                   {(yylval.node)->lexeme = strdup(yytext); return(TRY_KEYWORD);}
-"char"                  {(yylval.node)->lexeme = strdup(yytext); return(CHAR_KEYWORD);}
-"final"                 {(yylval.node)->lexeme = strdup(yytext); return(FINAL_KEYWORD);}
-"interface"             {(yylval.node)->lexeme = strdup(yytext); return(INTERFACE_KEYWORD);}
-"static"                {(yylval.node)->lexeme = strdup(yytext); return(STATIC_KEYWORD);}
-"void"                  {(yylval.node)->lexeme = strdup(yytext); return(VOID_KEYWORD);}
-"class"                 {(yylval.node)->lexeme = strdup(yytext); return(CLASS_KEYWORD);}
-"finally"               {(yylval.node)->lexeme = strdup(yytext); return(FINALLY_KEYWORD);}
-"long"                  {(yylval.node)->lexeme = strdup(yytext); return(LONG_KEYWORD);}
-"strictfp"              {(yylval.node)->lexeme = strdup(yytext); return(STRICTFP_KEYWORD);}
-"volatile"              {(yylval.node)->lexeme = strdup(yytext); return(VOLATILE_KEYWORD);}
-"const"                 {(yylval.node)->lexeme = strdup(yytext); return(CONST_KEYWORD);}
-"float"                 {(yylval.node)->lexeme = strdup(yytext); return(FLOAT_KEYWORD);}
-"native"                {(yylval.node)->lexeme = strdup(yytext); return(NATIVE_KEYWORD);}
-"super"                 {(yylval.node)->lexeme = strdup(yytext); return(SUPER_KEYWORD);}
-"while"                 {(yylval.node)->lexeme = strdup(yytext); return(WHILE_KEYWORD);}
-"_"                     {(yylval.node)->lexeme = strdup(yytext); return(__KEYWORD);}
-"exports"               {(yylval.node)->lexeme = strdup(yytext); return(EXPORTS_KEYWORD);}
-"opens"                 {(yylval.node)->lexeme = strdup(yytext); return(OPENS_KEYWORD);}
-"requires"              {(yylval.node)->lexeme = strdup(yytext); return(REQUIRES_KEYWORD);}
-"uses"                  {(yylval.node)->lexeme = strdup(yytext); return(USES_KEYWORD);}
-"module"                {(yylval.node)->lexeme = strdup(yytext); return(MODULE_KEYWORD);}
-"permits"               {(yylval.node)->lexeme = strdup(yytext); return(PERMITS_KEYWORD);}
-"sealed"                {(yylval.node)->lexeme = strdup(yytext); return(SEALED_KEYWORD);}
-"var"                   {(yylval.node)->lexeme = strdup(yytext); return(VAR_KEYWORD);}
-"non- sealed"           {(yylval.node)->lexeme = strdup(yytext); return(NONSEALED_KEYWORD);}
-"provides"              {(yylval.node)->lexeme = strdup(yytext); return(PROVIDES_KEYWORD);}
-"to"                    {(yylval.node)->lexeme = strdup(yytext); return(TO_KEYWORD);}
-"with"                  {(yylval.node)->lexeme = strdup(yytext); return(WITH_KEYWORD);}
-"open"                  {(yylval.node)->lexeme = strdup(yytext); return(OPEN_KEYWORD);}
-"record"                {(yylval.node)->lexeme = strdup(yytext); return(RECORD_KEYWORD);}
-"transitive"            {(yylval.node)->lexeme = strdup(yytext); return(TRANSITIVE_KEYWORD);}
-"yield"                 {(yylval.node)->lexeme = strdup(yytext); return(YIELD_KEYWORD);}
-"<>"                    {(yylval.node)->lexeme = strdup(yytext); return(DIAMOND);}
-"->"                    {(yylval.node)->lexeme = strdup(yytext); return(PTR_OP);}
-"=="                    {(yylval.node)->lexeme = strdup(yytext); return(EQ_OP);}
-">="                    {(yylval.node)->lexeme = strdup(yytext); return(GE_OP);}
-"<="                    {(yylval.node)->lexeme = strdup(yytext); return(LE_OP);}
-"!="                    {(yylval.node)->lexeme = strdup(yytext); return(NE_OP);}
-"&&"                    {(yylval.node)->lexeme = strdup(yytext); return(AND_OP);}
-"||"                    {(yylval.node)->lexeme = strdup(yytext); return(OR_OP);}
-"++"                    {(yylval.node)->lexeme = strdup(yytext); return(INC_OP);}
-"--"                    {(yylval.node)->lexeme = strdup(yytext); return(DEC_OP);}
-"<<"                    {(yylval.node)->lexeme = strdup(yytext); return(LEFT_OP);}
-">>"                    {(yylval.node)->lexeme = strdup(yytext); return(RIGHT_OP);}
-">>>"                   {(yylval.node)->lexeme = strdup(yytext); return(BIT_RIGHT_SHFT_OP);}
-"+="                    {(yylval.node)->lexeme = strdup(yytext); return(ADD_ASSIGN);}
-"-="                    {(yylval.node)->lexeme = strdup(yytext); return(SUB_ASSIGN);}
-"*="                    {(yylval.node)->lexeme = strdup(yytext); return(MUL_ASSIGN);}
-"/="                    {(yylval.node)->lexeme = strdup(yytext); return(DIV_ASSIGN);}
-"&="                    {(yylval.node)->lexeme = strdup(yytext); return(AND_ASSIGN);}
-"|="                    {(yylval.node)->lexeme = strdup(yytext); return(OR_ASSIGN);}
-"^="                    {(yylval.node)->lexeme = strdup(yytext); return(XOR_ASSIGN);}
-"%="                    {(yylval.node)->lexeme = strdup(yytext); return(MOD_ASSIGN);}
-"<<="                   {(yylval.node)->lexeme = strdup(yytext); return(LEFT_ASSIGN);}
-">>="                   {(yylval.node)->lexeme = strdup(yytext); return(RIGHT_ASSIGN);}
-">>>="                  {(yylval.node)->lexeme = strdup(yytext); return(BIT_RIGHT_SHFT_ASSIGN);}
-"="                     {(yylval.node)->lexeme = strdup(yytext); return('=');}
-">"                     {(yylval.node)->lexeme = strdup(yytext); return('>');}
-"<"                     {(yylval.node)->lexeme = strdup(yytext); return('<');}
-"!"                     {(yylval.node)->lexeme = strdup(yytext); return('!');}
-"~"                     {(yylval.node)->lexeme = strdup(yytext); return('~');}
-"?"                     {(yylval.node)->lexeme = strdup(yytext); return('?');}
-":"                     {(yylval.node)->lexeme = strdup(yytext); return(':');}
-"+"                     {(yylval.node)->lexeme = strdup(yytext); return('+');}
-"-"                     {(yylval.node)->lexeme = strdup(yytext); return('-');}
-"*"                     {(yylval.node)->lexeme = strdup(yytext); return('*');}
-"/"                     {(yylval.node)->lexeme = strdup(yytext); return('/');}
-"&"                     {(yylval.node)->lexeme = strdup(yytext); return('&');}
-"|"                     {(yylval.node)->lexeme = strdup(yytext); return('|');}
-"^"                     {(yylval.node)->lexeme = strdup(yytext); return('^');}
-"%"                     {(yylval.node)->lexeme = strdup(yytext); return('%');}
-","                     {(yylval.node)->lexeme = strdup(yytext); return(',');}
-"."                     {(yylval.node)->lexeme = strdup(yytext); return('.');}
-";"                     {(yylval.node)->lexeme = strdup(yytext); return(';');}
-"("                     {(yylval.node)->lexeme = strdup(yytext); return('(');}
-")"                     {(yylval.node)->lexeme = strdup(yytext); return(')');}
-"["                     {(yylval.node)->lexeme = strdup(yytext); return('[');}
-"]"                     {(yylval.node)->lexeme = strdup(yytext); return(']');}
-"{"                     {(yylval.node)->lexeme = strdup(yytext); return('{');}
-"}"                     {(yylval.node)->lexeme = strdup(yytext); return('}');}
-"@"                     {(yylval.node)->lexeme = strdup(yytext); return('@');}
-"..."                   {(yylval.node)->lexeme = strdup(yytext); return(ELLIPSIS);}
-"::"                    {(yylval.node)->lexeme = strdup(yytext); return(DOUBLE_COLON);}
+"abstract"              {char* temp = strdup(yytext); yylval.lex_val = temp; return(abstract_keyword_terminal);}
+"continue"              {char* temp = strdup(yytext); yylval.lex_val = temp; return(continue_keyword_terminal);}
+"for"                   {char* temp = strdup(yytext); yylval.lex_val = temp; return(for_keyword_terminal);}
+"new"                   {char* temp = strdup(yytext); yylval.lex_val = temp; return(new_keyword_terminal);}
+"switch"                {char* temp = strdup(yytext); yylval.lex_val = temp; return(switch_keyword_terminal);}
+"assert"                {char* temp = strdup(yytext); yylval.lex_val = temp; return(assert_keyword_terminal);}
+"default"               {char* temp = strdup(yytext); yylval.lex_val = temp; return(default_keyword_terminal);}
+"if"                    {char* temp = strdup(yytext); yylval.lex_val = temp; return(if_keyword_terminal);}
+"package"               {char* temp = strdup(yytext); yylval.lex_val = temp; return(package_keyword_terminal);}
+"synchronized"          {char* temp = strdup(yytext); yylval.lex_val = temp; return(synchronized_keyword_terminal);}
+"boolean"               {char* temp = strdup(yytext); yylval.lex_val = temp; return(boolean_keyword_terminal);}
+"do"                    {char* temp = strdup(yytext); yylval.lex_val = temp; return(do_keyword_terminal);}
+"goto"                  {char* temp = strdup(yytext); yylval.lex_val = temp; return(goto_keyword_terminal);}
+"private"               {char* temp = strdup(yytext); yylval.lex_val = temp; return(private_keyword_terminal);}
+"this"                  {char* temp = strdup(yytext); yylval.lex_val = temp; return(this_keyword_terminal);}
+"break"                 {char* temp = strdup(yytext); yylval.lex_val = temp; return(break_keyword_terminal);}
+"double"                {char* temp = strdup(yytext); yylval.lex_val = temp; return(double_keyword_terminal);}
+"implements"            {char* temp = strdup(yytext); yylval.lex_val = temp; return(implements_keyword_terminal);}
+"protected"             {char* temp = strdup(yytext); yylval.lex_val = temp; return(protected_keyword_terminal);}
+"throw"                 {char* temp = strdup(yytext); yylval.lex_val = temp; return(throw_keyword_terminal);}
+"byte"                  {char* temp = strdup(yytext); yylval.lex_val = temp; return(byte_keyword_terminal);}
+"else"                  {char* temp = strdup(yytext); yylval.lex_val = temp; return(else_keyword_terminal);}
+"import"                {char* temp = strdup(yytext); yylval.lex_val = temp; return(import_keyword_terminal);}
+"public"                {char* temp = strdup(yytext); yylval.lex_val = temp; return(public_keyword_terminal);}
+"throws"                {char* temp = strdup(yytext); yylval.lex_val = temp; return(throws_keyword_terminal);}
+"case"                  {char* temp = strdup(yytext); yylval.lex_val = temp; return(case_keyword_terminal);}
+"enum"                  {char* temp = strdup(yytext); yylval.lex_val = temp; return(enum_keyword_terminal);}
+"instanceof"            {char* temp = strdup(yytext); yylval.lex_val = temp; return(instanceof_keyword_terminal);}
+"return"                {char* temp = strdup(yytext); yylval.lex_val = temp; return(return_keyword_terminal);}
+"transient"             {char* temp = strdup(yytext); yylval.lex_val = temp; return(transient_keyword_terminal);}
+"catch"                 {char* temp = strdup(yytext); yylval.lex_val = temp; return(catch_keyword_terminal);}
+"extends"               {char* temp = strdup(yytext); yylval.lex_val = temp; return(extends_keyword_terminal);}
+"int"                   {char* temp = strdup(yytext); yylval.lex_val = temp; return(int_keyword_terminal);}
+"short"                 {char* temp = strdup(yytext); yylval.lex_val = temp; return(short_keyword_terminal);}
+"try"                   {char* temp = strdup(yytext); yylval.lex_val = temp; return(try_keyword_terminal);}
+"char"                  {char* temp = strdup(yytext); yylval.lex_val = temp; return(char_keyword_terminal);}
+"final"                 {char* temp = strdup(yytext); yylval.lex_val = temp; return(final_keyword_terminal);}
+"interface"             {char* temp = strdup(yytext); yylval.lex_val = temp; return(interface_keyword_terminal);}
+"static"                {char* temp = strdup(yytext); yylval.lex_val = temp; return(static_keyword_terminal);}
+"void"                  {char* temp = strdup(yytext); yylval.lex_val = temp; return(void_keyword_terminal);}
+"class"                 {char* temp = strdup(yytext); yylval.lex_val = temp; return(class_keyword_terminal);}
+"finally"               {char* temp = strdup(yytext); yylval.lex_val = temp; return(finally_keyword_terminal);}
+"long"                  {char* temp = strdup(yytext); yylval.lex_val = temp; return(long_keyword_terminal);}
+"strictfp"              {char* temp = strdup(yytext); yylval.lex_val = temp; return(strictfp_keyword_terminal);}
+"volatile"              {char* temp = strdup(yytext); yylval.lex_val = temp; return(volatile_keyword_terminal);}
+"const"                 {char* temp = strdup(yytext); yylval.lex_val = temp; return(const_keyword_terminal);}
+"float"                 {char* temp = strdup(yytext); yylval.lex_val = temp; return(float_keyword_terminal);}
+"native"                {char* temp = strdup(yytext); yylval.lex_val = temp; return(native_keyword_terminal);}
+"super"                 {char* temp = strdup(yytext); yylval.lex_val = temp; return(super_keyword_terminal);}
+"while"                 {char* temp = strdup(yytext); yylval.lex_val = temp; return(while_keyword_terminal);}
+"_"                     {char* temp = strdup(yytext); yylval.lex_val = temp; return(__keyword_terminal);}
+"exports"               {char* temp = strdup(yytext); yylval.lex_val = temp; return(exports_keyword_terminal);}
+"opens"                 {char* temp = strdup(yytext); yylval.lex_val = temp; return(opens_keyword_terminal);}
+"requires"              {char* temp = strdup(yytext); yylval.lex_val = temp; return(requires_keyword_terminal);}
+"uses"                  {char* temp = strdup(yytext); yylval.lex_val = temp; return(uses_keyword_terminal);}
+"module"                {char* temp = strdup(yytext); yylval.lex_val = temp; return(module_keyword_terminal);}
+"permits"               {char* temp = strdup(yytext); yylval.lex_val = temp; return(permits_keyword_terminal);}
+"sealed"                {char* temp = strdup(yytext); yylval.lex_val = temp; return(sealed_keyword_terminal);}
+"var"                   {char* temp = strdup(yytext); yylval.lex_val = temp; return(var_keyword_terminal);}
+"non-sealed"            {char* temp = strdup(yytext); yylval.lex_val = temp; return(nonsealed_keyword_terminal);}
+"provides"              {char* temp = strdup(yytext); yylval.lex_val = temp; return(provides_keyword_terminal);}
+"to"                    {char* temp = strdup(yytext); yylval.lex_val = temp; return(to_keyword_terminal);}
+"with"                  {char* temp = strdup(yytext); yylval.lex_val = temp; return(with_keyword_terminal);}
+"open"                  {char* temp = strdup(yytext); yylval.lex_val = temp; return(open_keyword_terminal);}
+"record"                {char* temp = strdup(yytext); yylval.lex_val = temp; return(record_keyword_terminal);}
+"transitive"            {char* temp = strdup(yytext); yylval.lex_val = temp; return(transitive_keyword_terminal);}
+"yield"                 {char* temp = strdup(yytext); yylval.lex_val = temp; return(yield_keyword_terminal);}
+"<>"                    {char* temp = strdup(yytext); yylval.lex_val = temp; return(DIAMOND_TERMINAL);}
+"->"                    {char* temp = strdup(yytext); yylval.lex_val = temp; return(PTR_OP_TERMINAL);}
+"=="                    {char* temp = strdup(yytext); yylval.lex_val = temp; return(EQ_OP_TERMINAL);}
+">="                    {char* temp = strdup(yytext); yylval.lex_val = temp; return(GE_OP_TERMINAL);}
+"<="                    {char* temp = strdup(yytext); yylval.lex_val = temp; return(LE_OP_TERMINAL);}
+"!="                    {char* temp = strdup(yytext); yylval.lex_val = temp; return(NE_OP_TERMINAL);}
+"&&"                    {char* temp = strdup(yytext); yylval.lex_val = temp; return(AND_OP_TERMINAL);}
+"||"                    {char* temp = strdup(yytext); yylval.lex_val = temp; return(OR_OP_TERMINAL);}
+"++"                    {char* temp = strdup(yytext); yylval.lex_val = temp; return(INC_OP_TERMINAL);}
+"--"                    {char* temp = strdup(yytext); yylval.lex_val = temp; return(DEC_OP_TERMINAL);}
+"<<"                    {char* temp = strdup(yytext); yylval.lex_val = temp; return(LEFT_OP_TERMINAL);}
+">>"                    {char* temp = strdup(yytext); yylval.lex_val = temp; return(RIGHT_OP_TERMINAL);}
+">>>"                   {char* temp = strdup(yytext); yylval.lex_val = temp; return(BIT_RIGHT_SHFT_OP_TERMINAL);}
+"+="                    {char* temp = strdup(yytext); yylval.lex_val = temp; return(ADD_ASSIGN_TERMINAL);}
+"-="                    {char* temp = strdup(yytext); yylval.lex_val = temp; return(SUB_ASSIGN_TERMINAL);}
+"*="                    {char* temp = strdup(yytext); yylval.lex_val = temp; return(MUL_ASSIGN_TERMINAL);}
+"/="                    {char* temp = strdup(yytext); yylval.lex_val = temp; return(DIV_ASSIGN_TERMINAL);}
+"&="                    {char* temp = strdup(yytext); yylval.lex_val = temp; return(AND_ASSIGN_TERMINAL);}
+"|="                    {char* temp = strdup(yytext); yylval.lex_val = temp; return(OR_ASSIGN_TERMINAL);}
+"^="                    {char* temp = strdup(yytext); yylval.lex_val = temp; return(XOR_ASSIGN_TERMINAL);}
+"%="                    {char* temp = strdup(yytext); yylval.lex_val = temp; return(MOD_ASSIGN_TERMINAL);}
+"<<="                   {char* temp = strdup(yytext); yylval.lex_val = temp; return(LEFT_ASSIGN_TERMINAL);}
+">>="                   {char* temp = strdup(yytext); yylval.lex_val = temp; return(RIGHT_ASSIGN_TERMINAL);}
+">>>="                  {char* temp = strdup(yytext); yylval.lex_val = temp; return(BIT_RIGHT_SHFT_ASSIGN_TERMINAL);}
+"="                     {char* temp = strdup(yytext); yylval.lex_val = temp; return('=');}
+">"                     {char* temp = strdup(yytext); yylval.lex_val = temp; return('>');}
+"<"                     {char* temp = strdup(yytext); yylval.lex_val = temp; return('<');}
+"!"                     {char* temp = strdup(yytext); yylval.lex_val = temp; return('!');}
+"~"                     {char* temp = strdup(yytext); yylval.lex_val = temp; return('~');}
+"?"                     {char* temp = strdup(yytext); yylval.lex_val = temp; return('?');}
+":"                     {char* temp = strdup(yytext); yylval.lex_val = temp; return(':');}
+"+"                     {char* temp = strdup(yytext); yylval.lex_val = temp; return('+');}
+"-"                     {char* temp = strdup(yytext); yylval.lex_val = temp; return('-');}
+"*"                     {char* temp = strdup(yytext); yylval.lex_val = temp; return('*');}
+"/"                     {char* temp = strdup(yytext); yylval.lex_val = temp; return('/');}
+"&"                     {char* temp = strdup(yytext); yylval.lex_val = temp; return('&');}
+"|"                     {char* temp = strdup(yytext); yylval.lex_val = temp; return('|');}
+"^"                     {char* temp = strdup(yytext); yylval.lex_val = temp; return('^');}
+"%"                     {char* temp = strdup(yytext); yylval.lex_val = temp; return('%');}
+","                     {char* temp = strdup(yytext); yylval.lex_val = temp; return(',');}
+"."                     {char* temp = strdup(yytext); yylval.lex_val = temp; return('.');}
+";"                     {char* temp = strdup(yytext); yylval.lex_val = temp; return(';');}
+"("                     {char* temp = strdup(yytext); yylval.lex_val = temp; return('(');}
+")"                     {char* temp = strdup(yytext); yylval.lex_val = temp; return(')');}
+"["                     {char* temp = strdup(yytext); yylval.lex_val = temp; return('[');}
+"]"                     {char* temp = strdup(yytext); yylval.lex_val = temp; return(']');}
+"{"                     {char* temp = strdup(yytext); yylval.lex_val = temp; return('{');}
+"}"                     {char* temp = strdup(yytext); yylval.lex_val = temp; return('}');}
+"@"                     {char* temp = strdup(yytext); yylval.lex_val = temp; return('@');}
+"..."                   {char* temp = strdup(yytext); yylval.lex_val = temp; return(ELLIPSIS_TERMINAL);}
+"::"                    {char* temp = strdup(yytext); yylval.lex_val = temp; return(DOUBLE_COLON_TERMINAL);}
 
 "/*"                              {BEGIN(comment_state);}
 <comment_state>[^*\n]+            {}
@@ -213,14 +213,14 @@ OCTAL_EXCAPE                \\{OCTAL_DIGIT}|\\{OCTAL_DIGIT}{OCTAL_DIGIT}|\\[0-3]
 
 \'                          {BEGIN(chars);}
 <chars>{LINE_TERMINATOR}    {showError("", MULTI_LINE_ERROR); return(0);}
-<chars>[^'\\]'              {char* temp = strdup(yytext); temp[1]=temp[0]; temp[0]='\''; temp[2]='\''; BEGIN(INITIAL); (yylval.node)->lexeme = strdup(temp); return LITERALS;}
-<chars>{ESCAPE_SEQUENCE}'   {char* temp = strdup(yytext); temp[0]='\''; temp[1]=*convertExcapeChar(temp[1]); temp[2]='\'';  BEGIN(INITIAL); (yylval.node)->lexeme = strdup(temp); return LITERALS;}
+<chars>[^'\\]'              {char* temp = strdup(yytext); temp[1]=temp[0]; temp[0]='\''; temp[2]='\''; BEGIN(INITIAL); (yylval.node)->lexeme = strdup(temp); return LITERALS_TERMINAL;}
+<chars>{ESCAPE_SEQUENCE}'   {char* temp = strdup(yytext); temp[0]='\''; temp[1]=*convertExcapeChar(temp[1]); temp[2]='\'';  BEGIN(INITIAL); (yylval.node)->lexeme = strdup(temp); return LITERALS_TERMINAL;}
 
 \"                                {BEGIN(str_state); char* temp = strdup(yytext); initBuffer(temp);}
 <str_state>{LINE_TERMINATOR}      {showError("", MULTI_LINE_ERROR); return(0);}
 <str_state>[^"\\]                 {char* temp = strdup(yytext); pushBuffer(temp);}
 <str_state>{ESCAPE_SEQUENCE}      {char* temp = strdup(yytext); pushBuffer(convertExcapeChar(temp[1]));}
-<str_state>\"                     {BEGIN(INITIAL); char* temp = strdup(yytext); endBuffer(temp); (yylval.node)->lexeme = (string_buffer); return LITERALS;}
+<str_state>\"                     {BEGIN(INITIAL); char* temp = strdup(yytext); endBuffer(temp); char* lex = strcpy(new char[string_buffer.length() + 1], string_buffer.c_str()); yylval.lex_val = lex; return LITERALS_TERMINAL;}
 
 ["]["]["]                                   {BEGIN(text_block_start); char* temp = strdup(yytext); initBuffer(temp);}
 <text_block_start>["]["]["]{BLANK_SPACE}*   {}
@@ -229,16 +229,16 @@ OCTAL_EXCAPE                \\{OCTAL_DIGIT}|\\{OCTAL_DIGIT}{OCTAL_DIGIT}|\\[0-3]
 <text_block_chars>[^\\]                     {char* temp = strdup(yytext); pushBuffer(temp);}
 <text_block_chars>[\\]?{LINE_TERMINATOR}    {char* temp = strdup(yytext); temp[0] = temp[1]; temp[1]='\0'; pushBuffer(temp);}
 <text_block_chars>[\\][^\n\r]               {string temp = strdup(yytext); showError(temp, BADEXCAPESEQ); return(0);}
-<text_block_chars>["]["]["]                 {BEGIN(INITIAL); char* temp = strdup(yytext); endBuffer(temp); (yylval.node)->lexeme = (string_buffer); return LITERALS;}
+<text_block_chars>["]["]["]                 {BEGIN(INITIAL); char* temp = strdup(yytext); endBuffer(temp); char* lex = strcpy(new char[string_buffer.length() + 1], string_buffer.c_str()); yylval.lex_val = lex; return LITERALS_TERMINAL;}
 
-{NUM_LITERALS}                      {(yylval.node)->lexeme = strdup(yytext); return LITERALS;}
-{IDENTIFIER}                        {(yylval.node)->lexeme = strdup(yytext); return IDENTIFIERS;}
+{NUM_LITERALS}              {char* temp = strdup(yytext); yylval.lex_val = temp; return LITERALS_TERMINAL;}
+{IDENTIFIER}                {char* temp = strdup(yytext); yylval.lex_val = temp; return IDENTIFIERS_TERMINAL;}
 
 {BLANK_SPACE}+              {}
 {LINE_TERMINATOR}           {}
 
 <str_state,chars,comment_state,text_block_start,text_block_chars><<EOF>>  {string temp = convertCurrState(YYSTATE); showError(temp, EOF_ERROR);}
-<str_state,chars,text_block_start,text_block_chars,INITIAL>.        {string temp = strdup(yytext); showError(temp, LEXICAL_ERROR);}
+<str_state,chars,text_block_start,text_block_chars,INITIAL>.              {string temp = strdup(yytext); showError(temp, LEXICAL_ERROR);}
 
 %%
 

@@ -9,4 +9,4 @@ $(name):
 	./parser < $@
 
 clean:
-	rm -f lex.yy.cc parser.tab.c parser.tab.h parser.output parser parser.exe ast.dot
+	rm -f lex.yy.c parser.tab.c parser.tab.h parser.output parser parser.exe ast.dot
