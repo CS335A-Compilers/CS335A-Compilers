@@ -6,9 +6,9 @@
 
 %{
     #include "ast.h"
+    int Node::node_id = 0;
     #include "helper.h"
     #include "parser.tab.h"
-
 %}
 
 %option yylineno

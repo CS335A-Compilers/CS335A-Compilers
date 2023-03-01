@@ -10,13 +10,16 @@ class Node {
 
     public:
         char* lexeme;
+        static int node_id;
         vector<Node*> children;
-        bool isTerminal;        // Need to implement this 
-        long long int id;       // Need to implement this 
+        bool isTerminal; 
+        long long int id; 
         Node(char* lex){
             lexeme = lex;
             children.resize(0);
             isTerminal = false;
+            node_id++;
+            id = node_id;
         }
         void addChildren(vector<Node*> childrens){
             int n = childrens.size();
