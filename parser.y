@@ -1,5 +1,7 @@
 %{
+    #include <stdio.h>
     #include "ast_helper.h"
+
     int yylex(void);
     void yyerror(char const*);
     extern int yylineno;
@@ -1357,7 +1359,18 @@ LITERALS
 
 %%
 
-int main(){
+int main(int argc, char **argv){
+    // 3 arguments are compulsory 
+    /*
+        ./myASTGenerator --input='../tests/test5.java' −−output='test5.dot'
+    */
+
+    // Lets look at the error cases first
+    if (argc != 3){
+        printf("Please provide the input file to be parsed and the output file ...");
+    }
+
+    
     yyparse();
     return 0;
 }
