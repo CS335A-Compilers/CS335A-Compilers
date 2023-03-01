@@ -32,7 +32,7 @@ int main(){
     while (ss >> word){
         // string s2 = word;
         // transform(s2.begin(), s2.end(), s2.begin(), ::tolower);
-        cout<<word<<"\n\t:\t"<<word<<"_TERMINAL\t\t\t\t\t\t\t{Node* temp = createNode($1); $$ = temp;}\n\n";
+        cout<<word<<"\n\t:\t"<<word<<"_TERMINAL\t\t\t\t\t\t\t{Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}\n\n";
         // cout<<word<<"_TERMINAL ";
     }
     return 0;
