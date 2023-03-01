@@ -1,5 +1,5 @@
 %{
-    #include "ast.h"
+    #include "ast_helper.h"
     int yylex(void);
     void yyerror(char const*);
     extern int yylineno;
@@ -39,8 +39,8 @@ compilation_unit
 ordinary_compilation_unit
             :   top_level_class_or_interface_declaration_zero_or_more    {Node* node = createNode("ordinary compilation unit"); node->addChildren({$1}); $$ = node;}
             |   package_declaration top_level_class_or_interface_declaration_zero_or_more       {Node* node = createNode("ordinary compilation unit"); node->addChildren({$1, $2}); $$ = node;}
-            |   import_declaration import_declaration_zero_or_more top_level_class_or_interface_declaration_zero_or_more  {Node* node = createNode("ordinary compilation unit"); node->addChildren({$1, $2}); $$ = node;}
-            |   package_declaration import_declaration import_declaration_zero_or_more top_level_class_or_interface_declaration_zero_or_more  {Node* node = createNode("ordinary compilation unit"); node->addChildren({$1, $2, $3}); $$ = node;}
+            |   import_declaration import_declaration_zero_or_more top_level_class_or_interface_declaration_zero_or_more  {Node* node = createNode("ordinary compilation unit"); node->addChildren({$1, $2, $3}); $$ = node;}
+            |   package_declaration import_declaration import_declaration_zero_or_more top_level_class_or_interface_declaration_zero_or_more  {Node* node = createNode("ordinary compilation unit"); node->addChildren({$1, $2, $3, $4}); $$ = node;}
 
 import_declaration_zero_or_more
             :   /* empty */                     {Node* node = createNode("import declaration zero or more"); $$ = node;}
@@ -48,10 +48,10 @@ import_declaration_zero_or_more
 
 top_level_class_or_interface_declaration_zero_or_more
             :   /* empty */                                                                     {Node* node = createNode("top level class or interface declaration zero or more"); $$ = node;} 
-            |   top_level_class_or_interface_declaration top_level_class_or_interface_declaration_zero_or_more {Node* node = createNode("top level class or interface declaration zero or more"); node->addChildren({$1}); $$ = node;}
+            |   top_level_class_or_interface_declaration top_level_class_or_interface_declaration_zero_or_more {Node* node = createNode("top level class or interface declaration zero or more"); node->addChildren({$1, $2}); $$ = node;}
 
 modular_compilation_unit
-            :   import_declaration_zero_or_more module_declaration {Node* node = createNode("modular compilation unit"); node->addChildren({$1}); $$ = node;}
+            :   import_declaration_zero_or_more module_declaration {Node* node = createNode("modular compilation unit"); node->addChildren({$1, $2}); $$ = node;}
 
 package_declaration
             :   PACKAGE_KEYWORD type_name ';' {Node* node = createNode("package declaration"); node->addChildren({$1,$2,$3}); $$ = node;}
