@@ -34,13 +34,30 @@ char* spaceToUnderscore(char* word){
     return word;
 }
 
+// void writeEdges(Node* root, FILE* file){
+//     if(root == NULL) return ;
+//     int n = root->children.size();
+//     // if(n==0) return ;
+//     for(int i=0;i<n;i++){
+//         char* a = spaceToUnderscore(root->lexeme), *b = spaceToUnderscore(root->children[i]->lexeme);
+//         fprintf(file, "\t%s -> %s\n", a, b);
+//     }
+//     for(int i=0;i<n;i++){
+//         writeEdges(root->children[i], file);
+//     }
+//     return ;
+// }
+
 void writeEdges(Node* root, FILE* file){
     if(root == NULL) return ;
     int n = root->children.size();
-    if(n==0) return ;
+    if(n==0 && root->isTerminal == false) return ;
+    char* a = spaceToUnderscore(root->lexeme);
+    if(root->isTerminal == true) fprintf(file, "\t%lld[label = \"%s\", shape = \"doublecircle\"]\n", root->id, a);
+    else fprintf(file, "\t%lld[label = %s]\n", root->id, a);
     for(int i=0;i<n;i++){
-        char* a = spaceToUnderscore(root->lexeme), *b = spaceToUnderscore(root->children[i]->lexeme);
-        fprintf(file, "\t%s -> %s\n", a, b);
+        if((root->children[i])->isTerminal == false && ((root->children[i])->children).size() == 0) continue;
+        fprintf(file, "\t%lld -> %lld\n", root->id, (root->children[i])->id);
     }
     for(int i=0;i<n;i++){
         writeEdges(root->children[i], file);

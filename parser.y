@@ -1024,338 +1024,338 @@ argument_list_zero_or_one
 // TERMINALS 
 
 ASSIGNMENT_OP
-        :       '='                                                     {Node* temp = createNode($1); $$ = temp;}
+        :       '='                                                     {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 GT_OP
-        :       '>'                                                     {Node* temp = createNode($1); $$ = temp;}
+        :       '>'                                                     {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 LT_OP
-        :       '<'                                                     {Node* temp = createNode($1); $$ = temp;}
+        :       '<'                                                     {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 EX_OP
-        :       '!'                                                     {Node* temp = createNode($1); $$ = temp;}
+        :       '!'                                                     {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 TL_OP
-        :       '~'                                                     {Node* temp = createNode($1); $$ = temp;}
+        :       '~'                                                     {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 QN_OP
-        :       '?'                                                     {Node* temp = createNode($1); $$ = temp;}
+        :       '?'                                                     {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 COLON_OP
-        :       ':'                                                     {Node* temp = createNode($1); $$ = temp;}
+        :       ':'                                                     {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 PLUS_OP
-        :       '+'                                                     {Node* temp = createNode($1); $$ = temp;}
+        :       '+'                                                     {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 MINUS_OP
-        :       '-'                                                     {Node* temp = createNode($1); $$ = temp;}
+        :       '-'                                                     {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 STAR_OP
-        :       '*'                                                     {Node* temp = createNode($1); $$ = temp;}
+        :       '*'                                                     {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 DIV_OP
-        :       '/'                                                     {Node* temp = createNode($1); $$ = temp;}
+        :       '/'                                                     {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 ND_OP
-        :       '&'                                                     {Node* temp = createNode($1); $$ = temp;}
+        :       '&'                                                     {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 BAR_OP
-        :       '|'                                                     {Node* temp = createNode($1); $$ = temp;}
+        :       '|'                                                     {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 RAISE_OP
-        :       '^'                                                     {Node* temp = createNode($1); $$ = temp;}
+        :       '^'                                                     {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 PCNT_OP
-        :       '%'                                                     {Node* temp = createNode($1); $$ = temp;}
+        :       '%'                                                     {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 COMMA_OP
-        :       ','                                                     {Node* temp = createNode($1); $$ = temp;}
+        :       ','                                                     {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 DOT_OP
-        :       '.'                                                     {Node* temp = createNode($1); $$ = temp;}
+        :       '.'                                                     {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 SEMICOLON_OP
-        :       ';'                                                     {Node* temp = createNode($1); $$ = temp;}
+        :       ';'                                                     {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 OP_BRCKT
-        :       '('                                                     {Node* temp = createNode($1); $$ = temp;}
+        :       '('                                                     {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 CLOSE_BRCKT
-        :       ')'                                                     {Node* temp = createNode($1); $$ = temp;}
+        :       ')'                                                     {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 OP_SQR_BRCKT
-        :       '['                                                     {Node* temp = createNode($1); $$ = temp;}
+        :       '['                                                     {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 CLOSE_SQR_BRCKT
-        :       ']'                                                     {Node* temp = createNode($1); $$ = temp;}
+        :       ']'                                                     {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 OP_CURLY_BRCKT
-        :       '{'                                                     {Node* temp = createNode($1); $$ = temp;}
+        :       '{'                                                     {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 CLOSE_CURLY_BRCKT
-        :       '}'                                                     {Node* temp = createNode($1); $$ = temp;}
+        :       '}'                                                     {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 ABSTRACT_KEYWORD
-        :       abstract_keyword_terminal                                                       {Node* temp = createNode($1); $$ = temp;}
+        :       abstract_keyword_terminal                                               {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 CONTINUE_KEYWORD
-        :       continue_keyword_terminal                                                       {Node* temp = createNode($1); $$ = temp;}
+        :       continue_keyword_terminal                                               {Node* temp = createNode($1); temp->isTerminal = true;$$ = temp;}
 
 FOR_KEYWORD
-        :       for_keyword_terminal                                                    {Node* temp = createNode($1); $$ = temp;}
+        :       for_keyword_terminal                                                    {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 NEW_KEYWORD
-        :       new_keyword_terminal                                                    {Node* temp = createNode($1); $$ = temp;}
+        :       new_keyword_terminal                                                    {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 SWITCH_KEYWORD
-        :       switch_keyword_terminal                                                 {Node* temp = createNode($1); $$ = temp;}
+        :       switch_keyword_terminal                                                 {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 ASSERT_KEYWORD
-        :       assert_keyword_terminal                                                 {Node* temp = createNode($1); $$ = temp;}
+        :       assert_keyword_terminal                                                 {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 DEFAULT_KEYWORD
-        :       default_keyword_terminal                                                        {Node* temp = createNode($1); $$ = temp;}
+        :       default_keyword_terminal                                                {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 IF_KEYWORD
-        :       if_keyword_terminal                                                     {Node* temp = createNode($1); $$ = temp;}
+        :       if_keyword_terminal                                                     {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 PACKAGE_KEYWORD
-        :       package_keyword_terminal                                                        {Node* temp = createNode($1); $$ = temp;}
+        :       package_keyword_terminal                                                {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 SYNCHRONIZED_KEYWORD
-        :       synchronized_keyword_terminal                                                   {Node* temp = createNode($1); $$ = temp;}
+        :       synchronized_keyword_terminal                                           {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 BOOLEAN_KEYWORD
-        :       boolean_keyword_terminal                                                        {Node* temp = createNode($1); $$ = temp;}
+        :       boolean_keyword_terminal                                                {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 DO_KEYWORD
-        :       do_keyword_terminal                                                     {Node* temp = createNode($1); $$ = temp;}
+        :       do_keyword_terminal                                                     {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 GOTO_KEYWORD
-        :       goto_keyword_terminal                                                   {Node* temp = createNode($1); $$ = temp;}
+        :       goto_keyword_terminal                                                   {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 PRIVATE_KEYWORD
-        :       private_keyword_terminal                                                        {Node* temp = createNode($1); $$ = temp;}
+        :       private_keyword_terminal                                                {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 THIS_KEYWORD
-        :       this_keyword_terminal                                                   {Node* temp = createNode($1); $$ = temp;}
+        :       this_keyword_terminal                                                   {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 BREAK_KEYWORD
-        :       break_keyword_terminal                                                  {Node* temp = createNode($1); $$ = temp;}
+        :       break_keyword_terminal                                                  {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 DOUBLE_KEYWORD
-        :       double_keyword_terminal                                                 {Node* temp = createNode($1); $$ = temp;}
+        :       double_keyword_terminal                                                 {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 IMPLEMENTS_KEYWORD
-        :       implements_keyword_terminal                                                     {Node* temp = createNode($1); $$ = temp;}
+        :       implements_keyword_terminal                                             {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 PROTECTED_KEYWORD
-        :       protected_keyword_terminal                                                      {Node* temp = createNode($1); $$ = temp;}
+        :       protected_keyword_terminal                                              {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 THROW_KEYWORD
-        :       throw_keyword_terminal                                                  {Node* temp = createNode($1); $$ = temp;}
+        :       throw_keyword_terminal                                                  {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 BYTE_KEYWORD
-        :       byte_keyword_terminal                                                   {Node* temp = createNode($1); $$ = temp;}
+        :       byte_keyword_terminal                                                   {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 ELSE_KEYWORD
-        :       else_keyword_terminal                                                   {Node* temp = createNode($1); $$ = temp;}
+        :       else_keyword_terminal                                                   {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 IMPORT_KEYWORD
-        :       import_keyword_terminal                                                 {Node* temp = createNode($1); $$ = temp;}
+        :       import_keyword_terminal                                                 {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 PUBLIC_KEYWORD
-        :       public_keyword_terminal                                                 {Node* temp = createNode($1); $$ = temp;}
+        :       public_keyword_terminal                                                 {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 THROWS_KEYWORD
-        :       throws_keyword_terminal                                                 {Node* temp = createNode($1); $$ = temp;}
+        :       throws_keyword_terminal                                                 {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 CASE_KEYWORD
-        :       case_keyword_terminal                                                   {Node* temp = createNode($1); $$ = temp;}
+        :       case_keyword_terminal                                                   {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 ENUM_KEYWORD
-        :       enum_keyword_terminal                                                   {Node* temp = createNode($1); $$ = temp;}
+        :       enum_keyword_terminal                                                   {Node* temp = createNode($1); temp->isTerminal = true;  $$ = temp;}
 
 INSTANCEOF_KEYWORD
-        :       instanceof_keyword_terminal                                                     {Node* temp = createNode($1); $$ = temp;}
+        :       instanceof_keyword_terminal                                             {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 RETURN_KEYWORD
-        :       return_keyword_terminal                                                 {Node* temp = createNode($1); $$ = temp;}
+        :       return_keyword_terminal                                                 {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 TRANSIENT_KEYWORD
-        :       transient_keyword_terminal                                                      {Node* temp = createNode($1); $$ = temp;}
+        :       transient_keyword_terminal                                              {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 CATCH_KEYWORD
-        :       catch_keyword_terminal                                                  {Node* temp = createNode($1); $$ = temp;}
+        :       catch_keyword_terminal                                                  {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 EXTENDS_KEYWORD
-        :       extends_keyword_terminal                                                        {Node* temp = createNode($1); $$ = temp;}
+        :       extends_keyword_terminal                                                {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 INT_KEYWORD
-        :       int_keyword_terminal                                                    {Node* temp = createNode($1); $$ = temp;}
+        :       int_keyword_terminal                                                    {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 SHORT_KEYWORD
-        :       short_keyword_terminal                                                  {Node* temp = createNode($1); $$ = temp;}
+        :       short_keyword_terminal                                                  {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 TRY_KEYWORD
-        :       try_keyword_terminal                                                    {Node* temp = createNode($1); $$ = temp;}
+        :       try_keyword_terminal                                                    {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 CHAR_KEYWORD
-        :       char_keyword_terminal                                                   {Node* temp = createNode($1); $$ = temp;}
+        :       char_keyword_terminal                                                   {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 FINAL_KEYWORD
-        :       final_keyword_terminal                                                  {Node* temp = createNode($1); $$ = temp;}
+        :       final_keyword_terminal                                                  {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 INTERFACE_KEYWORD
-        :       interface_keyword_terminal                                                      {Node* temp = createNode($1); $$ = temp;}
+        :       interface_keyword_terminal                                              {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 STATIC_KEYWORD
-        :       static_keyword_terminal                                                 {Node* temp = createNode($1); $$ = temp;}
+        :       static_keyword_terminal                                                 {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 VOID_KEYWORD
-        :       void_keyword_terminal                                                   {Node* temp = createNode($1); $$ = temp;}
+        :       void_keyword_terminal                                                   {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 CLASS_KEYWORD
-        :       class_keyword_terminal                                                  {Node* temp = createNode($1); $$ = temp;}
+        :       class_keyword_terminal                                                  {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 FINALLY_KEYWORD
-        :       finally_keyword_terminal                                                        {Node* temp = createNode($1); $$ = temp;}
+        :       finally_keyword_terminal                                                {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 LONG_KEYWORD
-        :       long_keyword_terminal                                                   {Node* temp = createNode($1); $$ = temp;}
+        :       long_keyword_terminal                                                   {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 STRICTFP_KEYWORD
-        :       strictfp_keyword_terminal                                                       {Node* temp = createNode($1); $$ = temp;}
+        :       strictfp_keyword_terminal                                               {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 VOLATILE_KEYWORD
-        :       volatile_keyword_terminal                                                       {Node* temp = createNode($1); $$ = temp;}
+        :       volatile_keyword_terminal                                               {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 CONST_KEYWORD
-        :       const_keyword_terminal                                                  {Node* temp = createNode($1); $$ = temp;}
+        :       const_keyword_terminal                                                  {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 FLOAT_KEYWORD
-        :       float_keyword_terminal                                                  {Node* temp = createNode($1); $$ = temp;}
+        :       float_keyword_terminal                                                  {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 NATIVE_KEYWORD
-        :       native_keyword_terminal                                                 {Node* temp = createNode($1); $$ = temp;}
+        :       native_keyword_terminal                                                 {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 SUPER_KEYWORD
-        :       super_keyword_terminal                                                  {Node* temp = createNode($1); $$ = temp;}
+        :       super_keyword_terminal                                                  {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 WHILE_KEYWORD
-        :       while_keyword_terminal                                                  {Node* temp = createNode($1); $$ = temp;}
+        :       while_keyword_terminal                                                  {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 __KEYWORD
-        :       __keyword_terminal                                                      {Node* temp = createNode($1); $$ = temp;}
+        :       __keyword_terminal                                                      {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 EXPORTS_KEYWORD
-        :       exports_keyword_terminal                                                        {Node* temp = createNode($1); $$ = temp;}
+        :       exports_keyword_terminal                                                {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 OPENS_KEYWORD
-        :       opens_keyword_terminal                                                  {Node* temp = createNode($1); $$ = temp;}
+        :       opens_keyword_terminal                                                  {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 REQUIRES_KEYWORD
-        :       requires_keyword_terminal                                                       {Node* temp = createNode($1); $$ = temp;}
+        :       requires_keyword_terminal                                               {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 USES_KEYWORD
-        :       uses_keyword_terminal                                                   {Node* temp = createNode($1); $$ = temp;}
+        :       uses_keyword_terminal                                                   {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 MODULE_KEYWORD
-        :       module_keyword_terminal                                                 {Node* temp = createNode($1); $$ = temp;}
+        :       module_keyword_terminal                                                 {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 PERMITS_KEYWORD
-        :       permits_keyword_terminal                                                        {Node* temp = createNode($1); $$ = temp;}
+        :       permits_keyword_terminal                                                {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 SEALED_KEYWORD
-        :       sealed_keyword_terminal                                                 {Node* temp = createNode($1); $$ = temp;}
+        :       sealed_keyword_terminal                                                 {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 VAR_KEYWORD
-        :       var_keyword_terminal                                                    {Node* temp = createNode($1); $$ = temp;}
+        :       var_keyword_terminal                                                    {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 NONSEALED_KEYWORD
-        :       nonsealed_keyword_terminal                                                      {Node* temp = createNode($1); $$ = temp;}
+        :       nonsealed_keyword_terminal                                              {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 PROVIDES_KEYWORD
-        :       provides_keyword_terminal                                                       {Node* temp = createNode($1); $$ = temp;}
+        :       provides_keyword_terminal                                               {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 TO_KEYWORD
-        :       to_keyword_terminal                                                     {Node* temp = createNode($1); $$ = temp;}
+        :       to_keyword_terminal                                                     {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 WITH_KEYWORD
-        :       with_keyword_terminal                                                   {Node* temp = createNode($1); $$ = temp;}
+        :       with_keyword_terminal                                                   {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 OPEN_KEYWORD
-        :       open_keyword_terminal                                                   {Node* temp = createNode($1); $$ = temp;}
+        :       open_keyword_terminal                                                   {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 RECORD_KEYWORD
-        :       record_keyword_terminal                                                 {Node* temp = createNode($1); $$ = temp;}
+        :       record_keyword_terminal                                                 {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 TRANSITIVE_KEYWORD
-        :       transitive_keyword_terminal                                                     {Node* temp = createNode($1); $$ = temp;}
+        :       transitive_keyword_terminal                                             {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 YIELD_KEYWORD
-        :       yield_keyword_terminal                                          {Node* temp = createNode($1); $$ = temp;}
+        :       yield_keyword_terminal                                                  {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 PTR_OP
-        :       PTR_OP_TERMINAL                                                 {Node* temp = createNode($1); $$ = temp;}
+        :       PTR_OP_TERMINAL                                                         {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 EQ_OP
-        :       EQ_OP_TERMINAL                                                  {Node* temp = createNode($1); $$ = temp;}
+        :       EQ_OP_TERMINAL                                                          {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 GE_OP
-        :       GE_OP_TERMINAL                                                  {Node* temp = createNode($1); $$ = temp;}
+        :       GE_OP_TERMINAL                                                          {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 LE_OP
-        :       LE_OP_TERMINAL                                                  {Node* temp = createNode($1); $$ = temp;}
+        :       LE_OP_TERMINAL                                                          {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 NE_OP
-        :       NE_OP_TERMINAL                                                  {Node* temp = createNode($1); $$ = temp;}
+        :       NE_OP_TERMINAL                                                          {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 AND_OP
-        :       AND_OP_TERMINAL                                                 {Node* temp = createNode($1); $$ = temp;}
+        :       AND_OP_TERMINAL                                                         {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 OR_OP
-        :       OR_OP_TERMINAL                                                  {Node* temp = createNode($1); $$ = temp;}
+        :       OR_OP_TERMINAL                                                          {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 INC_OP
-        :       INC_OP_TERMINAL                                                 {Node* temp = createNode($1); $$ = temp;}
+        :       INC_OP_TERMINAL                                                         {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 DEC_OP
-        :       DEC_OP_TERMINAL                                                 {Node* temp = createNode($1); $$ = temp;}
+        :       DEC_OP_TERMINAL                                                         {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 LEFT_OP
-        :       LEFT_OP_TERMINAL                                                        {Node* temp = createNode($1); $$ = temp;}
+        :       LEFT_OP_TERMINAL                                                        {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 RIGHT_OP
-        :       RIGHT_OP_TERMINAL                                                       {Node* temp = createNode($1); $$ = temp;}
+        :       RIGHT_OP_TERMINAL                                                       {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 BIT_RIGHT_SHFT_OP
-        :       BIT_RIGHT_SHFT_OP_TERMINAL                                              {Node* temp = createNode($1); $$ = temp;}
+        :       BIT_RIGHT_SHFT_OP_TERMINAL                                              {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 ADD_ASSIGN
-        :       ADD_ASSIGN_TERMINAL                                                     {Node* temp = createNode($1); $$ = temp;}
+        :       ADD_ASSIGN_TERMINAL                                                     {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 SUB_ASSIGN
-        :       SUB_ASSIGN_TERMINAL                                                     {Node* temp = createNode($1); $$ = temp;}
+        :       SUB_ASSIGN_TERMINAL                                                     {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 MUL_ASSIGN
-        :       MUL_ASSIGN_TERMINAL                                                     {Node* temp = createNode($1); $$ = temp;}
+        :       MUL_ASSIGN_TERMINAL                                                     {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 DIV_ASSIGN
-        :       DIV_ASSIGN_TERMINAL                                                     {Node* temp = createNode($1); $$ = temp;}
+        :       DIV_ASSIGN_TERMINAL                                                     {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 AND_ASSIGN
-        :       AND_ASSIGN_TERMINAL                                                     {Node* temp = createNode($1); $$ = temp;}
+        :       AND_ASSIGN_TERMINAL                                                     {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 OR_ASSIGN
-        :       OR_ASSIGN_TERMINAL                                                      {Node* temp = createNode($1); $$ = temp;}
+        :       OR_ASSIGN_TERMINAL                                                      {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 XOR_ASSIGN
-        :       XOR_ASSIGN_TERMINAL                                                     {Node* temp = createNode($1); $$ = temp;}
+        :       XOR_ASSIGN_TERMINAL                                                     {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 MOD_ASSIGN
-        :       MOD_ASSIGN_TERMINAL                                                     {Node* temp = createNode($1); $$ = temp;}
+        :       MOD_ASSIGN_TERMINAL                                                     {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 LEFT_ASSIGN
-        :       LEFT_ASSIGN_TERMINAL                                                    {Node* temp = createNode($1); $$ = temp;}
+        :       LEFT_ASSIGN_TERMINAL                                                    {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 RIGHT_ASSIGN
-        :       RIGHT_ASSIGN_TERMINAL                                                   {Node* temp = createNode($1); $$ = temp;}
+        :       RIGHT_ASSIGN_TERMINAL                                                   {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 BIT_RIGHT_SHFT_ASSIGN
-        :       BIT_RIGHT_SHFT_ASSIGN_TERMINAL                                          {Node* temp = createNode($1); $$ = temp;}
+        :       BIT_RIGHT_SHFT_ASSIGN_TERMINAL                                          {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 ELLIPSIS
-        :       ELLIPSIS_TERMINAL                                                       {Node* temp = createNode($1); $$ = temp;}
+        :       ELLIPSIS_TERMINAL                                                       {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 DOUBLE_COLON
-        :       DOUBLE_COLON_TERMINAL                                                   {Node* temp = createNode($1); $$ = temp;}
+        :       DOUBLE_COLON_TERMINAL                                                   {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 DIAMOND
-        :       DIAMOND_TERMINAL                                                        {Node* temp = createNode($1); $$ = temp;}
+        :       DIAMOND_TERMINAL                                                        {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 IDENTIFIERS
-        :       IDENTIFIERS_TERMINAL                                                    {Node* temp = createNode($1); $$ = temp;}
+        :       IDENTIFIERS_TERMINAL                                                    {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 LITERALS
-        :       LITERALS_TERMINAL                                                       {Node* temp = createNode($1); $$ = temp;}
+        :       LITERALS_TERMINAL                                                       {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 %%
 
