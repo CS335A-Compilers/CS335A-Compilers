@@ -4,9 +4,9 @@ name := $(MAKECMDGOALS)
 
 $(name):
 	bison -d -v parser.y
-	flex scanner.l
-	g++ lex.yy.c parser.tab.c -o parser
+	flex -+ scanner.l
+	g++ lex.yy.cc parser.tab.c -o parser
 	./parser < $@
 
 clean:
-	rm -f lex.yy.c parser.tab.c parser.tab.h parser.output parser parser.exe
+	rm -f lex.yy.cc parser.tab.c parser.tab.h parser.output parser parser.exe ast.dot

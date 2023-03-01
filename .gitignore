@@ -38,6 +38,7 @@
 *.output
 *.tab.*
 *.yy.c
+*.dot
 
 # Debug files
 *.dSYM/
