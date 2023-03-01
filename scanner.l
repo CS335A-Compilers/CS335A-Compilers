@@ -4,12 +4,9 @@
 %x text_block_start
 %x text_block_chars
 
-
 %{
-    #include "helper.h"
     #include "ast.h"
-    #include <stdio.h>
-    #include <stdlib.h>
+    #include "helper.h"
     #include "parser.tab.h"
 %}
 
@@ -153,14 +150,7 @@ OCTAL_EXCAPE                \\{OCTAL_DIGIT}|\\{OCTAL_DIGIT}{OCTAL_DIGIT}|\\[0-3]
 "record"                {yylval.node.lexeme = strdup(yytext); return(RECORD_KEYWORD);}
 "transitive"            {yylval.node.lexeme = strdup(yytext); return(TRANSITIVE_KEYWORD);}
 "yield"                 {yylval.node.lexeme = strdup(yytext); return(YIELD_KEYWORD);}
-"="                     {yylval.node.lexeme = strdup(yytext); return('=');}
-">"                     {yylval.node.lexeme = strdup(yytext); return('>');}
-"<"                     {yylval.node.lexeme = strdup(yytext); return('<');}
 "<>"                    {yylval.node.lexeme = strdup(yytext); return(DIAMOND);}
-"!"                     {yylval.node.lexeme = strdup(yytext); return('!');}
-"~"                     {yylval.node.lexeme = strdup(yytext); return('~');}
-"?"                     {yylval.node.lexeme = strdup(yytext); return('?');}
-":"                     {yylval.node.lexeme = strdup(yytext); return(':');}
 "->"                    {yylval.node.lexeme = strdup(yytext); return(PTR_OP);}
 "=="                    {yylval.node.lexeme = strdup(yytext); return(EQ_OP);}
 ">="                    {yylval.node.lexeme = strdup(yytext); return(GE_OP);}
@@ -170,14 +160,6 @@ OCTAL_EXCAPE                \\{OCTAL_DIGIT}|\\{OCTAL_DIGIT}{OCTAL_DIGIT}|\\[0-3]
 "||"                    {yylval.node.lexeme = strdup(yytext); return(OR_OP);}
 "++"                    {yylval.node.lexeme = strdup(yytext); return(INC_OP);}
 "--"                    {yylval.node.lexeme = strdup(yytext); return(DEC_OP);}
-"+"                     {yylval.node.lexeme = strdup(yytext); return('+');}
-"-"                     {yylval.node.lexeme = strdup(yytext); return('-');}
-"*"                     {yylval.node.lexeme = strdup(yytext); return('*');}
-"/"                     {yylval.node.lexeme = strdup(yytext); return('/');}
-"&"                     {yylval.node.lexeme = strdup(yytext); return('&');}
-"|"                     {yylval.node.lexeme = strdup(yytext); return('|');}
-"^"                     {yylval.node.lexeme = strdup(yytext); return('^');}
-"%"                     {yylval.node.lexeme = strdup(yytext); return('%');}
 "<<"                    {yylval.node.lexeme = strdup(yytext); return(LEFT_OP);}
 ">>"                    {yylval.node.lexeme = strdup(yytext); return(RIGHT_OP);}
 ">>>"                   {yylval.node.lexeme = strdup(yytext); return(BIT_RIGHT_SHFT_OP);}
@@ -192,6 +174,21 @@ OCTAL_EXCAPE                \\{OCTAL_DIGIT}|\\{OCTAL_DIGIT}{OCTAL_DIGIT}|\\[0-3]
 "<<="                   {yylval.node.lexeme = strdup(yytext); return(LEFT_ASSIGN);}
 ">>="                   {yylval.node.lexeme = strdup(yytext); return(RIGHT_ASSIGN);}
 ">>>="                  {yylval.node.lexeme = strdup(yytext); return(BIT_RIGHT_SHFT_ASSIGN);}
+"="                     {yylval.node.lexeme = strdup(yytext); return('=');}
+">"                     {yylval.node.lexeme = strdup(yytext); return('>');}
+"<"                     {yylval.node.lexeme = strdup(yytext); return('<');}
+"!"                     {yylval.node.lexeme = strdup(yytext); return('!');}
+"~"                     {yylval.node.lexeme = strdup(yytext); return('~');}
+"?"                     {yylval.node.lexeme = strdup(yytext); return('?');}
+":"                     {yylval.node.lexeme = strdup(yytext); return(':');}
+"+"                     {yylval.node.lexeme = strdup(yytext); return('+');}
+"-"                     {yylval.node.lexeme = strdup(yytext); return('-');}
+"*"                     {yylval.node.lexeme = strdup(yytext); return('*');}
+"/"                     {yylval.node.lexeme = strdup(yytext); return('/');}
+"&"                     {yylval.node.lexeme = strdup(yytext); return('&');}
+"|"                     {yylval.node.lexeme = strdup(yytext); return('|');}
+"^"                     {yylval.node.lexeme = strdup(yytext); return('^');}
+"%"                     {yylval.node.lexeme = strdup(yytext); return('%');}
 ","                     {yylval.node.lexeme = strdup(yytext); return(',');}
 "."                     {yylval.node.lexeme = strdup(yytext); return('.');}
 ";"                     {yylval.node.lexeme = strdup(yytext); return(';');}
@@ -199,10 +196,10 @@ OCTAL_EXCAPE                \\{OCTAL_DIGIT}|\\{OCTAL_DIGIT}{OCTAL_DIGIT}|\\[0-3]
 ")"                     {yylval.node.lexeme = strdup(yytext); return(')');}
 "["                     {yylval.node.lexeme = strdup(yytext); return('[');}
 "]"                     {yylval.node.lexeme = strdup(yytext); return(']');}
-"..."                   {yylval.node.lexeme = strdup(yytext); return(ELLIPSIS);}
 "{"                     {yylval.node.lexeme = strdup(yytext); return('{');}
 "}"                     {yylval.node.lexeme = strdup(yytext); return('}');}
 "@"                     {yylval.node.lexeme = strdup(yytext); return('@');}
+"..."                   {yylval.node.lexeme = strdup(yytext); return(ELLIPSIS);}
 "::"                    {yylval.node.lexeme = strdup(yytext); return(DOUBLE_COLON);}
 
 "/*"                        {BEGIN(comment);}

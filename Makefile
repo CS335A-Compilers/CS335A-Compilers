@@ -4,7 +4,7 @@ name := $(MAKECMDGOALS)
 
 $(name):
 	bison -d -v parser.y
-	flex -+ scanner.l
+	flex scanner.l
 	g++ lex.yy.cc parser.tab.c -o parser
 	./parser < $@
 
