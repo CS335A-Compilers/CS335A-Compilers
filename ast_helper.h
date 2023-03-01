@@ -51,7 +51,7 @@ void writeEdges(Node* root, FILE* file){
 void createDOT(Node* root){
     FILE *file; //file pointer
     file = fopen("ast.dot","w");
-    fprintf(file, "graph AST{\n");
+    fprintf(file, "digraph AST{\n");
     writeEdges(root, file);
     fprintf(file, "}");
     fclose(file);
