@@ -7,7 +7,7 @@
     void yyerror(char const*);
     extern int yylineno;
 
-    char* output_file;
+    char output_file[10000];
 %}
 
 %locations
@@ -1371,11 +1371,16 @@ int main(int argc, char **argv){
 
     // Lets look at the error cases first
     if (argc != 3){
-        printf("Please provide both the input file to be parsed and the output file ...\n");
+        if (argc == 2 && strcmp(argv[1], "--help") == 0)
+        {
+            return 0;
+        }
+        printf("Usage: %s [--input=<input_file_name> --output=<output_file_name>][--verbose]\n", argv[0]);
+        printf("--verbose is an optional flag ...");
     }
 
     // Get input file
-    char* input_file;
+    char input_file[10000];
 
     // Extract the first token
     char * token_in = strtok(argv[1], "=");
@@ -1394,8 +1399,8 @@ int main(int argc, char **argv){
     char * token_out = strtok(argv[2], "=");
     // loop through the string to extract all other tokens
     while( token_out != NULL ) {
-        strcpy(output_file, token_out);
-        token_out = strtok(NULL, "=");
+       strcpy(output_file, token_out);
+       token_out = strtok(NULL, "=");
     }
     // Now we have the input file
     printf("OUTPUT FILE : %s\n", output_file);
