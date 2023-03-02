@@ -29,7 +29,7 @@
 %type<node> PTR_OP EQ_OP GE_OP  LE_OP  NE_OP  AND_OP  OR_OP  INC_OP  DEC_OP  LEFT_OP  RIGHT_OP  BIT_RIGHT_SHFT_OP ADD_ASSIGN  SUB_ASSIGN  MUL_ASSIGN  DIV_ASSIGN  AND_ASSIGN  OR_ASSIGN  XOR_ASSIGN  MOD_ASSIGN  LEFT_ASSIGN  RIGHT_ASSIGN  BIT_RIGHT_SHFT_ASSIGN  ELLIPSIS  DOUBLE_COLON DIAMOND
 %type<node> IDENTIFIERS LITERALS
 
-%type<node> expression_name open_zero_or_one additional_bound additional_bound_zero_or_more additive_expression and_expression argument_list argument_list_zero_or_one array_access array_creation_expression array_initializer array_type assert_statement assignment assignment_expression assignment_operators basic_for_statement basic_for_statement_no_short_if block block_statement block_statements block_statements_zero_or_more block_statements_zero_or_one break_statement case_constant cast_expression catch_clause catch_clause_zero_or_more catch_formal_parameter catch_type catches catches_zero_or_one class_body class_body_declaration class_body_declaration_zero_or_more class_body_zero_or_one class_declaration class_extends class_extends_zero_or_one class_implements class_implements_zero_or_one class_instance_creation_expression class_literal class_member_declaration class_or_interface_type_to_instantiate class_permits class_permits_zero_or_one class_type comma_case_constant_zero_or_more comma_exception_type_zero_or_more comma_expression_zero_or_more comma_identifiers_zero_or_more comma_interface_type_zero_or_more comma_lambda_parameter_zero_or_more comma_module_name_zero_or_more comma_statement_expression_zero_or_more comma_type_arguement_zero_or_more comma_type_name_zero_or_more comma_type_parameter_zero_or_more comma_variable_declarator_zero_or_more commas_zero_or_more compilation_unit conditional_and_expression conditional_or_expression condtional_expression constant_declaration constructor_body constructor_declaration constructor_declarator continue_statement dim_expr dim_exprs dims dims_zero_or_one do_statememt empty_array_one_or_more empty_statement enhanced_for_statement enhanced_for_statement_no_short_if equality_expression equals_variable_initializer_zero_or_one exception_type_list exclusive_or_expression explicit_constructor_invocation expression expression_statement expression_zero_or_one field_access field_declaration finally finally_zero_or_one for_init for_init_zero_or_one for_statement for_statement_no_short_if for_update for_update_zero_or_one formal_parameter formal_parameter_list formal_parameter_list_zero_or_one identifier_dot_zero_or_one identifier_zero_or_one if_then_else_statement if_then_else_statement_no_short_if if_then_statement import_declaration import_declaration_zero_or_more inclusive_or_expression instance_of_expression interface_body interface_declaration interface_extends_zero_or_one interface_member_decleration interface_member_decleration_zero_or_more interface_method_declaration interface_permits interface_permits_zero_or_one interface_type_list labeled_statement labeled_statement_no_short_if lambda_expression lambda_parameter lambda_parameter_list lambda_parameter_list_zero_or_one lambda_parameter_type lambda_parameters local_class_or_interface_declaration local_variable_declaration local_variable_declaration_statement method_declaration method_declarator method_header method_invocation method_reference modifiers modifiers_zero_or_more modular_compilation_unit module_declaration module_directive module_directive_one_or_more multiplicative_expression normal_class_declaration normal_interface_declaration numeric_type ordinary_compilation_unit package_declaration pattern post_decrement_expression post_increment_expression postfix_expression pre_decrement_expression pre_increment_expression primary primary_no_new_array primitive_type reciever_parameter reference_type relational_expression resource resource_list resources_specification return_statement semicolon_resource_zero_or_more semicolon_zero_or_one shift_expression single_static_import_declaration single_type_import_declaration slash_class_type_zero_or_more start_state statement statement_expression statement_expression_list statement_no_short_if statement_without_trailing_substatement static_import_on_demand_declaration static_initializer switch_block switch_block_statement_group switch_block_statement_group_zero_or_more switch_expression switch_label switch_label_colon_zero_or_more switch_rule switch_rule_zero_or_more switch_statement synchronized_statement throw_statement throws throws_zero_or_one top_level_class_or_interface_declaration top_level_class_or_interface_declaration_zero_or_more try_statement try_with_resources_statement type_argument type_argument_list type_arguments type_bound type_import_on_demand_declaration type_name type_parameter_list type_parameters type_parameters_zero_or_one type_pattern unann_array_type unann_class_type unann_reference_type unann_type unary_expression unary_expression_not_plus_minus unqualified_class_instance_creation_expression variable_arity_parameter variable_declarator variable_declarator_id variable_declarator_list variable_initializer variable_initializer_list variable_initializer_list_zero_or_more variable_modifier_one_or_more while_statement while_statement_no_short_if wild_card yield_statement
+%type<node> record_header record_body_declaration record_body_declaration_zero_or_more record_body record_component_list record_component record_declaration enum_constant_list_zero_or_more enum_body enum_constant enum_declaration expression_name open_zero_or_one additional_bound additional_bound_zero_or_more additive_expression and_expression argument_list argument_list_zero_or_one array_access array_creation_expression array_initializer array_type assert_statement assignment assignment_expression assignment_operators basic_for_statement basic_for_statement_no_short_if block block_statement block_statements block_statements_zero_or_more block_statements_zero_or_one break_statement case_constant cast_expression catch_clause catch_clause_zero_or_more catch_formal_parameter catch_type catches catches_zero_or_one class_body class_body_declaration class_body_declaration_zero_or_more class_body_zero_or_one class_declaration class_extends class_extends_zero_or_one class_implements class_implements_zero_or_one class_instance_creation_expression class_literal class_member_declaration class_or_interface_type_to_instantiate class_permits class_permits_zero_or_one class_type comma_case_constant_zero_or_more comma_exception_type_zero_or_more comma_expression_zero_or_more comma_identifiers_zero_or_more comma_interface_type_zero_or_more comma_lambda_parameter_zero_or_more comma_module_name_zero_or_more comma_statement_expression_zero_or_more comma_type_arguement_zero_or_more comma_type_name_zero_or_more comma_type_parameter_zero_or_more comma_variable_declarator_zero_or_more commas_zero_or_more compilation_unit conditional_and_expression conditional_or_expression condtional_expression constant_declaration constructor_body constructor_declaration constructor_declarator continue_statement dim_expr dim_exprs dims dims_zero_or_one do_statememt empty_array_one_or_more empty_statement enhanced_for_statement enhanced_for_statement_no_short_if equality_expression equals_variable_initializer_zero_or_one exception_type_list exclusive_or_expression explicit_constructor_invocation expression expression_statement expression_zero_or_one field_access field_declaration finally finally_zero_or_one for_init for_init_zero_or_one for_statement for_statement_no_short_if for_update for_update_zero_or_one formal_parameter formal_parameter_list formal_parameter_list_zero_or_one identifier_dot_zero_or_one identifier_zero_or_one if_then_else_statement if_then_else_statement_no_short_if if_then_statement import_declaration import_declaration_zero_or_more inclusive_or_expression instance_of_expression interface_body interface_declaration interface_extends_zero_or_one interface_member_decleration interface_member_decleration_zero_or_more interface_method_declaration interface_permits interface_permits_zero_or_one interface_type_list labeled_statement labeled_statement_no_short_if lambda_expression lambda_parameter lambda_parameter_list lambda_parameter_list_zero_or_one lambda_parameter_type lambda_parameters local_class_or_interface_declaration local_variable_declaration local_variable_declaration_statement method_declaration method_declarator method_header method_invocation method_reference modifiers modifiers_zero_or_more modular_compilation_unit module_declaration module_directive module_directive_one_or_more multiplicative_expression normal_class_declaration normal_interface_declaration numeric_type ordinary_compilation_unit package_declaration pattern post_decrement_expression post_increment_expression postfix_expression pre_decrement_expression pre_increment_expression primary primary_no_new_array primitive_type reciever_parameter reference_type relational_expression resource resource_list resources_specification return_statement semicolon_resource_zero_or_more semicolon_zero_or_one shift_expression single_static_import_declaration single_type_import_declaration slash_class_type_zero_or_more start_state statement statement_expression statement_expression_list statement_no_short_if statement_without_trailing_substatement static_import_on_demand_declaration static_initializer switch_block switch_block_statement_group switch_block_statement_group_zero_or_more switch_expression switch_label switch_label_colon_zero_or_more switch_rule switch_rule_zero_or_more switch_statement synchronized_statement throw_statement throws throws_zero_or_one top_level_class_or_interface_declaration top_level_class_or_interface_declaration_zero_or_more try_statement try_with_resources_statement type_argument type_argument_list type_arguments type_bound type_import_on_demand_declaration type_name type_parameter_list type_parameters type_parameters_zero_or_one type_pattern unann_array_type unann_class_type unann_reference_type unann_type unary_expression unary_expression_not_plus_minus unqualified_class_instance_creation_expression variable_arity_parameter variable_declarator variable_declarator_id variable_declarator_list variable_initializer variable_initializer_list variable_initializer_list_zero_or_more variable_modifier_one_or_more while_statement while_statement_no_short_if wild_card yield_statement
 
 %% 
 
@@ -37,9 +37,6 @@
 
 start_state 
             :   compilation_unit                                                                                                                {$$ = $1; createAST($$);}
-
-// compilation_unit
-//                :   IDENTIFIERS INT_KEYWORD                                                                                                   {Node* node = createNode("compilation_unit"); Node* temp = createNode($1);  Node* temp1 = createNode($2); node->addChildren({temp, temp1}); $$ = node;}
 
 compilation_unit
             :   ordinary_compilation_unit                                                                                                       {Node* node = createNode("compilation unit"); node->addChildren({$1}); $$ = node;}
@@ -63,7 +60,7 @@ modular_compilation_unit
             :   import_declaration_zero_or_more module_declaration                                                                              {Node* node = createNode("modular compilation unit"); node->addChildren({$1, $2}); $$ = node;}
 
 package_declaration
-            :   PACKAGE_KEYWORD type_name SEMICOLON_OP                                                                                                   {Node* node = createNode("package declaration"); node->addChildren({$1,$2,$3}); $$ = node;}
+            :   PACKAGE_KEYWORD type_name SEMICOLON_OP                                                                                          {Node* node = createNode("package declaration"); node->addChildren({$1,$2,$3}); $$ = node;}
 
 import_declaration
             :   single_type_import_declaration                                                                                                  {Node* node = createNode("import declaration"); node->addChildren({$1}); $$ = node;}
@@ -72,124 +69,124 @@ import_declaration
             |   static_import_on_demand_declaration                                                                                             {Node* node = createNode("import declaration"); node->addChildren({$1}); $$ = node;}
 
 single_type_import_declaration
-            :   IMPORT_KEYWORD type_name SEMICOLON_OP                                                                                                    {Node* node = createNode("single type import declaration"); node->addChildren({$1,$2,$3}); $$ = node;}
+            :   IMPORT_KEYWORD type_name SEMICOLON_OP                                                                                           {Node* node = createNode("single type import declaration"); node->addChildren({$1,$2,$3}); $$ = node;}
 
 type_import_on_demand_declaration
-            :   IMPORT_KEYWORD type_name DOT_OP STAR_OP SEMICOLON_OP module_declaration                                                                         {Node* node = createNode("type import on demand declaration"); node->addChildren({$1,$2,$3,$4,$5}); $$ = node;}
+            :   IMPORT_KEYWORD type_name DOT_OP STAR_OP SEMICOLON_OP module_declaration                                                         {Node* node = createNode("type import on demand declaration"); node->addChildren({$1,$2,$3,$4,$5,$6}); $$ = node;}
 
 single_static_import_declaration
-            :   IMPORT_KEYWORD STATIC_KEYWORD type_name DOT_OP IDENTIFIERS SEMICOLON_OP                                                                     {Node* node = createNode("single static import declaration"); node->addChildren({$1,$2,$3,$4,$5}); $$ = node;}
+            :   IMPORT_KEYWORD STATIC_KEYWORD type_name DOT_OP IDENTIFIERS SEMICOLON_OP                                                         {Node* node = createNode("single static import declaration"); node->addChildren({$1,$2,$3,$4,$5,$6}); $$ = node;}
 
 static_import_on_demand_declaration
-            :   IMPORT_KEYWORD STATIC_KEYWORD type_name DOT_OP STAR_OP SEMICOLON_OP                                                                             {Node* node = createNode("static import on demand declaration"); node->addChildren({$1,$2,$3,$4,$5,$6}); $$ = node;}
+            :   IMPORT_KEYWORD STATIC_KEYWORD type_name DOT_OP STAR_OP SEMICOLON_OP                                                             {Node* node = createNode("static import on demand declaration"); node->addChildren({$1,$2,$3,$4,$5,$6}); $$ = node;}
 
 top_level_class_or_interface_declaration
             :   class_declaration                                                                                                               {Node* node = createNode("top level class or interface declaration"); node->addChildren({$1}); $$ = node;}
             |   interface_declaration                                                                                                           {Node* node = createNode("top level class or interface declaration"); node->addChildren({$1}); $$ = node;}
-            |   SEMICOLON_OP                                                                                                                             {Node* node = createNode("top level class or interface declaration"); node->addChildren({$1}); $$ = node;}
+            |   SEMICOLON_OP                                                                                                                    {Node* node = createNode("top level class or interface declaration"); node->addChildren({$1}); $$ = node;}
 
 module_declaration
-            :   open_zero_or_one MODULE_KEYWORD type_name OP_CURLY_BRCKT CLOSE_CURLY_BRCKT   {Node* node = createNode("module declaration"); node->addChildren({$1,$2,$3,$4}); $$ = node;}
-            |   open_zero_or_one MODULE_KEYWORD type_name OP_CURLY_BRCKT module_directive_one_or_more CLOSE_CURLY_BRCKT {Node* node = createNode("module declaration"); node->addChildren({$1,$2,$3,$4,$5}); $$ = node;}
+            :   open_zero_or_one MODULE_KEYWORD type_name OP_CURLY_BRCKT CLOSE_CURLY_BRCKT                                                      {Node* node = createNode("module declaration"); node->addChildren({$1,$2,$3,$4,$5}); $$ = node;}
+            |   open_zero_or_one MODULE_KEYWORD type_name OP_CURLY_BRCKT module_directive_one_or_more CLOSE_CURLY_BRCKT                         {Node* node = createNode("module declaration"); node->addChildren({$1,$2,$3,$4,$5,$6}); $$ = node;}
 
 open_zero_or_one
-            :   /* empty */  {Node* node = createNode("OPEN zero or one"); node->addChildren({}); $$ = node;}
-            |   OPEN_KEYWORD {Node* node = createNode("OPEN zero or one"); node->addChildren({$1}); $$ = node;}
+            :   /* empty */                                                                                                                     {Node* node = createNode("OPEN zero or one"); node->addChildren({}); $$ = node;}
+            |   OPEN_KEYWORD                                                                                                                    {Node* node = createNode("OPEN zero or one"); node->addChildren({$1}); $$ = node;}
 
 module_directive_one_or_more
-            :   module_directive {Node* node = createNode("module directive one or more"); node->addChildren({$1}); $$ = node;}
-            |   module_directive module_directive_one_or_more {Node* node = createNode("module directive one or more"); node->addChildren({$1,$2}); $$ = node;}
+            :   module_directive                                                                                                                {Node* node = createNode("module directive one or more"); node->addChildren({$1}); $$ = node;}
+            |   module_directive module_directive_one_or_more                                                                                   {Node* node = createNode("module directive one or more"); node->addChildren({$1,$2}); $$ = node;}
 
 module_directive
-            :   REQUIRES_KEYWORD modifiers_zero_or_more type_name SEMICOLON_OP {Node* node = createNode("module directive"); node->addChildren({$1,$2,$3}); $$ = node;}
-            |   EXPORTS_KEYWORD type_name SEMICOLON_OP                         {Node* node = createNode("module directive"); node->addChildren({$1,$2,$3}); $$ = node;}
-            |   EXPORTS_KEYWORD type_name TO_KEYWORD type_name comma_module_name_zero_or_more SEMICOLON_OP  {Node* node = createNode("module directive"); node->addChildren({$1,$2,$3,$4,$5}); $$ = node;}
-            |   OPENS_KEYWORD type_name SEMICOLON_OP {Node* node = createNode("module directive"); node->addChildren({$1,$2,$3}); $$ = node;}
-            |   OPENS_KEYWORD type_name TO_KEYWORD type_name comma_module_name_zero_or_more SEMICOLON_OP    {Node* node = createNode("module directive"); node->addChildren({$1,$2,$3,$4,$5}); $$ = node;}
-            |   USES_KEYWORD type_name SEMICOLON_OP  {Node* node = createNode("module directive"); node->addChildren({$1,$2,$3}); $$ = node;}
-            |   PROVIDES_KEYWORD type_name WITH_KEYWORD type_name comma_type_name_zero_or_more SEMICOLON_OP {Node* node = createNode("module directive"); node->addChildren({$1,$2,$3,$4,$5}); $$ = node;}
+            :   REQUIRES_KEYWORD modifiers_zero_or_more type_name SEMICOLON_OP                                                                  {Node* node = createNode("module directive"); node->addChildren({$1,$2,$3,$4}); $$ = node;}
+            |   EXPORTS_KEYWORD type_name SEMICOLON_OP                                                                                          {Node* node = createNode("module directive"); node->addChildren({$1,$2,$3}); $$ = node;}
+            |   EXPORTS_KEYWORD type_name TO_KEYWORD type_name comma_module_name_zero_or_more SEMICOLON_OP                                      {Node* node = createNode("module directive"); node->addChildren({$1,$2,$3,$4,$5,$6}); $$ = node;}
+            |   OPENS_KEYWORD type_name SEMICOLON_OP                                                                                            {Node* node = createNode("module directive"); node->addChildren({$1,$2,$3}); $$ = node;}
+            |   OPENS_KEYWORD type_name TO_KEYWORD type_name comma_module_name_zero_or_more SEMICOLON_OP                                        {Node* node = createNode("module directive"); node->addChildren({$1,$2,$3,$4,$5,$6}); $$ = node;}
+            |   USES_KEYWORD type_name SEMICOLON_OP                                                                                             {Node* node = createNode("module directive"); node->addChildren({$1,$2,$3}); $$ = node;}
+            |   PROVIDES_KEYWORD type_name WITH_KEYWORD type_name comma_type_name_zero_or_more SEMICOLON_OP                                     {Node* node = createNode("module directive"); node->addChildren({$1,$2,$3,$4,$5,$6}); $$ = node;}
 
 comma_type_name_zero_or_more
-            :   /* empty */  {Node* node = createNode("comma type name zero or more"); node->addChildren({}); $$ = node;}
-            |   COMMA_OP type_name comma_type_name_zero_or_more {Node* node = createNode("comma type name zero or more"); node->addChildren({$1,$2}); $$ = node;}
+            :   /* empty */                                                                                                                     {Node* node = createNode("comma type name zero or more"); node->addChildren({}); $$ = node;}
+            |   COMMA_OP type_name comma_type_name_zero_or_more                                                                                 {Node* node = createNode("comma type name zero or more"); node->addChildren({$1,$2,$3}); $$ = node;}
 
 comma_module_name_zero_or_more
-            :   /* empty */ {Node* node = createNode("comma module name zero or more"); node->addChildren({}); $$ = node;}
-            |   COMMA_OP type_name comma_module_name_zero_or_more {Node* node = createNode("comma module name zero or more"); node->addChildren({$1,$2}); $$ = node;}
+            :   /* empty */                                                                                                                     {Node* node = createNode("comma module name zero or more"); node->addChildren({}); $$ = node;}
+            |   COMMA_OP type_name comma_module_name_zero_or_more                                                                               {Node* node = createNode("comma module name zero or more"); node->addChildren({$1,$2,$3}); $$ = node;}
 
 //  ########   EXPRESSIONS   ########  
 
 primary
-            :   primary_no_new_array {Node* node = createNode("primary"); node->addChildren({$1}); $$ = node;}
-            |   array_creation_expression {Node* node = createNode("primary"); node->addChildren({$1}); $$ = node;}
+            :   primary_no_new_array                                                                                                            {Node* node = createNode("primary"); node->addChildren({$1}); $$ = node;}
+            |   array_creation_expression                                                                                                       {Node* node = createNode("primary"); node->addChildren({$1}); $$ = node;}
 
 primary_no_new_array
-            :   LITERALS {Node* node = createNode("primary no new array"); node->addChildren({$1}); $$ = node;}
-            |   class_literal {Node* node = createNode("primary no new array"); node->addChildren({$1}); $$ = node;}
-            |   THIS_KEYWORD  {Node* node = createNode("primary no new array"); node->addChildren({$1}); $$ = node;}
-            |   type_name DOT_OP THIS_KEYWORD {Node* node = createNode("primary no new array"); node->addChildren({$1,$2,$3}); $$ = node;}
-            |   OP_BRCKT expression CLOSE_BRCKT {Node* node = createNode("primary no new array"); node->addChildren({$1,$2,$3}); $$ = node;}
-            |   class_instance_creation_expression {Node* node = createNode("primary no new array"); node->addChildren({$1}); $$ = node;}
-            |   method_invocation {Node* node = createNode("primary no new array"); node->addChildren({$1}); $$ = node;}
-            |   field_access {Node* node = createNode("primary no new array"); node->addChildren({$1}); $$ = node;}
-            |   array_access {Node* node = createNode("primary no new array"); node->addChildren({$1}); $$ = node;}
-            |   method_reference {Node* node = createNode("primary no new array"); node->addChildren({$1}); $$ = node;}
+            :   LITERALS                                                                                                                        {Node* node = createNode("primary no new array"); node->addChildren({$1}); $$ = node;}
+            |   class_literal                                                                                                                   {Node* node = createNode("primary no new array"); node->addChildren({$1}); $$ = node;}
+            |   THIS_KEYWORD                                                                                                                    {Node* node = createNode("primary no new array"); node->addChildren({$1}); $$ = node;}
+            |   type_name DOT_OP THIS_KEYWORD                                                                                                   {Node* node = createNode("primary no new array"); node->addChildren({$1,$2,$3}); $$ = node;}
+            |   OP_BRCKT expression CLOSE_BRCKT                                                                                                 {Node* node = createNode("primary no new array"); node->addChildren({$1,$2,$3}); $$ = node;}
+            |   class_instance_creation_expression                                                                                              {Node* node = createNode("primary no new array"); node->addChildren({$1}); $$ = node;}
+            |   method_invocation                                                                                                               {Node* node = createNode("primary no new array"); node->addChildren({$1}); $$ = node;}
+            |   field_access                                                                                                                    {Node* node = createNode("primary no new array"); node->addChildren({$1}); $$ = node;}
+            |   array_access                                                                                                                    {Node* node = createNode("primary no new array"); node->addChildren({$1}); $$ = node;}
+            |   method_reference                                                                                                                {Node* node = createNode("primary no new array"); node->addChildren({$1}); $$ = node;}
 
 field_access
-            :   primary DOT_OP IDENTIFIERS {Node* node = createNode("field access"); node->addChildren({$1,$2,$3}); $$ = node;}
-            |   SUPER_KEYWORD DOT_OP IDENTIFIERS {Node* node = createNode("field access"); node->addChildren({$1,$2,$3}); $$ = node;}
-            |   type_name DOT_OP SUPER_KEYWORD DOT_OP IDENTIFIERS {Node* node = createNode("field access"); node->addChildren({$1,$2,$3,$4,$5}); $$ = node;}
+            :   primary DOT_OP IDENTIFIERS                                                                                                      {Node* node = createNode("field access"); node->addChildren({$1,$2,$3}); $$ = node;}
+            |   SUPER_KEYWORD DOT_OP IDENTIFIERS                                                                                                {Node* node = createNode("field access"); node->addChildren({$1,$2,$3}); $$ = node;}
+            |   type_name DOT_OP SUPER_KEYWORD DOT_OP IDENTIFIERS                                                                               {Node* node = createNode("field access"); node->addChildren({$1,$2,$3,$4,$5}); $$ = node;}
 
 array_access
-            :   expression_name OP_SQR_BRCKT expression CLOSE_SQR_BRCKT {Node* node = createNode("array access"); node->addChildren({$1,$2,$3,$4}); $$ = node;}
-            |   IDENTIFIERS  OP_SQR_BRCKT expression CLOSE_SQR_BRCKT {Node* node = createNode("array access"); node->addChildren({$1,$2,$3}); $$ = node;}
-            |   primary_no_new_array OP_SQR_BRCKT expression CLOSE_SQR_BRCKT {Node* node = createNode("array access"); node->addChildren({$1,$2,$3,$4}); $$ = node;}
+            :   expression_name OP_SQR_BRCKT expression CLOSE_SQR_BRCKT                                                                         {Node* node = createNode("array access"); node->addChildren({$1,$2,$3,$4}); $$ = node;}
+            |   IDENTIFIERS OP_SQR_BRCKT expression CLOSE_SQR_BRCKT                                                                             {Node* node = createNode("array access"); node->addChildren({$1,$2,$3,$4}); $$ = node;}
+            |   primary_no_new_array OP_SQR_BRCKT expression CLOSE_SQR_BRCKT                                                                    {Node* node = createNode("array access"); node->addChildren({$1,$2,$3,$4}); $$ = node;}
 
 method_reference
-            :   type_name DOUBLE_COLON IDENTIFIERS               {Node* node = createNode("method reference"); node->addChildren({$1,$2,$3}); $$ = node;}
-            |   IDENTIFIERS DOUBLE_COLON IDENTIFIERS             {Node* node = createNode("method reference"); node->addChildren({$1,$2,$3}); $$ = node;}
-            |   primary DOUBLE_COLON IDENTIFIERS                 {Node* node = createNode("method reference"); node->addChildren({$1,$2,$3}); $$ = node;}
-            |   SUPER_KEYWORD DOUBLE_COLON IDENTIFIERS            {Node* node = createNode("method reference"); node->addChildren({$1,$2,$3}); $$ = node;}
-            |   type_name DOT_OP SUPER_KEYWORD DOUBLE_COLON IDENTIFIERS  {Node* node = createNode("method reference"); node->addChildren({$1,$2,$3,$4}); $$ = node;}
+            :   type_name DOUBLE_COLON IDENTIFIERS                                                                                              {Node* node = createNode("method reference"); node->addChildren({$1,$2,$3}); $$ = node;}
+            |   IDENTIFIERS DOUBLE_COLON IDENTIFIERS                                                                                            {Node* node = createNode("method reference"); node->addChildren({$1,$2,$3}); $$ = node;}
+            |   primary DOUBLE_COLON IDENTIFIERS                                                                                                {Node* node = createNode("method reference"); node->addChildren({$1,$2,$3}); $$ = node;}
+            |   SUPER_KEYWORD DOUBLE_COLON IDENTIFIERS                                                                                          {Node* node = createNode("method reference"); node->addChildren({$1,$2,$3}); $$ = node;}
+            |   type_name DOT_OP SUPER_KEYWORD DOUBLE_COLON IDENTIFIERS                                                                         {Node* node = createNode("method reference"); node->addChildren({$1,$2,$3,$4,$5}); $$ = node;}
         //     |   class_type DOUBLE_COLON NEW_KEYWORD
         //     |   array_type DOUBLE_COLON NEW_KEYWORD
-            |   type_name DOUBLE_COLON type_arguments IDENTIFIERS {Node* node = createNode("method reference"); node->addChildren({$1,$2,$3,$4}); $$ = node;}
-            |   primary DOUBLE_COLON type_arguments IDENTIFIERS {Node* node = createNode("method reference"); node->addChildren({$1,$2,$3,$4}); $$ = node;}
-            |   SUPER_KEYWORD DOUBLE_COLON type_arguments IDENTIFIERS {Node* node = createNode("method reference"); node->addChildren({$1,$2,$3,$4}); $$ = node;}
-            |   type_name DOT_OP SUPER_KEYWORD DOUBLE_COLON type_arguments IDENTIFIERS {Node* node = createNode("method reference"); node->addChildren({$1,$2,$3,$4,$5,$6}); $$ = node;}
+            |   type_name DOUBLE_COLON type_arguments IDENTIFIERS                                                                               {Node* node = createNode("method reference"); node->addChildren({$1,$2,$3,$4}); $$ = node;}
+            |   primary DOUBLE_COLON type_arguments IDENTIFIERS                                                                                 {Node* node = createNode("method reference"); node->addChildren({$1,$2,$3,$4}); $$ = node;}
+            |   SUPER_KEYWORD DOUBLE_COLON type_arguments IDENTIFIERS                                                                           {Node* node = createNode("method reference"); node->addChildren({$1,$2,$3,$4}); $$ = node;}
+            |   type_name DOT_OP SUPER_KEYWORD DOUBLE_COLON type_arguments IDENTIFIERS                                                          {Node* node = createNode("method reference"); node->addChildren({$1,$2,$3,$4,$5,$6}); $$ = node;}
         //     |   class_type DOUBLE_COLON type_arguments NEW_KEYWORD
 
 method_invocation
-            :   IDENTIFIERS OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT {Node* node = createNode("method invocation"); node->addChildren({$1,$2,$3,$4}); $$ = node;}
-            |   expression_name DOT_OP IDENTIFIERS OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT    {Node* node = createNode("method invocation"); node->addChildren({$1,$2,$3,$4,$5,$6}); $$ = node;}         
-            |   primary DOT_OP IDENTIFIERS OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT       {Node* node = createNode("method invocation"); node->addChildren({$1,$2,$3,$4,$5,$6}); $$ = node;}
-            |   SUPER_KEYWORD DOT_OP IDENTIFIERS OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT   {Node* node = createNode("method invocation"); node->addChildren({$1,$2,$3,$4,$5,$6}); $$ = node;}
-            |   expression_name DOT_OP SUPER_KEYWORD DOT_OP IDENTIFIERS OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT   {Node* node = createNode("method invocation"); node->addChildren({$1,$2,$3,$4,$5,$6,$7,$8}); $$ = node;}
-            |   expression_name DOT_OP type_arguments IDENTIFIERS OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT    {Node* node = createNode("method invocation"); node->addChildren({$1,$2,$3,$4,$5,$6,$7}); $$ = node;}           
-            |   primary DOT_OP type_arguments IDENTIFIERS OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT   {Node* node = createNode("method invocation"); node->addChildren({$1,$2,$3,$4,$5,$6,$7}); $$ = node;}           
-            |   SUPER_KEYWORD DOT_OP type_arguments IDENTIFIERS OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT   {Node* node = createNode("method invocation"); node->addChildren({$1,$2,$3,$4,$5,$6,$7}); $$ = node;}           
-            |   expression_name DOT_OP SUPER_KEYWORD DOT_OP type_arguments IDENTIFIERS OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT   {Node* node = createNode("method invocation"); node->addChildren({$1,$2,$3,$4,$5,$6,$7,$8,$9}); $$ = node;}           
+            :   IDENTIFIERS OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT                                                                      {Node* node = createNode("method invocation"); node->addChildren({$1,$2,$3,$4}); $$ = node;}
+            |   expression_name DOT_OP IDENTIFIERS OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT                                               {Node* node = createNode("method invocation"); node->addChildren({$1,$2,$3,$4,$5,$6}); $$ = node;}         
+            |   primary DOT_OP IDENTIFIERS OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT                                                       {Node* node = createNode("method invocation"); node->addChildren({$1,$2,$3,$4,$5,$6}); $$ = node;}
+            |   SUPER_KEYWORD DOT_OP IDENTIFIERS OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT                                                 {Node* node = createNode("method invocation"); node->addChildren({$1,$2,$3,$4,$5,$6}); $$ = node;}
+            |   expression_name DOT_OP SUPER_KEYWORD DOT_OP IDENTIFIERS OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT                          {Node* node = createNode("method invocation"); node->addChildren({$1,$2,$3,$4,$5,$6,$7,$8}); $$ = node;}
+            |   expression_name DOT_OP type_arguments IDENTIFIERS OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT                                {Node* node = createNode("method invocation"); node->addChildren({$1,$2,$3,$4,$5,$6,$7}); $$ = node;}           
+            |   primary DOT_OP type_arguments IDENTIFIERS OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT                                        {Node* node = createNode("method invocation"); node->addChildren({$1,$2,$3,$4,$5,$6,$7}); $$ = node;}           
+            |   SUPER_KEYWORD DOT_OP type_arguments IDENTIFIERS OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT                                  {Node* node = createNode("method invocation"); node->addChildren({$1,$2,$3,$4,$5,$6,$7}); $$ = node;}           
+            |   expression_name DOT_OP SUPER_KEYWORD DOT_OP type_arguments IDENTIFIERS OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT           {Node* node = createNode("method invocation"); node->addChildren({$1,$2,$3,$4,$5,$6,$7,$8,$9}); $$ = node;}           
 
 expression
-            :   assignment_expression {Node* node = createNode("expression"); node->addChildren({$1}); $$ = node;}           
-            |   lambda_expression {Node* node = createNode("expression"); node->addChildren({$1}); $$ = node;}           
+            :   assignment_expression                                                                                                           {Node* node = createNode("expression"); node->addChildren({$1}); $$ = node;}           
+            |   lambda_expression                                                                                                               {Node* node = createNode("expression"); node->addChildren({$1}); $$ = node;}           
 
 assignment_expression
-            :   condtional_expression {Node* node = createNode(" assignment expression"); node->addChildren({$1}); $$ = node;}           
-            |   assignment {Node* node = createNode("assignment expression"); node->addChildren({$1}); $$ = node;}           
+            :   condtional_expression                                                                                                           {Node* node = createNode(" assignment expression"); node->addChildren({$1}); $$ = node;}           
+            |   assignment                                                                                                                      {Node* node = createNode("assignment expression"); node->addChildren({$1}); $$ = node;}           
 
 condtional_expression
-            :   conditional_or_expression {Node* node = createNode("condtional expression"); node->addChildren({$1}); $$ = node;}           
-            |   conditional_or_expression QN_OP expression COLON_OP condtional_expression {Node* node = createNode("condtional expression"); node->addChildren({$1,$2,$3,$4,$5}); $$ = node;}           
-            |   conditional_or_expression QN_OP expression COLON_OP lambda_expression {Node* node = createNode("condtional expression"); node->addChildren({$1,$2,$3,$4,$5}); $$ = node;}           
+            :   conditional_or_expression                                                                                                       {Node* node = createNode("condtional expression"); node->addChildren({$1}); $$ = node;}           
+            |   conditional_or_expression QN_OP expression COLON_OP condtional_expression                                                       {Node* node = createNode("condtional expression"); node->addChildren({$1,$2,$3,$4,$5}); $$ = node;}           
+            |   conditional_or_expression QN_OP expression COLON_OP lambda_expression                                                           {Node* node = createNode("condtional expression"); node->addChildren({$1,$2,$3,$4,$5}); $$ = node;}           
 
 conditional_or_expression
-            :   conditional_and_expression  {Node* node = createNode("condtional or expression"); node->addChildren({$1}); $$ = node;}           
-            |   conditional_or_expression OR_OP conditional_and_expression {Node* node = createNode("condtional or expression"); node->addChildren({$1,$2,$3}); $$ = node;}           
+            :   conditional_and_expression                                                                                                      {Node* node = createNode("condtional or expression"); node->addChildren({$1}); $$ = node;}           
+            |   conditional_or_expression OR_OP conditional_and_expression                                                                      {Node* node = createNode("condtional or expression"); node->addChildren({$1,$2,$3}); $$ = node;}           
 
 conditional_and_expression
-            :   inclusive_or_expression {Node* node = createNode("condtional and expression"); node->addChildren({$1}); $$ = node;}           
-            |   conditional_and_expression AND_OP inclusive_or_expression {Node* node = createNode("condtional and expression"); node->addChildren({$1,$2,$3}); $$ = node;}           
+            :   inclusive_or_expression                                                                                                         {Node* node = createNode("condtional and expression"); node->addChildren({$1}); $$ = node;}           
+            |   conditional_and_expression AND_OP inclusive_or_expression                                                                       {Node* node = createNode("condtional and expression"); node->addChildren({$1,$2,$3}); $$ = node;}           
 
 inclusive_or_expression
             :   exclusive_or_expression {Node* node = createNode("inclusive or expression"); node->addChildren({$1}); $$ = node;}           
@@ -336,11 +333,11 @@ unqualified_class_instance_creation_expression
             |   NEW_KEYWORD type_arguments class_or_interface_type_to_instantiate OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT class_body_zero_or_one {Node* node = createNode("unqualified class instance creation expression"); node->addChildren({$1,$2,$3,$4,$5,$6, $7}); $$ = node;}           
 
 class_body_zero_or_one
-            :   /* empty */  {Node* node = createNode("class body zero or one"); node->addChildren({}); $$ = node;}           
-            |   class_body {Node* node = createNode("class body zero or one"); node->addChildren({$1}); $$ = node;}           
+            :   /* empty */                                                                                             {Node* node = createNode("class body zero or one"); node->addChildren({}); $$ = node;}           
+            |   class_body                                                                                              {Node* node = createNode("class body zero or one"); node->addChildren({$1}); $$ = node;}           
 
-argument_list 
-            :   expression comma_expression_zero_or_more {Node* node = createNode("argument list"); node->addChildren({$1, $2}); $$ = node;}           
+argument_list
+            :   expression comma_expression_zero_or_more                                                                {Node* node = createNode("argument list"); node->addChildren({$1, $2}); $$ = node;}           
 
 comma_expression_zero_or_more
             :   /* empty */  {Node* node = createNode("comma expression zero or more"); node->addChildren({}); $$ = node;}           
@@ -464,10 +461,10 @@ class_literal
             |   numeric_type DOT_OP CLASS_KEYWORD {Node* node = createNode("class literal"); node->addChildren({$1,$2,$3}); $$ = node;}
             |   BOOLEAN_KEYWORD DOT_OP CLASS_KEYWORD {Node* node = createNode("class literal"); node->addChildren({$1,$2,$3}); $$ = node;}
             |   VOID_KEYWORD DOT_OP CLASS_KEYWORD {Node* node = createNode("class literal"); node->addChildren({$1,$2,$3}); $$ = node;}
-            |   type_name empty_array_one_or_more DOT_OP CLASS_KEYWORD {Node* node = createNode("class literal"); node->addChildren({$1,$2,$3}); $$ = node;}
-            |   numeric_type empty_array_one_or_more DOT_OP CLASS_KEYWORD {Node* node = createNode("class literal"); node->addChildren({$1,$2,$3}); $$ = node;}
-            |   BOOLEAN_KEYWORD empty_array_one_or_more DOT_OP CLASS_KEYWORD {Node* node = createNode("class literal"); node->addChildren({$1,$2,$3}); $$ = node;}
-            |   VOID_KEYWORD empty_array_one_or_more DOT_OP CLASS_KEYWORD {Node* node = createNode("class literal"); node->addChildren({$1,$2,$3}); $$ = node;}
+            |   type_name empty_array_one_or_more DOT_OP CLASS_KEYWORD {Node* node = createNode("class literal"); node->addChildren({$1,$2,$3,$4}); $$ = node;}
+            |   numeric_type empty_array_one_or_more DOT_OP CLASS_KEYWORD {Node* node = createNode("class literal"); node->addChildren({$1,$2,$3,$4}); $$ = node;}
+            |   BOOLEAN_KEYWORD empty_array_one_or_more DOT_OP CLASS_KEYWORD {Node* node = createNode("class literal"); node->addChildren({$1,$2,$3,$4}); $$ = node;}
+            |   VOID_KEYWORD empty_array_one_or_more DOT_OP CLASS_KEYWORD {Node* node = createNode("class literal"); node->addChildren({$1,$2,$3,$4}); $$ = node;}
 
 empty_array_one_or_more
             :   OP_SQR_BRCKT CLOSE_SQR_BRCKT {Node* node = createNode("empty array one or more"); node->addChildren({$1,$2}); $$ = node;}
@@ -488,6 +485,7 @@ modifiers
             |   SEALED_KEYWORD  {Node* node = createNode("modifiers"); node->addChildren({$1}); $$ = node;}
             |   NONSEALED_KEYWORD  {Node* node = createNode("modifiers"); node->addChildren({$1}); $$ = node;}
             |   STRICTFP_KEYWORD  {Node* node = createNode("modifiers"); node->addChildren({$1}); $$ = node;}
+            |   TRANSITIVE_KEYWORD  {Node* node = createNode("modifiers"); node->addChildren({$1}); $$ = node;}
             |   FINAL_KEYWORD {Node* node = createNode("modifiers"); node->addChildren({$1}); $$ = node;}
             |   SYNCHRONIZED_KEYWORD {Node* node = createNode("modifiers"); node->addChildren({$1}); $$ = node;}
 
@@ -830,9 +828,50 @@ type_pattern
 //  ########   CLASSES   ########  
 
 class_declaration
-        :  normal_class_declaration  {Node* node = createNode("class declaration"); node->addChildren({$1}); $$ = node;}
-        // |  enum_declaration
-        // |  record_declaration
+        :  normal_class_declaration     {Node* node = createNode("class declaration"); node->addChildren({$1}); $$ = node;}
+        |  enum_declaration             {Node* node = createNode("class declaration"); node->addChildren({$1}); $$ = node;}
+        |  record_declaration
+
+record_declaration
+        :  modifiers_zero_or_more RECORD_KEYWORD IDENTIFIERS type_parameters_zero_or_one record_header class_implements_zero_or_one record_body         {Node* node = createNode("record declaration"); node->addChildren({$1,$2,$3,$4,$5,$6,$7}); $$ = node;}
+
+record_header
+        :  OP_BRCKT CLOSE_BRCKT         {Node* node = createNode("record header"); node->addChildren({$1,$2}); $$ = node;}
+        |  OP_BRCKT record_component_list CLOSE_BRCKT           {Node* node = createNode("record header"); node->addChildren({$1,$2,$3}); $$ = node;}
+
+record_component_list
+        :  record_component             {Node* node = createNode("record component list"); node->addChildren({$1}); $$ = node;}
+        |  record_component_list COMMA_OP record_component             {Node* node = createNode("record component list"); node->addChildren({$1,$2,$3}); $$ = node;}
+
+record_component
+        :  unann_type IDENTIFIERS       {Node* node = createNode("record component"); node->addChildren({$1,$2}); $$ = node;}
+        |  unann_type ELLIPSIS IDENTIFIERS      {Node* node = createNode("record component"); node->addChildren({$1,$2,$3}); $$ = node;}
+
+record_body
+        :  OP_CURLY_BRCKT record_body_declaration_zero_or_more CLOSE_CURLY_BRCKT                {Node* node = createNode("record body"); node->addChildren({$1,$2,$3}); $$ = node;}
+
+record_body_declaration_zero_or_more
+        :  /* empty */                          {Node* node = createNode("record_body_declaration_zero_or_more"); node->addChildren({}); $$ = node;}
+        |  record_body_declaration_zero_or_more record_body_declaration         {Node* node = createNode("record_body_declaration_zero_or_more"); node->addChildren({$1,$2}); $$ = node;}
+
+record_body_declaration
+        :  class_body_declaration               {Node* node = createNode("record_body_declaration"); node->addChildren({$1}); $$ = node;}
+        |  modifiers_zero_or_more IDENTIFIERS constructor_body                  {Node* node = createNode("record_body_declaration"); node->addChildren({$1,$2,$3}); $$ = node;}
+
+enum_declaration
+        :  modifiers_zero_or_more ENUM_KEYWORD IDENTIFIERS class_implements_zero_or_one enum_body                       {Node* node = createNode("enum declaration"); node->addChildren({$1,$2,$3,$4,$5}); $$ = node;}
+
+enum_body
+        :  OP_CURLY_BRCKT enum_constant_list_zero_or_more CLOSE_CURLY_BRCKT                                                     {Node* node = createNode("enum body"); node->addChildren({$1,$2,$3}); $$ = node;}
+        |  OP_CURLY_BRCKT SEMICOLON_OP class_body_declaration_zero_or_more CLOSE_CURLY_BRCKT                                    {Node* node = createNode("enum body"); node->addChildren({$1,$2,$3,$4}); $$ = node;}
+        |  OP_CURLY_BRCKT enum_constant_list_zero_or_more SEMICOLON_OP class_body_declaration_zero_or_more CLOSE_CURLY_BRCKT    {Node* node = createNode("enum body"); node->addChildren({$1,$2,$3,$4,$5}); $$ = node;}
+
+enum_constant_list_zero_or_more 
+        :  enum_constant                                                {Node* node = createNode("enum_constant_list_zero_or_more"); node->addChildren({$1}); $$ = node;}
+        |  enum_constant_list_zero_or_more COMMA_OP enum_constant       {Node* node = createNode("enum_constant_list_zero_or_more"); node->addChildren({$1,$2,$3}); $$ = node;}
+
+enum_constant
+        :  IDENTIFIERS OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT class_body_zero_or_one   {Node* node = createNode("enum constant"); node->addChildren({$1,$2,$3,$4,$5}); $$ = node;}
 
 normal_class_declaration
         :  modifiers_zero_or_more CLASS_KEYWORD IDENTIFIERS type_parameters_zero_or_one class_extends_zero_or_one class_implements_zero_or_one class_permits_zero_or_one class_body {Node* node = createNode("normal class declaration"); node->addChildren({$1,$2,$3,$4,$5,$6,$7,$8}); $$ = node;}
@@ -889,10 +928,10 @@ class_body_declaration_zero_or_more
         |  class_body_declaration class_body_declaration_zero_or_more {Node* node = createNode("class body declaration zero or more"); node->addChildren({$1,$2}); $$ = node;}
 
 class_body_declaration
-        :  class_member_declaration  {Node* node = createNode("class body declaration"); node->addChildren({$1}); $$ = node;}
-        |  block    {Node* node = createNode("class body declaration"); node->addChildren({$1}); $$ = node;}
-        |  static_initializer    {Node* node = createNode("class body declaration"); node->addChildren({$1}); $$ = node;}
-        |  constructor_declaration    {Node* node = createNode("class body declaration"); node->addChildren({$1}); $$ = node;}
+        :  class_member_declaration                                                                                                                     {Node* node = createNode("class body declaration"); node->addChildren({$1}); $$ = node;}
+        |  block                                                                                                                                        {Node* node = createNode("class body declaration"); node->addChildren({$1}); $$ = node;}
+        |  static_initializer                                                                                                                           {Node* node = createNode("class body declaration"); node->addChildren({$1}); $$ = node;}
+        |  constructor_declaration                                                                                                                      {Node* node = createNode("class body declaration"); node->addChildren({$1}); $$ = node;}
 
 class_member_declaration
         :  field_declaration  {Node* node = createNode("class member declaration"); node->addChildren({$1}); $$ = node;}
@@ -1016,8 +1055,8 @@ explicit_constructor_invocation
         |  primary DOT_OP type_arguments SUPER_KEYWORD OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT SEMICOLON_OP {Node* node = createNode("explicit constructor invocation"); node->addChildren({$1,$2,$3,$4,$5,$6,$7,$8}); $$ = node;}
 
 argument_list_zero_or_one
-        :   /* empty */ {Node* node = createNode("argument list zero or one"); node->addChildren({}); $$ = node;} 
-        |  argument_list {Node* node = createNode("argument list zero or one"); node->addChildren({$1}); $$ = node;}
+        :   /* empty */                                                 {Node* node = createNode("argument list zero or one"); node->addChildren({}); $$ = node;} 
+        |  argument_list                                                {Node* node = createNode("argument list zero or one"); node->addChildren({$1}); $$ = node;}
 
 // TERMINALS 
 

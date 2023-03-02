@@ -1,5 +1,11 @@
-class Test {
-    public static void name() {
-        int a = 5 * 2 + 3;   
+import java.lang.annotation.Target;
+import java.lang.annotation.ElementType;
+
+interface Foo {}
+interface Bar {}
+
+record Person(String name) {
+    Person(String name) {
+        this.name = name;
     }
 }

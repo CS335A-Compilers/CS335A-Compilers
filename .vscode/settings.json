@@ -8,6 +8,7 @@
         "bitset": "c",
         "initializer_list": "c",
         "utility": "c",
-        "new": "cpp"
+        "new": "cpp",
+        "stdio.h": "c"
     }
 }
