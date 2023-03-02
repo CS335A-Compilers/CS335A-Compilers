@@ -20,19 +20,19 @@ void showError(string temp, enum ErrorKind errorCode){
     // printf("Error at line num: %d\nError: %s\n", yylineno, LexicalErrors[errorCode]);
     switch (errorCode){
         case BADEXCAPESEQ:
-            printf("Bad escape sequence: %s\n", temp);
+            cout<<"Bad escape sequence: "<<temp<<endl;
             break;
         case ILLEGALCHAR:
-            printf("Illegal Character: %s\n", temp);
+            cout<<"Illegal Character: "<<temp<<endl;
             break;
         case LEXICAL_ERROR:
-            printf("Bad Lexical Sequence starts from: %s\n", temp);
+            cout<<"Bad Lexical Sequence starts from: "<<temp<<endl;
             break;
         case EOF_ERROR:
-            printf("Unbalanced %s present.\n", temp);
+            cout<<"Unbalanced %s present. "<<temp<<endl;
             break;
         default:
-            printf("Error: %s\n", temp);
+            cout<<"Error:  "<<LexicalErrors[errorCode]<<endl;
             break;
     }
     return ;
