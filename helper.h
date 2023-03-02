@@ -22,19 +22,19 @@ void showError(string temp, enum ErrorKind errorCode){
     // printf("Error at line num: %d\nError: %s\n", yylineno, LexicalErrors[errorCode]);
     switch (errorCode){
         case BADEXCAPESEQ:
-            printf("Bad escape sequence: %s\n", temp.c_str());
+            cout<<"Bad escape sequence: "<<temp<<endl;
             break;
         case ILLEGALCHAR:
-            printf("Illegal Character: %s\n", temp.c_str());
+            cout<<"Illegal Character: "<<temp<<endl;
             break;
         case LEXICAL_ERROR:
-            printf("Bad Lexical Sequence starts from: %s\n", temp.c_str());
+            cout<<"Bad Lexical Sequence starts from: "<<temp<<endl;
             break;
         case EOF_ERROR:
-            printf("Unbalanced %s present.\n", temp.c_str());
+            cout<<"Unbalanced %s present. "<<temp<<endl;
             break;
         default:
-            printf("Error: %s\n", temp.c_str());
+            cout<<"Error:  "<<LexicalErrors[errorCode]<<endl;
             break;
     }
     return ;
@@ -46,7 +46,7 @@ void pushBuffer(char* temp){
 }
 
 void initBuffer(char* temp){
-    string_buffer= "";
+    string_buffer = "";
     return ;
 }
 
@@ -66,9 +66,11 @@ char* convertExcapeChar(char x){
     else if(x=='\\') *res = '\\';
     else if(x=='\'') *res = '\'';
     else if(x=='\"') *res = '\"';
-    // else {
-    //     showError(x, BADEXCAPESEQ);
-    // }
+    else {
+        string err = "";
+        err += x;
+        showError(err, BADEXCAPESEQ);
+    }
     return res;
 }
 

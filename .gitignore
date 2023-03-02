@@ -38,6 +38,8 @@
 *.output
 *.tab.*
 *.yy.c
+*.dot
+*.svg
 
 # Debug files
 *.dSYM/
@@ -56,5 +58,4 @@ dkms.conf
 
 # For testing purposes
 /dev
-
 .DS_Store
