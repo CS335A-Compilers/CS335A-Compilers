@@ -10,7 +10,7 @@ enum ErrorKind {MULTI_LINE_ERROR, LEXICAL_ERROR, EOF_ERROR, ILLEGALCHAR, BADEXCA
 
 vector<string> LexicalErrors = {"Multilines not allowed.", "Lexical Error present.", "EOF File reached but there is unbalanced seperator", "Illegal character present.", "Bad excape sequence character present."};
 
-string string_buffer = "";
+string string_buffer;
 
 void init(){
     string_buffer = "";
@@ -44,12 +44,12 @@ void pushBuffer(char* temp){
 }
 
 void initBuffer(char* temp){
-    string_buffer[0] = '\0';
+    string_buffer = "";
     return ;
 }
 
 void endBuffer(char* temp){
-    pushBuffer(temp);
+    // pushBuffer(temp);
     return ;
 }
 
@@ -64,9 +64,11 @@ char* convertExcapeChar(char x){
     else if(x=='\\') *res = '\\';
     else if(x=='\'') *res = '\'';
     else if(x=='\"') *res = '\"';
-    // else {
-    //     showError(x, BADEXCAPESEQ);
-    // }
+    else {
+        string err = "";
+        err += x;
+        showError(err, BADEXCAPESEQ);
+    }
     return res;
 }
 

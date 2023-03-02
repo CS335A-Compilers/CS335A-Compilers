@@ -39,6 +39,7 @@
 *.tab.*
 *.yy.c
 *.dot
+*.svg
 
 # Debug files
 *.dSYM/
