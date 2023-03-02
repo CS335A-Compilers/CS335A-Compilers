@@ -934,7 +934,7 @@ class_member_declaration
         :  field_declaration                                                                                                                            {Node* node = createNode("class member declaration"); node->addChildren({$1}); $$ = node;}
         |  method_declaration                                                                                                                           {Node* node = createNode("class member declaration"); node->addChildren({$1}); $$ = node;}              
         |  class_declaration                                                                                                                            {Node* node = createNode("class member declaration"); node->addChildren({$1}); $$ = node;}
-|  interface_declaration                                                                                                                                {Node* node = createNode("class member declaration"); node->addChildren({$1}); $$ = node;}
+        |  interface_declaration                                                                                                                        {Node* node = createNode("class member declaration"); node->addChildren({$1}); $$ = node;}
         |  SEMICOLON_OP                                                                                                                                 {Node* node = createNode("class member declaration"); node->addChildren({$1}); $$ = node;}
 
 field_declaration
