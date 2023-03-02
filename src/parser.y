@@ -2,6 +2,7 @@
     #include <stdio.h>
     #include <string.h>
     #include "ast_helper.h"
+    #define YYDEBUG 1
 
     int yylex(void);
     void yyerror(char const*);
@@ -1397,7 +1398,10 @@ int main(int argc, char **argv){
 
     // Lets look at the error cases first
     if (argc != 3){
-        if (argc == 2 && strcmp(argv[1], "--help") == 0)
+        if(argc == 4 && strcmp(argv[3], "--verbose") == 0) {
+                yydebug = 1;        
+        }
+        else if (argc == 2 && strcmp(argv[1], "--help") == 0)
         {
             printf("=====================================================================\n");
             printf(" \t \t \t  AST GENERATOR \n");
@@ -1507,7 +1511,7 @@ int main(int argc, char **argv){
     FILE *myfile = fopen(input_file, "r");
     // make sure it's valid:
     if (!myfile) {
-       cout << "I can't open the file!" << endl;
+       cout << "Given file does not exists" << endl;
        return -1;
     }
     yyin = myfile;
