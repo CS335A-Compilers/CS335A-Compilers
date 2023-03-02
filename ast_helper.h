@@ -20,8 +20,27 @@ Node* convertToAST(Node* root){
     else if (n==0) return root;
     Node* mainRoot = createNode(root->lexeme) ;
     for(int i=0;i<n;i++){
+        if((root->children[i])->isTerminal == false && ((root->children[i])->children).size() == 0) continue;
         Node* ithchild = convertToAST(root->children[i]);
         mainRoot->children.push_back(ithchild);
+    }
+    return mainRoot;
+}
+
+Node* refineAST(Node* root){
+    int n = root->children.size();
+    if(n==0) return root;
+    Node* mainRoot = createNode(root->lexeme) ;
+    for(int i=0;i<n;i++){
+        if(strcmp(root->children[i]->lexeme, root->lexeme) == 0){
+            cout<<root->children[i]->lexeme<<endl;
+            Node* ithchild = refineAST(root->children[i]);
+            int m = ithchild->children.size();
+            for(int j=0;j<m;j++)
+                mainRoot->children.push_back(ithchild->children[j]);
+        }
+        else
+            mainRoot->children.push_back(root->children[i]);
     }
     return mainRoot;
 }
@@ -42,7 +61,7 @@ void writeEdges(Node* root, FILE* file){
     if(root->isTerminal == true) fprintf(file, "\t%lld[label = \"%s\", shape = \"doublecircle\"]\n", root->id, a);
     else fprintf(file, "\t%lld[label = %s]\n", root->id, a);
     for(int i=0;i<n;i++){
-        if((root->children[i])->isTerminal == false && ((root->children[i])->children).size() == 0) continue;
+        if((root->children[i])->isTerminal == false && ((root->children[i])->children).size() == 0) continue;   //not required but written anyway
         fprintf(file, "\t%lld -> %lld\n", root->id, (root->children[i])->id);
     }
     for(int i=0;i<n;i++){
@@ -63,6 +82,7 @@ void createDOT(Node* root){
 
 void createAST(Node* root){
     Node* ast_root = convertToAST(root);
+    // Node* refined_ast = refineAST(ast_root);
     createDOT(ast_root);
     return ;
 }

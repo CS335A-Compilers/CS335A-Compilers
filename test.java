@@ -1,16 +1,11 @@
-module com.example.foo {
-    requires com.example.foo.http;
-    requires java.logging;
+import java.lang.annotation.Target;
+import java.lang.annotation.ElementType;
 
-    requires transitive com.example.foo.network;
+interface Foo {}
+interface Bar {}
 
-    exports com.example.foo.bar;
-    exports com.example.foo.internal to com.example.foo.probe;
-
-    opens com.example.foo.quux;
-    opens com.example.foo.internal to com.example.foo.network,
-                                      com.example.foo.probe;
-
-    uses com.example.foo.spi.Intf;
-    provides com.example.foo.spi.Intf with com.example.foo.Impl;
+record Person(String name) {
+    Person(String name) {
+        this.name = name;
+    }
 }
