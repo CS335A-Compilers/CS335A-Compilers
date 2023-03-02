@@ -565,7 +565,7 @@ interface_member_decleration_zero_or_more
 
 interface_member_decleration
             :   constant_declaration                                                                                                                    {Node* node = createNode("interface member decleration"); node->addChildren({$1}); $$ = node;}
-|   interface_method_declaration                                                                                                                        {Node* node = createNode("interface member decleration"); node->addChildren({$1}); $$ = node;}
+            |   interface_method_declaration                                                                                                            {Node* node = createNode("interface member decleration"); node->addChildren({$1}); $$ = node;}
             |   class_declaration                                                                                                                       {Node* node = createNode("interface member decleration"); node->addChildren({$1}); $$ = node;}
             |   interface_declaration                                                                                                                   {Node* node = createNode("interface member decleration"); node->addChildren({$1}); $$ = node;}
 
@@ -609,6 +609,7 @@ local_variable_declaration
         |   numeric_type dims variable_declarator_list                                                                                                  {Node* node = createNode("local variable declaration"); node->addChildren({$1,$2,$3}); $$ = node;}
         |   BOOLEAN_KEYWORD dims variable_declarator_list                                                                                               {Node* node = createNode("local variable declaration"); node->addChildren({$1,$2,$3}); $$ = node;}
         |   unann_type variable_declarator_list                                                                                                         {Node* node = createNode("local variable declaration"); node->addChildren({$1,$2}); $$ = node;}
+        |   type_name variable_declarator_list                                                                                                          {Node* node = createNode("local variable declaration"); node->addChildren({$1,$2}); $$ = node;}
         |   FINAL_KEYWORD VAR_KEYWORD variable_declarator_list                                                                                          {Node* node = createNode("local variable declaration"); node->addChildren({$1,$2,$3}); $$ = node;}
         |   FINAL_KEYWORD unann_type variable_declarator_list                                                                                           {Node* node = createNode("local variable declaration"); node->addChildren({$1,$2,$3}); $$ = node;}
 
