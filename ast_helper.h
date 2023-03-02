@@ -57,7 +57,9 @@ void writeEdges(Node* root, FILE* file){
     if(root == NULL) return ;
     int n = root->children.size();
     if(n==0 && root->isTerminal == false) return ;
-    char* a = spaceToUnderscore(root->lexeme);
+    char* a;
+    if(root->isTerminal == true) a = root->lexeme;
+    else a = spaceToUnderscore(root->lexeme);
     if(root->isTerminal == true) fprintf(file, "\t%lld[label = \"%s\", shape = \"doublecircle\"]\n", root->id, a);
     else fprintf(file, "\t%lld[label = %s]\n", root->id, a);
     for(int i=0;i<n;i++){

@@ -1,11 +1,7 @@
-import java.lang.annotation.Target;
-import java.lang.annotation.ElementType;
-
-interface Foo {}
-interface Bar {}
-
-record Person(String name) {
-    Person(String name) {
-        this.name = name;
+class Point   { int x, y; }
+class Element { int atomicNumber; }
+class Test {
+    public static void main(String[] args) {
+        String str = "deowfij\n\tdfg" ;
     }
 }
