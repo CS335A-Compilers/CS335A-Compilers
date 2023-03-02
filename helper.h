@@ -1,9 +1,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <bits/stdc++.h>
 
 using namespace std;
+
+#include "bits/stdc++.h"
+
 
 // enum TokenKind {KEYWORDS, IDENTIFIERS, SEPARATORS, OPERATORS, LITERALS, PRIMITIVE_TYPE_KEYWORDS};
 enum ErrorKind {MULTI_LINE_ERROR, LEXICAL_ERROR, EOF_ERROR, ILLEGALCHAR, BADEXCAPESEQ};

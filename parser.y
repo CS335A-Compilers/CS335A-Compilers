@@ -1,8 +1,13 @@
 %{
+    #include <stdio.h>
+    #include <string.h>
     #include "ast_helper.h"
+
     int yylex(void);
     void yyerror(char const*);
     extern int yylineno;
+    extern FILE* yyin;
+    char output_file[10000];
 %}
 
 %locations
@@ -36,7 +41,7 @@
 //  ########   COMPILATION UNIT   ########  
 
 start_state 
-            :   compilation_unit                                                                                                                {$$ = $1; createAST($$);}
+            :   compilation_unit                                                                                                                {$$ = $1; createAST($$, output_file);}
 
 compilation_unit
             :   ordinary_compilation_unit                                                                                                       {Node* node = createNode("compilation unit"); node->addChildren({$1}); $$ = node;}
@@ -1384,8 +1389,139 @@ LITERALS
 
 %%
 
-int main(){
+int main(int argc, char **argv){
+    // 3 arguments are compulsory 
+    /*
+        ./myASTGenerator --input=../tests/test5.java −−output=test5.dot
+    */
+
+    // Lets look at the error cases first
+    if (argc != 3){
+        if (argc == 2 && strcmp(argv[1], "--help") == 0)
+        {
+            printf("=====================================================================\n");
+            printf(" \t \t \t  AST GENERATOR \n");
+            printf("=====================================================================\n");
+            printf("\nASTGenerator is a combined scanner and parser for the JAVA 17 language, \nwhich generates an abstract syntax tree (AST) for any given input java file.\n\n");
+            printf("It takes a java file as an input, extracts the tokens from it \nand generates a dot file containing the abstract syntax tree for the input file.\n\n");
+            printf("----------------------------\n");
+            printf(" \t  SCANNER \n");
+            printf("----------------------------\n");
+            printf("The JAVA 17 Lexer (Scanner) analyzes the content of the input file and \nextracts the tokens and lexemes out of it.\n\n");
+            printf("The lexical structure given in \n\t\t'https://docs.oracle.com/javase/specs/jls/se17/html/jls-3.html' \nis followed to create the lexer ...\n\n");
+            printf("Taking an example -\n");
+            printf("\tclass Test {\n\t    int i = 5 + 5;\n\t}\n\n");
+            printf("This generates the following tokens and lexemes -\n");
+            printf("--------------------------------\n");
+            printf("  Lexeme  |   Token   |  Count  \n");
+            printf("--------------------------------\n");
+            printf("   class  |  keyword  |    1    \n");
+            printf("   Test   | identifier|    1    \n");
+            printf("     {    | separator |    1    \n");
+            printf("    int   |  keyword  |    1    \n");
+            printf("     i    | identifier|    1    \n");
+            printf("     =    |  operator |    1    \n");
+            printf("     5    |  literal  |    2    \n");
+            printf("     +    |  operator |    1    \n");
+            printf("     ;    | separator |    1    \n");
+            printf("     }    | separator |    1    \n\n\n");
+            printf("----------------------------\n");
+            printf(" \t  PARSER \n");
+            printf("----------------------------\n");
+            printf("The JAVA 17 parser uses the automated parser generator - Bison.\nIt uses the grammar given in -\n\t\thttps://docs.oracle.com/javase/specs/jls/se17/html/jls-19.html\n\n");
+            printf("The following language features are supported -\n");
+            printf("   - Primitive Data Types\n");
+            printf("   - Multidimensional arrays\n");
+            printf("   - Basic Operators\n\t- Arithmetic Operators\n\t- Pre-increment, Pre-decrement, Post-increment and Post-decrement\n\t- Relational Operators\n\t- Bitwise Operators\n\t- Logical Operators\n\t- Assignment Operators\n\t- Ternary Operators\n");
+            printf("   - Control Flow\n\t- If-else\n\t- For\n\t- While\n\t- Do-while\n\t- Switch\n");
+            printf("   - Methods and method calls\n");
+            printf("   - Classes and Objects\n");
+            printf("   - Import statements\n");
+            printf("   - Strings\n");
+            printf("   - Interfaces\n");
+            printf("   - Type Casting\n");
+            printf("   - Enums and Records\n");
+            printf("   - Constructors\n");
+            printf("   - Blocks, Statements, and Patterns\n\n");
+            printf("For the same example, the following nodes and edges will be generated ...\n");
+            printf("           top_level_class_or_interface_declaration\n");
+            printf("                              |\n");
+            printf("                              |\n");
+            printf("                  normal_class_declaration\n");
+            printf("                              /|\\\n");
+            printf("                             / | \\\n");
+            printf("                            /  |  \\\n");
+            printf("                        class test class_body\n");
+            printf("                                        /|\\\n");
+            printf("                                       / | \\\n");
+            printf("                                      /  |  \\\n");
+            printf("                                     /   |   \\\n");
+            printf("                                    /    |    \\\n");
+            printf("                                   /     |     \\\n");
+            printf("                                  /      |      \\\n");
+            printf("                                {   declaration   }\n");
+            printf("                                         |\n");
+            printf("                                         |\n");
+            printf("                                 field_declaration\n");
+            printf("                                         /\\\n");
+            printf("                                        /  \\\n");
+            printf("                                       /    \\\n");
+            printf("                                     int  variable_declarator\n");
+            printf("                                                    /\\\n");
+            printf("                                                   /  \\\n");
+            printf("                                                  /    \\\n");
+            printf("                                                id    equals_variable_initializer\n");
+            printf("                                                |              /\\\n");
+            printf("                                                |             /  \\\n");
+            printf("                                                i            = additive_expr\n");
+            printf("                                                                   /|\\\n");
+            printf("                                                                  / | \\\n");
+            printf("                                                                 5  +  5\n");
+            printf("\nUsage: ./ASTGenerator [--input=<input_file_name> --output=<output_file_name>][--verbose][--help]\n");
+            printf("\nOptions:\n");
+            printf("    --help : Describe the AST Generator\n");
+            printf("    --input : Gets the input file\n");
+            printf("    --output : The name of the output file\n");
+            printf("    --verbose : Print logs of the code\n");
+            return 0;
+        } 
+
+        else{
+            printf("Usage: %s [--input=<input_file_name> --output=<output_file_name>][--verbose]\n", argv[0]);
+            printf("--verbose is an optional flag ...\n");
+            return 0;
+        }
+    }
+
+    // Get input file
+    char input_file[10000];
+
+    // Extract the first token
+    char * token_in = strtok(argv[1], "=");
+    // loop through the string to extract all other tokens
+    while( token_in != NULL ) {
+       strcpy(input_file, token_in);
+       token_in = strtok(NULL, "=");
+    }
+
+    FILE *myfile = fopen(input_file, "r");
+    // make sure it's valid:
+    if (!myfile) {
+       cout << "I can't open the file!" << endl;
+       return -1;
+    }
+    yyin = myfile;
+
+    // Extract the first token
+    char * token_out = strtok(argv[2], "=");
+    // loop through the string to extract all other tokens
+    while( token_out != NULL ) {
+       strcpy(output_file, token_out);
+       token_out = strtok(NULL, "=");
+    }
+    
     yyparse();
+    fclose(yyin);
     return 0;
 }
 

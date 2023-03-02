@@ -1,12 +1,12 @@
-#include<bits/stdc++.h>
+#include "bits/stdc++.h"
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
 #include <fstream>
 
-#include "ast.h"
-
 using namespace std;
+
+#include "ast.h"
 
 Node* createNode(string str){
     char* lex = strcpy(new char[str.length() + 1], str.c_str());
@@ -72,9 +72,9 @@ void writeEdges(Node* root, FILE* file){
     return ;
 }
 
-void createDOT(Node* root){
+void createDOT(Node* root, char* output_file){
     FILE *file; //file pointer
-    file = fopen("ast.dot","w");
+    file = fopen(output_file, "w");
     fprintf(file, "digraph AST{\n");
     writeEdges(root, file);
     fprintf(file, "}");
@@ -82,9 +82,8 @@ void createDOT(Node* root){
     return ;
 }
 
-void createAST(Node* root){
+void createAST(Node* root, char* output_file){
     Node* ast_root = convertToAST(root);
-    // Node* refined_ast = refineAST(ast_root);
-    createDOT(ast_root);
+    createDOT(ast_root, output_file);
     return ;
 }
