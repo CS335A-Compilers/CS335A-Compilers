@@ -6,7 +6,7 @@
     int yylex(void);
     void yyerror(char const*);
     extern int yylineno;
-
+    extern FILE* yyin;
     char output_file[10000];
 %}
 
@@ -68,7 +68,7 @@ modular_compilation_unit
             :   import_declaration_zero_or_more module_declaration                                                                              {Node* node = createNode("modular compilation unit"); node->addChildren({$1, $2}); $$ = node;}
 
 package_declaration
-            :   PACKAGE_KEYWORD type_name SEMICOLON_OP                                                                                                   {Node* node = createNode("package declaration"); node->addChildren({$1,$2,$3}); $$ = node;}
+            :   PACKAGE_KEYWORD type_name SEMICOLON_OP                                                                                          {Node* node = createNode("package declaration"); node->addChildren({$1,$2,$3}); $$ = node;}
 
 import_declaration
             :   single_type_import_declaration                                                                                                  {Node* node = createNode("import declaration"); node->addChildren({$1}); $$ = node;}
@@ -77,21 +77,21 @@ import_declaration
             |   static_import_on_demand_declaration                                                                                             {Node* node = createNode("import declaration"); node->addChildren({$1}); $$ = node;}
 
 single_type_import_declaration
-            :   IMPORT_KEYWORD type_name SEMICOLON_OP                                                                                                    {Node* node = createNode("single type import declaration"); node->addChildren({$1,$2,$3}); $$ = node;}
+            :   IMPORT_KEYWORD type_name SEMICOLON_OP                                                                                           {Node* node = createNode("single type import declaration"); node->addChildren({$1,$2,$3}); $$ = node;}
 
 type_import_on_demand_declaration
-            :   IMPORT_KEYWORD type_name DOT_OP STAR_OP SEMICOLON_OP module_declaration                                                                         {Node* node = createNode("type import on demand declaration"); node->addChildren({$1,$2,$3,$4,$5}); $$ = node;}
+            :   IMPORT_KEYWORD type_name DOT_OP STAR_OP SEMICOLON_OP module_declaration                                                         {Node* node = createNode("type import on demand declaration"); node->addChildren({$1,$2,$3,$4,$5}); $$ = node;}
 
 single_static_import_declaration
-            :   IMPORT_KEYWORD STATIC_KEYWORD type_name DOT_OP IDENTIFIERS SEMICOLON_OP                                                                     {Node* node = createNode("single static import declaration"); node->addChildren({$1,$2,$3,$4,$5}); $$ = node;}
+            :   IMPORT_KEYWORD STATIC_KEYWORD type_name DOT_OP IDENTIFIERS SEMICOLON_OP                                                         {Node* node = createNode("single static import declaration"); node->addChildren({$1,$2,$3,$4,$5}); $$ = node;}
 
 static_import_on_demand_declaration
-            :   IMPORT_KEYWORD STATIC_KEYWORD type_name DOT_OP STAR_OP SEMICOLON_OP                                                                             {Node* node = createNode("static import on demand declaration"); node->addChildren({$1,$2,$3,$4,$5,$6}); $$ = node;}
+            :   IMPORT_KEYWORD STATIC_KEYWORD type_name DOT_OP STAR_OP SEMICOLON_OP                                                             {Node* node = createNode("static import on demand declaration"); node->addChildren({$1,$2,$3,$4,$5,$6}); $$ = node;}
 
 top_level_class_or_interface_declaration
             :   class_declaration                                                                                                               {Node* node = createNode("top level class or interface declaration"); node->addChildren({$1}); $$ = node;}
             |   interface_declaration                                                                                                           {Node* node = createNode("top level class or interface declaration"); node->addChildren({$1}); $$ = node;}
-            |   SEMICOLON_OP                                                                                                                             {Node* node = createNode("top level class or interface declaration"); node->addChildren({$1}); $$ = node;}
+            |   SEMICOLON_OP                                                                                                                    {Node* node = createNode("top level class or interface declaration"); node->addChildren({$1}); $$ = node;}
 
 module_declaration
             :   open_zero_or_one MODULE_KEYWORD type_name OP_CURLY_BRCKT CLOSE_CURLY_BRCKT   {Node* node = createNode("module declaration"); node->addChildren({$1,$2,$3,$4}); $$ = node;}
@@ -1371,12 +1371,9 @@ int main(int argc, char **argv){
 
     // Lets look at the error cases first
     if (argc != 3){
-        if (argc == 2 && strcmp(argv[1], "--help") == 0)
-        {
-            return 0;
-        }
+        if (argc == 2 && strcmp(argv[1], "--help") == 0) return 0;
         printf("Usage: %s [--input=<input_file_name> --output=<output_file_name>][--verbose]\n", argv[0]);
-        printf("--verbose is an optional flag ...");
+        printf("--verbose is an optional flag ...\n");
     }
 
     // Get input file
@@ -1389,11 +1386,14 @@ int main(int argc, char **argv){
        strcpy(input_file, token_in);
        token_in = strtok(NULL, "=");
     }
-    // Now we have the input file
-    printf("INPUT FILE : %s\n", input_file);
 
-    // // Get output file
-    // char* output_file;
+    FILE *myfile = fopen(input_file, "r");
+    // make sure it's valid:
+    if (!myfile) {
+       cout << "I can't open the file!" << endl;
+       return -1;
+    }
+    yyin = myfile;
 
     // Extract the first token
     char * token_out = strtok(argv[2], "=");
@@ -1402,11 +1402,9 @@ int main(int argc, char **argv){
        strcpy(output_file, token_out);
        token_out = strtok(NULL, "=");
     }
-    // Now we have the input file
-    printf("OUTPUT FILE : %s\n", output_file);
-
     
     yyparse();
+    fclose(yyin);
     return 0;
 }
 

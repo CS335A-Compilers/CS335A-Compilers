@@ -1,3 +1,7 @@
 class Test {
-    int i = 5 + 5;
+    String str = "a\nb";
+    // String abcd = """
+    //         newline block textblock
+    //         is present
+    //         """;
 }
