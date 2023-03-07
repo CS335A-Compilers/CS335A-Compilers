@@ -8,17 +8,40 @@ using namespace std;
 
 #include "ast.h"
 
+Node::Node(char* lex){
+    lexeme = lex;
+    children.resize(0);
+    isTerminal = false;
+    node_id++;
+    id = node_id;
+}
+
+void Node::addChildren(vector<Node*> childrens){
+    int n = childrens.size();
+    for(int i=0;i<n;i++){
+        this->children.push_back(childrens[i]);
+    }
+    return ;
+}
+
 Node* createNode(string str){
     char* lex = strcpy(new char[str.length() + 1], str.c_str());
     Node* node = new Node(lex);
     return node;
 }
 
+Node* cloneRoot(Node* root){
+    char* lex = root->lexeme;
+    Node* newRoot = new Node(lex);
+    // Need to copy all attributes;
+    return newRoot;
+}
+
 Node* convertToAST(Node* root){
     int n = root->children.size();
     if(n==1) return convertToAST(root->children[0]);
     else if (n==0) return root;
-    Node* mainRoot = createNode(root->lexeme) ;
+    Node* mainRoot = cloneRoot(root);
     for(int i=0;i<n;i++){
         if((root->children[i])->isTerminal == false && ((root->children[i])->children).size() == 0) continue;
         Node* ithchild = convertToAST(root->children[i]);
@@ -27,23 +50,6 @@ Node* convertToAST(Node* root){
     return mainRoot;
 }
 
-Node* refineAST(Node* root){
-    int n = root->children.size();
-    if(n==0) return root;
-    Node* mainRoot = createNode(root->lexeme) ;
-    for(int i=0;i<n;i++){
-        if(strcmp(root->children[i]->lexeme, root->lexeme) == 0){
-            cout<<root->children[i]->lexeme<<endl;
-            Node* ithchild = refineAST(root->children[i]);
-            int m = ithchild->children.size();
-            for(int j=0;j<m;j++)
-                mainRoot->children.push_back(ithchild->children[j]);
-        }
-        else
-            mainRoot->children.push_back(root->children[i]);
-    }
-    return mainRoot;
-}
 
 char* spaceToUnderscore(char* word){
     int n = strlen(word);

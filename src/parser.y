@@ -1,7 +1,8 @@
 %{
     #include <stdio.h>
     #include <string.h>
-    #include "ast_helper.h"
+    #include "ast.h"
+    #include "helper.h"
     #define YYDEBUG 1
 
     int yylex(void);
@@ -673,7 +674,7 @@ statement_expression
         |  post_increment_expression                                                                                                                    {Node* node = createNode("statement expression"); node->addChildren({$1}); $$ = node;}
         |  post_decrement_expression                                                                                                                    {Node* node = createNode("statement expression"); node->addChildren({$1}); $$ = node;}
         |  method_invocation                                                                                                                            {Node* node = createNode("statement expression"); node->addChildren({$1}); $$ = node;}
-|  class_instance_creation_expression                                                                                                                   {Node* node = createNode("statement expression"); node->addChildren({$1}); $$ = node;}
+        |  class_instance_creation_expression                                                                                                           {Node* node = createNode("statement expression"); node->addChildren({$1}); $$ = node;}
 
 if_then_statement
         :  IF_KEYWORD OP_BRCKT expression CLOSE_BRCKT statement                                                                                         {Node* node = createNode("if then statement"); node->addChildren({$1,$2,$3,$4,$5}); $$ = node;}
