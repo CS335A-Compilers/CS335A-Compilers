@@ -1,8 +1,7 @@
 %{
     #include <stdio.h>
     #include <string.h>
-    #include "ast.h"
-    #include "helper.h"
+    #include "inc/helper.h"
     #define YYDEBUG 1
 
     int yylex(void);
@@ -17,6 +16,10 @@
 %union{
     Node* node;
     char* lex_val;
+    FormalParameter* formalparameter;
+    ListNode* listnode;
+    Type* type;
+    MethodDeclaration* methods;
 }
 // type == nonterminal, token = terminal
 
@@ -36,7 +39,11 @@
 %type<node> PTR_OP EQ_OP GE_OP  LE_OP  NE_OP  AND_OP  OR_OP  INC_OP  DEC_OP  LEFT_OP  RIGHT_OP  BIT_RIGHT_SHFT_OP ADD_ASSIGN  SUB_ASSIGN  MUL_ASSIGN  DIV_ASSIGN  AND_ASSIGN  OR_ASSIGN  XOR_ASSIGN  MOD_ASSIGN  LEFT_ASSIGN  RIGHT_ASSIGN  BIT_RIGHT_SHFT_ASSIGN  ELLIPSIS  DOUBLE_COLON DIAMOND
 %type<node> IDENTIFIERS LITERALS
 
-%type<node> record_header record_body_declaration record_body_declaration_zero_or_more record_body record_component_list record_component record_declaration enum_constant_list_zero_or_more enum_body enum_constant enum_declaration open_zero_or_one additional_bound additional_bound_zero_or_more additive_expression and_expression argument_list argument_list_zero_or_one array_access array_creation_expression array_initializer array_type assert_statement assignment assignment_expression assignment_operators basic_for_statement basic_for_statement_no_short_if block block_statement block_statements block_statements_zero_or_more block_statements_zero_or_one break_statement case_constant cast_expression catch_clause catch_clause_zero_or_more catch_formal_parameter catch_type catches catches_zero_or_one class_body class_body_declaration class_body_declaration_zero_or_more class_body_zero_or_one class_declaration class_extends class_extends_zero_or_one class_implements class_implements_zero_or_one class_instance_creation_expression class_literal class_member_declaration class_or_interface_type_to_instantiate class_permits class_permits_zero_or_one class_type comma_case_constant_zero_or_more comma_exception_type_zero_or_more comma_expression_zero_or_more comma_identifiers_zero_or_more comma_interface_type_zero_or_more comma_lambda_parameter_zero_or_more comma_statement_expression_zero_or_more comma_type_arguement_zero_or_more comma_type_name_zero_or_more comma_type_parameter_zero_or_more comma_variable_declarator_zero_or_more commas_zero_or_more compilation_unit conditional_and_expression conditional_or_expression condtional_expression constant_declaration constructor_body constructor_declaration constructor_declarator continue_statement dim_expr dim_exprs dims dims_zero_or_one do_statememt empty_array_one_or_more empty_statement enhanced_for_statement enhanced_for_statement_no_short_if equality_expression equals_variable_initializer_zero_or_one exception_type_list exclusive_or_expression explicit_constructor_invocation expression expression_statement expression_zero_or_one field_access field_declaration finally finally_zero_or_one for_init for_init_zero_or_one for_statement for_statement_no_short_if for_update for_update_zero_or_one formal_parameter formal_parameter_list formal_parameter_list_zero_or_one identifier_dot_zero_or_one identifier_zero_or_one if_then_else_statement if_then_else_statement_no_short_if if_then_statement import_declaration import_declaration_zero_or_more inclusive_or_expression instance_of_expression interface_body interface_declaration interface_extends_zero_or_one interface_member_decleration interface_member_decleration_zero_or_more interface_method_declaration interface_permits interface_permits_zero_or_one interface_type_list labeled_statement labeled_statement_no_short_if lambda_expression lambda_parameter lambda_parameter_list lambda_parameter_list_zero_or_one lambda_parameter_type lambda_parameters local_class_or_interface_declaration local_variable_declaration local_variable_declaration_statement method_declaration method_declarator method_header method_invocation method_reference modifiers modifiers_zero_or_more modular_compilation_unit module_declaration module_directive module_directive_one_or_more multiplicative_expression normal_class_declaration normal_interface_declaration numeric_type ordinary_compilation_unit package_declaration pattern post_decrement_expression post_increment_expression postfix_expression pre_decrement_expression pre_increment_expression primary primary_no_new_array primitive_type reciever_parameter reference_type relational_expression resource resource_list resources_specification return_statement semicolon_resource_zero_or_more semicolon_zero_or_one shift_expression single_static_import_declaration single_type_import_declaration slash_class_type_zero_or_more start_state statement statement_expression statement_expression_list statement_no_short_if statement_without_trailing_substatement static_import_on_demand_declaration static_initializer switch_block switch_block_statement_group switch_block_statement_group_zero_or_more switch_expression switch_label switch_label_colon_zero_or_more switch_rule switch_rule_zero_or_more switch_statement synchronized_statement throw_statement throws throws_zero_or_one top_level_class_or_interface_declaration top_level_class_or_interface_declaration_zero_or_more try_statement try_with_resources_statement type_argument type_argument_list type_arguments type_bound type_import_on_demand_declaration type_name type_parameter_list type_parameters type_parameters_zero_or_one type_pattern unann_array_type unann_class_type unann_reference_type unann_type unary_expression unary_expression_not_plus_minus unqualified_class_instance_creation_expression variable_arity_parameter variable_declarator variable_declarator_id variable_declarator_list variable_initializer variable_initializer_list variable_initializer_list_zero_or_more variable_modifier_one_or_more while_statement while_statement_no_short_if wild_card yield_statement
+%type<node> record_header record_body_declaration record_body_declaration_zero_or_more record_body record_component_list record_component record_declaration enum_constant_list_zero_or_more enum_body enum_constant enum_declaration open_zero_or_one additional_bound additional_bound_zero_or_more additive_expression and_expression argument_list argument_list_zero_or_one array_access array_creation_expression array_initializer array_type assert_statement assignment assignment_expression assignment_operators basic_for_statement basic_for_statement_no_short_if block block_statement block_statements block_statements_zero_or_more block_statements_zero_or_one break_statement case_constant cast_expression catch_clause catch_clause_zero_or_more catch_formal_parameter catch_type catches catches_zero_or_one class_body class_body_declaration class_body_declaration_zero_or_more class_body_zero_or_one class_declaration class_extends class_extends_zero_or_one class_implements class_implements_zero_or_one class_instance_creation_expression class_literal class_member_declaration class_or_interface_type_to_instantiate class_permits class_permits_zero_or_one class_type comma_case_constant_zero_or_more comma_exception_type_zero_or_more comma_expression_zero_or_more comma_identifiers_zero_or_more comma_interface_type_zero_or_more comma_lambda_parameter_zero_or_more comma_statement_expression_zero_or_more comma_type_arguement_zero_or_more comma_type_name_zero_or_more comma_type_parameter_zero_or_more comma_variable_declarator_zero_or_more commas_zero_or_more compilation_unit conditional_and_expression conditional_or_expression condtional_expression constant_declaration constructor_body constructor_declaration constructor_declarator continue_statement dim_expr dim_exprs dims dims_zero_or_one do_statememt empty_array_one_or_more empty_statement enhanced_for_statement enhanced_for_statement_no_short_if equality_expression exception_type_list exclusive_or_expression explicit_constructor_invocation expression expression_statement expression_zero_or_one field_access field_declaration finally finally_zero_or_one for_init for_init_zero_or_one for_statement for_statement_no_short_if for_update for_update_zero_or_one identifier_dot_zero_or_one identifier_zero_or_one if_then_else_statement if_then_else_statement_no_short_if if_then_statement import_declaration import_declaration_zero_or_more inclusive_or_expression instance_of_expression interface_body interface_declaration interface_extends_zero_or_one interface_member_decleration interface_member_decleration_zero_or_more interface_method_declaration interface_permits interface_permits_zero_or_one interface_type_list labeled_statement labeled_statement_no_short_if lambda_expression lambda_parameter lambda_parameter_list lambda_parameter_list_zero_or_one lambda_parameter_type lambda_parameters local_class_or_interface_declaration local_variable_declaration local_variable_declaration_statement method_invocation method_reference modifiers modular_compilation_unit module_declaration module_directive module_directive_one_or_more multiplicative_expression normal_class_declaration normal_interface_declaration ordinary_compilation_unit package_declaration pattern post_decrement_expression post_increment_expression postfix_expression pre_decrement_expression pre_increment_expression primary primary_no_new_array reciever_parameter reference_type relational_expression resource resource_list resources_specification return_statement semicolon_resource_zero_or_more semicolon_zero_or_one shift_expression single_static_import_declaration single_type_import_declaration slash_class_type_zero_or_more start_state statement statement_expression statement_expression_list statement_no_short_if statement_without_trailing_substatement static_import_on_demand_declaration static_initializer switch_block switch_block_statement_group switch_block_statement_group_zero_or_more switch_expression switch_label switch_label_colon_zero_or_more switch_rule switch_rule_zero_or_more switch_statement synchronized_statement throw_statement throws throws_zero_or_one top_level_class_or_interface_declaration top_level_class_or_interface_declaration_zero_or_more try_statement try_with_resources_statement type_argument type_argument_list type_arguments type_bound type_import_on_demand_declaration type_name type_parameter_list type_parameters type_parameters_zero_or_one type_pattern unann_class_type unary_expression unary_expression_not_plus_minus unqualified_class_instance_creation_expression variable_arity_parameter variable_declarator variable_declarator_id variable_declarator_list variable_initializer variable_initializer_list variable_initializer_list_zero_or_more while_statement while_statement_no_short_if wild_card yield_statement
+%type<formalparameter> formal_parameter 
+%type<listnode> formal_parameter_list modifiers_zero_or_more formal_parameter_list_zero_or_one
+%type<type> unann_type primitive_type numeric_type
+%type<methods> method_declaration method_header method_declarator
 
 %% 
 
@@ -216,10 +223,10 @@ relational_expression
             |   relational_expression GE_OP shift_expression                                                                                    {Node* node = createNode("relational expression"); node->addChildren({$1,$2,$3}); $$ = node;}           
             |   instance_of_expression                                                                                                          {Node* node = createNode("relational expression"); node->addChildren({$1}); $$ = node;}           
 
-unann_array_type
-        :  primitive_type dims                                                                                                                  {Node* node = createNode("unann array type"); node->addChildren({$1,$2}); $$ = node;}           
-        |  unann_class_type dims                                                                                                                {Node* node = createNode("unann array type"); node->addChildren({$1,$2}); $$ = node;}           
-        |  IDENTIFIERS dims                                                                                                                     {Node* node = createNode("unann array type"); node->addChildren({$1,$2}); $$ = node;}           
+// unann_array_type
+        // :  primitive_type dims                                                                                                                  {Node* node = createNode("unann array type"); node->addChildren({$1,$2}); $$ = node;}           
+        // |  unann_class_type dims                                                                                                                {Node* node = createNode("unann array type"); node->addChildren({$1,$2}); $$ = node;}           
+        // |  IDENTIFIERS dims                                                                                                                     {Node* node = createNode("unann array type"); node->addChildren({$1,$2}); $$ = node;}           
 
 instance_of_expression
             :   relational_expression INSTANCEOF_KEYWORD reference_type                                                                         {Node* node = createNode("instance of expression"); node->addChildren({$1,$2,$3}); $$ = node;}           
@@ -265,7 +272,7 @@ unary_expression_not_plus_minus
 
 postfix_expression
             :   primary                                                                                                                         {Node* node = createNode("postfix expression"); node->addChildren({$1}); $$ = node;}           
-            |   type_name                                                                                                                 {Node* node = createNode("postfix expression"); node->addChildren({$1}); $$ = node;}           
+            |   type_name                                                                                                                       {Node* node = createNode("postfix expression"); node->addChildren({$1}); $$ = node;}           
             |   post_increment_expression                                                                                                       {Node* node = createNode("postfix expression"); node->addChildren({$1}); $$ = node;}           
             |   post_decrement_expression                                                                                                       {Node* node = createNode("postfix expression"); node->addChildren({$1}); $$ = node;}           
 
@@ -387,17 +394,17 @@ dims
             |   OP_SQR_BRCKT CLOSE_SQR_BRCKT dims                                                                                                       {Node* node = createNode("dims"); node->addChildren({$1,$2,$3}); $$ = node;} 
 
 primitive_type
-            :   numeric_type                                                                                                                            {Node* node = createNode("primitive type"); node->addChildren({$1}); $$ = node;}
-            |   BOOLEAN_KEYWORD                                                                                                                         {Node* node = createNode("primitive type"); node->addChildren({$1}); $$ = node;}
+            :   numeric_type                                                                                                                            {Type* node = new Type("primitive type", $1->primitivetypeIndex); node->addChildren({$1}); $$ = node;}
+            |   BOOLEAN_KEYWORD                                                                                                                         {Type* node = new Type("primitive type", 7); node->addChildren({$1}); $$ = node;}
 
 numeric_type
-            :   BYTE_KEYWORD                                                                                                                            {Node* node = createNode("numeric type"); node->addChildren({$1}); $$ = node;}
-            |   SHORT_KEYWORD                                                                                                                           {Node* node = createNode("numeric type"); node->addChildren({$1}); $$ = node;}
-            |   INT_KEYWORD                                                                                                                             {Node* node = createNode("numeric type"); node->addChildren({$1}); $$ = node;}
-            |   LONG_KEYWORD                                                                                                                            {Node* node = createNode("numeric type"); node->addChildren({$1}); $$ = node;}
-            |   CHAR_KEYWORD                                                                                                                            {Node* node = createNode("numeric type"); node->addChildren({$1}); $$ = node;}
-            |   FLOAT_KEYWORD                                                                                                                           {Node* node = createNode("numeric type"); node->addChildren({$1}); $$ = node;}
-            |   DOUBLE_KEYWORD                                                                                                                          {Node* node = createNode("numeric type"); node->addChildren({$1}); $$ = node;}
+            :   BYTE_KEYWORD                                                                                                                            {Type* node = new Type("numeric type", 0); node->addChildren({$1}); $$ = node;}
+            |   SHORT_KEYWORD                                                                                                                           {Type* node = new Type("numeric type", 1); node->addChildren({$1}); $$ = node;}
+            |   INT_KEYWORD                                                                                                                             {Type* node = new Type("numeric type", 2); node->addChildren({$1}); $$ = node;}
+            |   LONG_KEYWORD                                                                                                                            {Type* node = new Type("numeric type", 3); node->addChildren({$1}); $$ = node;}
+            |   CHAR_KEYWORD                                                                                                                            {Type* node = new Type("numeric type", 4); node->addChildren({$1}); $$ = node;}
+            |   FLOAT_KEYWORD                                                                                                                           {Type* node = new Type("numeric type", 5); node->addChildren({$1}); $$ = node;}
+            |   DOUBLE_KEYWORD                                                                                                                          {Type* node = new Type("numeric type", 6); node->addChildren({$1}); $$ = node;}
 
 array_initializer
             :   OP_CURLY_BRCKT variable_initializer_list_zero_or_more commas_zero_or_more CLOSE_CURLY_BRCKT                                             {Node* node = createNode("array initializer"); node->addChildren({$1,$2,$3,$4}); $$ = node;}
@@ -444,16 +451,12 @@ comma_lambda_parameter_zero_or_more
 
 lambda_parameter
             :   lambda_parameter_type variable_declarator_id                                                                                            {Node* node = createNode("lambda parameter"); node->addChildren({$1,$2}); $$ = node;}
-            |   variable_modifier_one_or_more lambda_parameter_type variable_declarator_id                                                              {Node* node = createNode("lambda parameter"); node->addChildren({$1,$2,$3}); $$ = node;}
+            |   FINAL_KEYWORD lambda_parameter_type variable_declarator_id                                                              {Node* node = createNode("lambda parameter"); node->addChildren({$1,$2,$3}); $$ = node;}
             |   variable_arity_parameter                                                                                                                {Node* node = createNode("lambda parameter"); node->addChildren({$1}); $$ = node;}
 
 lambda_parameter_type
             :   unann_type                                                                                                                              {Node* node = createNode("lambda parameter type"); node->addChildren({$1}); $$ = node;}
             |   VAR_KEYWORD                                                                                                                             {Node* node = createNode("lambda parameter type"); node->addChildren({$1}); $$ = node;}
-
-variable_modifier_one_or_more 
-            :   FINAL_KEYWORD                                                                                                                           {Node* node = createNode("variable modifier one or more"); node->addChildren({$1}); $$ = node;}
-            |   variable_modifier_one_or_more FINAL_KEYWORD                                                                                             {Node* node = createNode("variable modifier one or more"); node->addChildren({$1,$2}); $$ = node;}
 
 class_literal
             :   type_name DOT_OP CLASS_KEYWORD                                                                                                          {Node* node = createNode("class literal"); node->addChildren({$1,$2,$3}); $$ = node;}
@@ -486,14 +489,14 @@ modifiers
             |   STRICTFP_KEYWORD                                                                                                                        {Node* node = createNode("modifiers"); node->addChildren({$1}); $$ = node;}
             |   TRANSITIVE_KEYWORD                                                                                                                      {Node* node = createNode("modifiers"); node->addChildren({$1}); $$ = node;}
             |   FINAL_KEYWORD                                                                                                                           {Node* node = createNode("modifiers"); node->addChildren({$1}); $$ = node;}
-            |   VOLATILE_KEYWORD                                                                                                                           {Node* node = createNode("modifiers"); node->addChildren({$1}); $$ = node;}
+            |   VOLATILE_KEYWORD                                                                                                                        {Node* node = createNode("modifiers"); node->addChildren({$1}); $$ = node;}
             |   SYNCHRONIZED_KEYWORD                                                                                                                    {Node* node = createNode("modifiers"); node->addChildren({$1}); $$ = node;}
             |   TRANSIENT_KEYWORD                                                                                                                       {Node* node = createNode("modifiers"); node->addChildren({$1}); $$ = node;}
             |   NATIVE_KEYWORD                                                                                                                          {Node* node = createNode("modifiers"); node->addChildren({$1}); $$ = node;}
 
 modifiers_zero_or_more
-            :   /* empty */                                                                                                                             {Node* node = createNode("modifiers zero or more"); node->addChildren({}); $$ = node;}
-            |   modifiers modifiers_zero_or_more                                                                                                        {Node* node = createNode("modifiers zero or more"); node->addChildren({$1,$2}); $$ = node;}
+            :   /* empty */                                                                                                                             {ListNode* node = new ListNode("modifiers zero or more", NULL, {}); node->addChildren({}); $$ = node;}
+            |   modifiers modifiers_zero_or_more                                                                                                        {ListNode* node = new ListNode("modifiers zero or more", ($1->children)[0], $2->lists); node->addChildren({$1,$2}); $$ = node;}
 
 // ########   INTERFACES   ########  
 
@@ -781,7 +784,7 @@ catch_clause
 
 catch_formal_parameter
         :   catch_type variable_declarator_id                                                                                                           {Node* node = createNode("catch formal parameter"); node->addChildren({$1,$2}); $$ = node;}
-        |   variable_modifier_one_or_more catch_type variable_declarator_id                                                                             {Node* node = createNode("catch formal parameter"); node->addChildren({$1,$2,$3}); $$ = node;}
+        |   FINAL_KEYWORD catch_type variable_declarator_id                                                                             {Node* node = createNode("catch formal parameter"); node->addChildren({$1,$2,$3}); $$ = node;}
 
 catch_type
         : unann_class_type slash_class_type_zero_or_more                                                                                                {Node* node = createNode("catch type"); node->addChildren({$1,$2}); $$ = node;}
@@ -955,23 +958,19 @@ comma_variable_declarator_zero_or_more
         |  comma_variable_declarator_zero_or_more COMMA_OP variable_declarator                                                                          {Node* node = createNode("comma variable declarator zero or more"); node->addChildren({$1,$2,$3}); $$ = node;}
 
 variable_declarator
-        :  variable_declarator_id equals_variable_initializer_zero_or_one                                                                               {Node* node = createNode("variable declarator"); node->addChildren({$1,$2}); $$ = node;}
-
-equals_variable_initializer_zero_or_one
-        :  /* empty */                                                                                                                                  {Node* node = createNode("equals variable initializer zero or one"); node->addChildren({}); $$ = node;}
-        |  ASSIGNMENT_OP expression                                                                                                                     {Node* node = createNode("equals variable initializer zero or one"); node->addChildren({$1,$2}); $$ = node;}
-        |  ASSIGNMENT_OP array_initializer                                                                                                              {Node* node = createNode("equals variable initializer zero or one"); node->addChildren({$1,$2}); $$ = node;}
+        :  variable_declarator_id                                                                                                                       {Node* node = createNode("variable declarator"); node->addChildren({$1}); $$ = node;}
+        |  variable_declarator_id ASSIGNMENT_OP variable_initializer                                                                                    {Node* node = createNode("variable declarator"); node->addChildren({$1,$2,$3}); $$ = node;}
 
 variable_declarator_id
         :  IDENTIFIERS dims_zero_or_one                                                                                                                 {Node* node = createNode("variable declarator id"); node->addChildren({$1,$2}); $$ = node;}
 
 unann_type
-        :  primitive_type                                                                                                                               {Node* node = createNode("unann type"); node->addChildren({$1}); $$ = node;}
-        |  unann_reference_type                                                                                                                         {Node* node = createNode("unann type"); node->addChildren({$1}); $$ = node;}
+        :  primitive_type                                                                                                                               {Type* node = new Type("unann type", $1->primitivetypeIndex); node->addChildren({$1}); $$ = node;}
+        // |  unann_reference_type                                                                                                                      {Type* node = new Type("unann type", $1->primitivetypeIndex); node->addChildren({$1}); $$ = node;}
 
-unann_reference_type
-        :  unann_class_type                                                                                                                             {Node* node = createNode("unann reference type"); node->addChildren({$1}); $$ = node;}
-        |  unann_array_type                                                                                                                             {Node* node = createNode("unann reference type"); node->addChildren({$1}); $$ = node;}
+// unann_reference_type
+//         :  unann_class_type                                                                                                                             {Node* node = createNode("unann reference type"); node->addChildren({$1}); $$ = node;}
+//         |  unann_array_type                                                                                                                             {Node* node = createNode("unann reference type"); node->addChildren({$1}); $$ = node;}
 
 unann_class_type
         :  type_name                                                                                                                                    {Node* node = createNode("unann class type"); node->addChildren({$1}); $$ = node;}
@@ -979,26 +978,26 @@ unann_class_type
         |  unann_class_type DOT_OP IDENTIFIERS                                                                                                          {Node* node = createNode("unann class type"); node->addChildren({$1,$2,$3}); $$ = node;}
 
 method_declaration
-        :  modifiers_zero_or_more method_header block                                                                                                   {Node* node = createNode("method declaration"); node->addChildren({$1,$2,$3}); $$ = node;}
-        |  modifiers_zero_or_more method_header SEMICOLON_OP                                                                                            {Node* node = createNode("method declaration"); node->addChildren({$1,$2,$3}); $$ = node;}
+        :  modifiers_zero_or_more method_header block                                                                                                   {MethodDeclaration* node = new MethodDeclaration("method declaration"); node->modifiers = $1; node->addChildren({$1,$2,$3}); $$ = node;}
+        |  modifiers_zero_or_more method_header SEMICOLON_OP                                                                                            {MethodDeclaration* node = new MethodDeclaration("method declaration"); node->modifiers = $1; node->addChildren({$1,$2,$3}); $$ = node;}
 
 method_header
-        :  unann_type method_declarator throws_zero_or_one                                                                                              {Node* node = createNode("method header"); node->addChildren({$1,$2,$3}); $$ = node;}
-        |  VOID_KEYWORD method_declarator throws_zero_or_one                                                                                            {Node* node = createNode("method header"); node->addChildren({$1,$2,$3}); $$ = node;}
-        |  type_parameters unann_type method_declarator throws_zero_or_one                                                                              {Node* node = createNode("method header"); node->addChildren({$1,$2,$3,$4}); $$ = node;}
-        |  type_parameters VOID_KEYWORD method_declarator throws_zero_or_one                                                                            {Node* node = createNode("method header"); node->addChildren({$1,$2,$3,$4}); $$ = node;}
+        :  unann_type method_declarator throws_zero_or_one                                                                                              {MethodDeclaration* node = new MethodDeclaration("method header"); node->type = $1; node->is_throw = (($3->children).size() == 0) ? false : true; node->addChildren({$1,$2,$3}); $$ = node;}
+        // |  VOID_KEYWORD method_declarator throws_zero_or_one                                                                                            {MethodDeclaration* node = new MethodDeclaration("method header");  node->addChildren({$1,$2,$3}); $$ = node;}
+        // |  type_parameters unann_type method_declarator throws_zero_or_one                                                                              {Node* node = createNode("method header"); node->addChildren({$1,$2,$3,$4}); $$ = node;}
+        // |  type_parameters VOID_KEYWORD method_declarator throws_zero_or_one                                                                            {Node* node = createNode("method header"); node->addChildren({$1,$2,$3,$4}); $$ = node;}
 
 throws_zero_or_one
         :   /* empty */                                                                                                                                 {Node* node = createNode("throws zero or one"); node->addChildren({}); $$ = node;}
         |   throws                                                                                                                                      {Node* node = createNode("throws zero or one"); node->addChildren({$1}); $$ = node;}
 
 method_declarator
-        :  IDENTIFIERS OP_BRCKT formal_parameter_list_zero_or_one CLOSE_BRCKT dims_zero_or_one                                                          {Node* node = createNode("method declarator"); node->addChildren({$1,$2,$3,$4,$5}); $$ = node;}
-        |  IDENTIFIERS OP_BRCKT reciever_parameter COMMA_OP formal_parameter_list_zero_or_one CLOSE_BRCKT dims_zero_or_one                              {Node* node = createNode("method declarator"); node->addChildren({$1,$2,$3,$4,$5,$6,$7}); $$ = node;}
+        :  IDENTIFIERS OP_BRCKT formal_parameter_list_zero_or_one CLOSE_BRCKT dims_zero_or_one                                                          {MethodDeclaration* node = new MethodDeclaration("method declarator"); node->name = $1->lexeme; node->formal_parameter_list = $3 ; node->addChildren({$1,$2,$3,$4,$5}); $$ = node;}
+        // |  IDENTIFIERS OP_BRCKT reciever_parameter COMMA_OP formal_parameter_list_zero_or_one CLOSE_BRCKT dims_zero_or_one                              {Node* node = createNode("method declarator"); node->addChildren({$1,$2,$3,$4,$5,$6,$7}); $$ = node;}
 
 formal_parameter_list_zero_or_one
-        :   /* empty */                                                                                                                                 {Node* node = createNode("formal parameter list zero or one"); node->addChildren({}); $$ = node;}
-        |  formal_parameter_list                                                                                                                        {Node* node = createNode("formal parameter list zero or one"); node->addChildren({$1}); $$ = node;}
+        :   /* empty */                                                                                                                                 {ListNode* node = new ListNode("formal parameter list zero or one", NULL, {}); node->addChildren({}); $$ = node;}
+        |  formal_parameter_list                                                                                                                        {ListNode* node = new ListNode("formal parameter list zero or one", NULL, $1->lists); node->addChildren({$1}); $$ = node;}
 
 reciever_parameter
         :  unann_type identifier_dot_zero_or_one THIS_KEYWORD                                                                                           {Node* node = createNode("reciever parameter"); node->addChildren({$1,$2,$3}); $$ = node;}
@@ -1008,17 +1007,17 @@ identifier_dot_zero_or_one
         |  IDENTIFIERS DOT_OP                                                                                                                           {Node* node = createNode("identifier dot zero or one"); node->addChildren({$1,$2}); $$ = node;}
 
 formal_parameter_list
-        :  formal_parameter                                                                                                                             {Node* node = createNode("formal parameter list"); node->addChildren({$1}); $$ = node;}
-        |  formal_parameter COMMA_OP formal_parameter_list                                                                                              {Node* node = createNode("formal parameter list"); node->addChildren({$1,$2,$3}); $$ = node;}
+        :  formal_parameter                                                                                                                             {ListNode* node = new ListNode("formal parameter list", $1, {}); node->addChildren({$1}); $$ = node;}
+        |  formal_parameter COMMA_OP formal_parameter_list                                                                                              {ListNode* node = new ListNode("formal parameter list", $1, $3->lists); node->addChildren({$1,$2,$3}); $$ = node;}
 
 formal_parameter
-        :  unann_type variable_declarator_id                                                                                                            {Node* node = createNode("formal parameter"); node->addChildren({$1,$2}); $$ = node;}
-        |  variable_modifier_one_or_more unann_type variable_declarator_id                                                                              {Node* node = createNode("formal parameter"); node->addChildren({$1,$2,$3}); $$ = node;}
-        |  variable_arity_parameter                                                                                                                     {Node* node = createNode("formal parameter"); node->addChildren({$1}); $$ = node;}
+        :  unann_type variable_declarator_id                                                                                                            {FormalParameter* node = new FormalParameter("formal parameter", $1, $2, false); node->addChildren({$1,$2}); $$ = node;}
+        |  FINAL_KEYWORD unann_type variable_declarator_id                                                                                              {FormalParameter* node = new FormalParameter("formal parameter", $2, $3, true); node->addChildren({$1,$2,$3}); $$ = node;}
+        // |  variable_arity_parameter                                                                                                                     {Node* node = createNode("formal parameter"); node->addChildren({$1}); $$ = node;}
 
 variable_arity_parameter
         :  unann_type ELLIPSIS IDENTIFIERS                                                                                                              {Node* node = createNode("variable arity parameter"); node->addChildren({$1,$2,$3}); $$ = node;}
-        |  variable_modifier_one_or_more unann_type ELLIPSIS IDENTIFIERS                                                                                {Node* node = createNode("variable arity parameter"); node->addChildren({$1,$2,$3,$4}); $$ = node;}
+        |  FINAL_KEYWORD unann_type ELLIPSIS IDENTIFIERS                                                                                {Node* node = createNode("variable arity parameter"); node->addChildren({$1,$2,$3,$4}); $$ = node;}
 
 throws
         :  THROWS_KEYWORD exception_type_list                                                                                                           {Node* node = createNode("throws"); node->addChildren({$1,$2}); $$ = node;}

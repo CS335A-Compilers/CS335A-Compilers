@@ -5,9 +5,7 @@
 %x text_block_chars
 
 %{
-    #include "ast.h"
-    int Node::node_id = 0;
-    #include "helper.h"
+    #include "inc/helper.h"
     #include "parser.tab.h"
 %}
 
