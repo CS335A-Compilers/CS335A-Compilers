@@ -1,5 +1,5 @@
 public class test {
-    public static void main(){
+    public static void main(int temp){
                 
     }
 

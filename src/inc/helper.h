@@ -1,6 +1,4 @@
-#include "bits/stdc++.h"
-
-#include "ast.h"
+#include <bits/stdc++.h>
 
 using namespace std;
 
@@ -18,10 +16,4 @@ void   initBuffer(char* temp);
 void   endBuffer(char* temp);
 char*  convertExcapeChar(char x);
 string convertCurrState(int state);
-Node* convertToAST(Node* root);
 char* spaceToUnderscore(char* word);
-void  writeEdges(Node* root, FILE* file);
-void  createDOT(Node* root, char* output_file);
-void  createAST(Node* root, char* output_file);
-Node* createNode(string str);
-Node* cloneRoot(Node* root);
