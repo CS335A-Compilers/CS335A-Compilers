@@ -6,9 +6,10 @@
 
 using namespace std;
 
-#include "inc/ast.h"
+#include "inc/symtab.h"
 
 extern int yylineno;
+extern GlobalSymbolTable* global_symtab;
 int Node::node_id = 0;
 
 Node::Node(string lex){
@@ -80,10 +81,29 @@ ModifierList::ModifierList(string lex, Modifier* single_modifier, vector<Modifie
     }
 }
 
-VariableDeclaratorId::VariableDeclaratorId(string lex, string ident, int num)
+VariableDeclaratorId::VariableDeclaratorId(string lex, string ident, int num, Value* initialized_value = NULL)
     : Node(lex){    
     identifier = ident;
+    name = ident;
     num_of_dims = num;
+}
+
+VariableDeclaratorList::VariableDeclaratorList(string lex, VariableDeclaratorId* single_variable, vector<VariableDeclaratorId*> variables)
+    : Node(lex){
+    lists.resize(0);
+    if(single_variable != NULL)
+        lists.push_back(single_variable);
+    for(int i=0;i<variables.size();i++){
+        if(variables[i]!=NULL)
+            lists.push_back(variables[i]);
+    }
+}
+
+LocalVariableDeclaration::LocalVariableDeclaration(string lex, Type* t, VariableDeclaratorId* variable_decl_id)
+    : Node(lex){
+    type = t;
+    name = variable_decl_id->name;
+    variable_declarator = variable_decl_id;
 }
 
 NormalClassDeclaration::NormalClassDeclaration(string lex, ModifierList* list, string identifier)
@@ -93,6 +113,15 @@ NormalClassDeclaration::NormalClassDeclaration(string lex, ModifierList* list, s
 }
 
 /* ####################   Helper funtion related to ast  #################### */
+
+void addVariablesToSymtab(Type* t, VariableDeclaratorList* declarator_list, pair<int,int> curr_level){
+    for(int i=0;i<declarator_list->lists.size();i++){
+        LocalVariableDeclaration* locale = new LocalVariableDeclaration("local_variable_declaration", t, declarator_list->lists[i]);
+        locale->entry_type = VARIABLE_DECLARATION;
+        ((LocalSymbolTable*)(global_symtab->symbol_tables[curr_level.first][curr_level.second]))->add_entry(locale);
+    }
+    return ;
+}
 
 Node* createNode(string str){
     Node* node = new Node(str);

@@ -54,14 +54,17 @@ void LocalSymbolTable::add_entry(Node* symtab_entry){
     cout<<symtab_entry->lexeme<<" "<<symtab_entry->line_no<<" "<<symtab_entry->name<<endl;
     if(symtab_entry->entry_type == CLASS_DECLARATION){
         NormalClassDeclaration* temp = (NormalClassDeclaration*)(symtab_entry);
-        
+
     }
     else if(symtab_entry->entry_type == METHOD_DECLARATION){
         MethodDeclaration* temp = (MethodDeclaration*)(symtab_entry);
 
     }
     else if(symtab_entry->entry_type == VARIABLE_DECLARATION){
-
+        LocalVariableDeclaration* temp = (LocalVariableDeclaration*)(symtab_entry);
+        // cout<<temp->variable_declarator->identifier<<endl;
+        // cout<<temp->type->primitivetypeIndex<<endl;
+        
     }
     else {
 

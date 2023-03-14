@@ -31,12 +31,31 @@ class Type : public Node{
         Type(string lex, int primitivetype);
 };
 
+class Value : public Node {
+    public:
+        int primitivetypeIndex;
+        int int_val;
+        float float_val;
+        double double_val;
+        long long_val;
+        bool boolean_val;
+        // for byte and short type, values are stored in int_val itself
+        bool is_byte_val;
+        bool is_short_val;
+};
+
 class VariableDeclaratorId : public Node {
     public:
         string identifier;
         int num_of_dims;    // currently assuming num of dims to 0;
-        
-        VariableDeclaratorId(string lex, string identifier, int num);
+        Value* initialized_value;
+        VariableDeclaratorId(string lex, string identifier, int num, Value* initialized_value);
+};
+
+class VariableDeclaratorList : public Node {
+    public:
+        vector<VariableDeclaratorId*> lists;
+        VariableDeclaratorList(string lex, VariableDeclaratorId* single_variable, vector<VariableDeclaratorId*> variables);
 };
 
 class FormalParameter : public Node{
@@ -64,6 +83,13 @@ class ModifierList : public Node{
     public:
         vector<Modifier*> lists;
         ModifierList(string lex, Modifier* single_modifier, vector<Modifier*> modifiers);
+};
+
+class LocalVariableDeclaration : public Node{
+    public:
+        Type* type;
+        VariableDeclaratorId* variable_declarator;
+        LocalVariableDeclaration(string lex, Type* t, VariableDeclaratorId* variable_decl_id);
 };
 
 class MethodDeclaration : public Node {
@@ -98,15 +124,12 @@ class MethodDeclaration : public Node {
 class NormalClassDeclaration : public Node {
     public:
         ModifierList* modifiers_list;
-        // TypeParameterList* type_parameters_list;
         // ClassExtends* class_extends;
-        // ClassImplementList* class_implements_list;
-        // ClassPermitList* class_permits_list;
         NormalClassDeclaration(string lex, ModifierList* list, string identifier ); 
 };
 
 // Helper funtion related to ast.h
-
+void addVariablesToSymtab(Type* t, VariableDeclaratorList* declarator_list, pair<int,int> curr_level);
 Node* convertToAST(Node* root);
 void  writeEdges(Node* root, FILE* file);
 void  createDOT(Node* root, char* output_file);
