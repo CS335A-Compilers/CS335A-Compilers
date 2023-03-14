@@ -1,16 +1,7 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
+#include "bits/stdc++.h"
+#include "inc/helper.h"
 
 using namespace std;
-
-#include "bits/stdc++.h"
-
-
-// enum TokenKind {KEYWORDS, IDENTIFIERS, SEPARATORS, OPERATORS, LITERALS, PRIMITIVE_TYPE_KEYWORDS};
-enum ErrorKind {MULTI_LINE_ERROR, LEXICAL_ERROR, EOF_ERROR, ILLEGALCHAR, BADEXCAPESEQ};
-
-vector<string> LexicalErrors = {"Multilines not allowed.", "Lexical Error present.", "EOF File reached but there is unbalanced seperator", "Illegal character present.", "Bad excape sequence character present."};
 
 string string_buffer;
 
