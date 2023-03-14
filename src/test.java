@@ -1,7 +1,10 @@
 public class test {
-    public static void main(int temp){
-        int x, z;
-        float y;
+    protected int x;
+    Test(){
+
+    }
+    public static void main(int temp[][]){
+        int x[][], z;
     }
 
 }
