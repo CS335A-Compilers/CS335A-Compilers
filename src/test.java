@@ -1,10 +1,5 @@
 public class test {
-    protected int x;
-    Test(){
-
+    public int x;
+    public static void main(){
     }
-    public static void main(int temp[][]){
-        int x[][], z;
-    }
-
 }

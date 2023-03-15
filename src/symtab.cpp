@@ -67,7 +67,7 @@ void LocalSymbolTable::add_entry(Node* symtab_entry){
         // cout<<temp->variable_declarator->identifier<<endl;
         // cout<<temp->type->primitivetypeIndex<<endl;
         // cout<<temp->variable_declarator->num_of_dims<<endl;
-        cout<<temp->isFieldVariable;
+        // cout<<temp->isFieldVariable;
         // throw error if bad modifier list combination done
     }
     else {
@@ -77,8 +77,8 @@ void LocalSymbolTable::add_entry(Node* symtab_entry){
 }
 
 Node* LocalSymbolTable::get_entry(string name){
+    // nested scope 
     if(hashed_names.find(name)!=hashed_names.end())
         return symbol_table_entries[hashed_names[name]];
-    else
-        return NULL;
+    
 }
