@@ -27,6 +27,7 @@
     VariableDeclaratorId* variable_declarator_id;
     VariableDeclaratorList* variable_declarator_list;
     Dims* dims;
+    IdentifiersList* identifiers_list;
     
 }
 // type == nonterminal, token = terminal
@@ -47,7 +48,7 @@
 %type<node> EQ_OP GE_OP  LE_OP  NE_OP  AND_OP  OR_OP  INC_OP  DEC_OP  LEFT_OP  RIGHT_OP  BIT_RIGHT_SHFT_OP ADD_ASSIGN  SUB_ASSIGN  MUL_ASSIGN  DIV_ASSIGN  AND_ASSIGN  OR_ASSIGN  XOR_ASSIGN  MOD_ASSIGN  LEFT_ASSIGN  RIGHT_ASSIGN  BIT_RIGHT_SHFT_ASSIGN   DOUBLE_COLON
 %type<node> IDENTIFIERS LITERALS
 
-%type<node> additive_expression and_expression argument_list argument_list_zero_or_one array_access array_creation_expression array_initializer array_type assert_statement assignment assignment_expression assignment_operators basic_for_statement basic_for_statement_no_short_if block block_statement block_statements block_statements_zero_or_more block_statements_zero_or_one break_statement class_body class_body_declaration class_body_declaration_zero_or_more class_body_zero_or_one class_declaration class_extends class_extends_zero_or_one class_instance_creation_expression class_type comma_expression_zero_or_more comma_statement_expression_zero_or_more commas_zero_or_more compilation_unit conditional_and_expression conditional_or_expression condtional_expression constructor_body continue_statement dim_expr dim_exprs do_statememt empty_statement enhanced_for_statement enhanced_for_statement_no_short_if equality_expression exclusive_or_expression explicit_constructor_invocation expression expression_statement expression_zero_or_one field_access field_declaration for_init for_init_zero_or_one for_statement for_statement_no_short_if for_update for_update_zero_or_one identifier_zero_or_one if_then_else_statement if_then_else_statement_no_short_if if_then_statement inclusive_or_expression instance_of_expression labeled_statement labeled_statement_no_short_if local_class_or_interface_declaration local_variable_declaration local_variable_declaration_statement method_invocation method_reference  multiplicative_expression normal_class_declaration ordinary_compilation_unit pattern post_decrement_expression post_increment_expression postfix_expression pre_decrement_expression pre_increment_expression primary primary_no_new_array reference_type relational_expression return_statement shift_expression start_state statement statement_expression statement_expression_list statement_no_short_if statement_without_trailing_substatement static_initializer synchronized_statement throw_statement top_level_class_or_interface_declaration top_level_class_or_interface_declaration_zero_or_more  type_name type_pattern unary_expression unary_expression_not_plus_minus unqualified_class_instance_creation_expression variable_initializer variable_initializer_list variable_initializer_list_zero_or_more while_statement while_statement_no_short_if
+%type<node>  additive_expression and_expression argument_list argument_list_zero_or_one array_access array_creation_expression array_initializer array_type assert_statement assignment assignment_expression assignment_operators basic_for_statement basic_for_statement_no_short_if block block_statement block_statements block_statements_zero_or_more block_statements_zero_or_one break_statement class_body class_body_declaration class_body_declaration_zero_or_more class_body_zero_or_one class_declaration class_extends class_extends_zero_or_one class_instance_creation_expression class_type comma_expression_zero_or_more comma_statement_expression_zero_or_more commas_zero_or_more compilation_unit conditional_and_expression conditional_or_expression condtional_expression constructor_body continue_statement dim_expr dim_exprs do_statememt empty_statement enhanced_for_statement enhanced_for_statement_no_short_if equality_expression exclusive_or_expression explicit_constructor_invocation expression expression_statement expression_zero_or_one field_access field_declaration for_init for_init_zero_or_one for_statement for_statement_no_short_if for_update for_update_zero_or_one identifier_zero_or_one if_then_else_statement if_then_else_statement_no_short_if if_then_statement inclusive_or_expression instance_of_expression labeled_statement labeled_statement_no_short_if local_class_or_interface_declaration local_variable_declaration local_variable_declaration_statement method_invocation method_reference  multiplicative_expression normal_class_declaration ordinary_compilation_unit pattern post_decrement_expression post_increment_expression postfix_expression pre_decrement_expression pre_increment_expression primary primary_no_new_array reference_type relational_expression return_statement shift_expression start_state statement statement_expression statement_expression_list statement_no_short_if statement_without_trailing_substatement static_initializer synchronized_statement throw_statement top_level_class_or_interface_declaration top_level_class_or_interface_declaration_zero_or_more   type_pattern unary_expression unary_expression_not_plus_minus unqualified_class_instance_creation_expression variable_initializer variable_initializer_list variable_initializer_list_zero_or_more while_statement while_statement_no_short_if
 %type<formal_parameter> formal_parameter 
 %type<formal_parameter_list> formal_parameter_list formal_parameter_list_zero_or_one
 %type<modifier_list> modifiers_zero_or_more
@@ -57,6 +58,7 @@
 %type<variable_declarator_id> variable_declarator_id variable_declarator
 %type<variable_declarator_list> variable_declarator_list comma_variable_declarator_zero_or_more
 %type<dims> dims dims_zero_or_one
+%type<identifiers_list> type_name type_name_scoping
 
 %% 
 
@@ -367,7 +369,7 @@ comma_expression_zero_or_more
         //     |   IDENTIFIERS type_arguments                                                                                                              {Node* node = createNode("class or interface type to instantiate"); node->addChildren({$1,$2}); $$ = node;}           
 
 assignment
-            :   type_name assignment_operators expression                                                                                         {Node* node = createNode("assignment"); node->addChildren({$1,$2,$3}); $$ = node;}           
+            :   type_name assignment_operators expression                                                                                               {Node* node = createNode("assignment"); node->addChildren({$1,$2,$3}); cout<<"Why here ?\n"; $$ = node;}           
             |   field_access assignment_operators expression                                                                                            {Node* node = createNode("assignment"); node->addChildren({$1,$2,$3}); $$ = node;}           
             |   array_access assignment_operators expression                                                                                            {Node* node = createNode("assignment"); node->addChildren({$1,$2,$3}); $$ = node;}           
 
@@ -482,8 +484,11 @@ variable_initializer
 //             |   VOID_KEYWORD dims DOT_OP CLASS_KEYWORD                                                                               {Node* node = createNode("class literal"); node->addChildren({$1,$2,$3,$4}); $$ = node;}
 
 type_name
-            :   IDENTIFIERS                                                                                                                             {Node* node = createNode("type name"); node->addChildren({$1}); $$ = node;}
-            |   type_name DOT_OP IDENTIFIERS                                                                                                            {Node* node = createNode("type name"); node->addChildren({$1,$2,$3}); $$ = node;}
+            :   type_name_scoping                                                                                                                             {IdentifiersList* node = new IdentifiersList("type name", "", $1->identifiers); if(!typenameErrorChecking(node, global_symtab->current_level)) YYERROR; $$ = node;}
+
+type_name_scoping
+            :   IDENTIFIERS                                                                                                                             {IdentifiersList* node = new IdentifiersList("type name", $1->lexeme, {}); node->addChildren({$1}); $$ = node;}
+            |   type_name_scoping DOT_OP IDENTIFIERS                                                                                                            {IdentifiersList* node = new IdentifiersList("type name", $3->lexeme, $1->identifiers); node->addChildren({$1,$2,$3}); $$ = node;}
 
 // ########   MODIFIERS   ########  
 
@@ -1041,7 +1046,7 @@ static_initializer
         :  STATIC_KEYWORD block                                                                                                                         {Node* node = createNode("static initializer"); node->addChildren({$1,$2}); $$ = node;}
 
 constructor_declaration
-        :  modifiers_zero_or_more constructor_declarator constructor_body                                                                                  {MethodDeclaration* node = new MethodDeclaration("constructor_declaration"); node->name = $1->name; node->formal_parameter_list = $1->formal_parameter_list; node->modifiers = $1; node->entry_type = METHOD_DECLARATION; node->isConstructor = true; node->addChildren({$1,$2,$3}); ((LocalSymbolTable*)((global_symtab->symbol_tables)[global_symtab->current_level.first][global_symtab->current_level.second]))->add_entry(node); $$ = node;}
+        :  modifiers_zero_or_more constructor_declarator constructor_body                                                                                  {MethodDeclaration* node = new MethodDeclaration("constructor_declaration"); node->name = $2->name; node->formal_parameter_list = $2->formal_parameter_list; node->modifiers = $1; node->entry_type = METHOD_DECLARATION; node->isConstructor = true; node->addChildren({$1,$2,$3}); ((LocalSymbolTable*)((global_symtab->symbol_tables)[global_symtab->current_level.first][global_symtab->current_level.second]))->add_entry(node); $$ = node;}
 
 constructor_declarator
         :  IDENTIFIERS OP_BRCKT formal_parameter_list_zero_or_one CLOSE_BRCKT                                                                           {MethodDeclaration* node = new MethodDeclaration("constructor declarator"); node->name = $1->lexeme; node->formal_parameter_list = $3;  node->addChildren({$1,$2,$3,$4}); $$ = node;}

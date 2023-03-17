@@ -15,7 +15,6 @@ class GlobalSymbolTable {
         vector<vector<GlobalSymbolTable*>> symbol_tables;
         void increase_level();
         void decrease_level();
-    
 };
 
 class LocalSymbolTable : public GlobalSymbolTable{
@@ -29,3 +28,5 @@ class LocalSymbolTable : public GlobalSymbolTable{
         Node* get_entry(string name);
         Node* level_node;
 };
+
+LocalSymbolTable* get_local_symtab(pair<int,int> curr_level);

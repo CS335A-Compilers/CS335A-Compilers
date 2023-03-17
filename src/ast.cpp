@@ -9,11 +9,14 @@ using namespace std;
 #include "inc/symtab.h"
 
 extern int yylineno;
+extern void yyerror(char const*);
 extern GlobalSymbolTable* global_symtab;
+
 int Node::node_id = 0;
 
 Node::Node(string lex){
     lexeme = lex;
+    name = lex;
     children.resize(0);
     isTerminal = false;
     node_id++;
@@ -27,6 +30,17 @@ void Node::addChildren(vector<Node*> childrens){
         this->children.push_back(childrens[i]);
     }
     return ;
+}
+
+IdentifiersList::IdentifiersList(string lex, string single_ident, vector<string> idents)
+    : Node(lex){
+    if(single_ident != "")
+        identifiers.push_back(single_ident);
+    for(int i=0;i<idents.size();i++){
+        if(idents[i]!="") {
+            identifiers.push_back(idents[i]);
+        }
+    }
 }
 
 FormalParameterList::FormalParameterList(string lex, FormalParameter* single_parameter, vector<FormalParameter*> parameters)
@@ -121,6 +135,20 @@ Dims::Dims(string lex, int num)
 }
 
 /* ####################   Helper funtion related to ast  #################### */
+
+bool typenameErrorChecking(Node* node, pair<int,int> curr_level){
+    IdentifiersList* lists = (IdentifiersList*)node;
+    int n = lists->identifiers.size();
+    if(n==1){
+        Node* temp = get_local_symtab(curr_level)->get_entry(lists->identifiers[0]);
+        if(temp == NULL){
+            // throw error;
+            yyerror("Variable not declared in the scope");
+            return false;
+        }
+        else return true;
+    }
+}
 
 void addVariablesToSymtab(Type* t, VariableDeclaratorList* declarator_list, pair<int,int> curr_level, ModifierList* modif_lists, bool is_field_variable){
     for(int i=0;i<declarator_list->lists.size();i++){

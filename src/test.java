@@ -1,5 +1,7 @@
 public class test {
-    public int x;
-    public static void main(){
+    // private short x;
+    public void main(){
+        y = false;
+        x = false;
     }
 }

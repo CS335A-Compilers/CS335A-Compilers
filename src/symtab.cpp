@@ -3,6 +3,8 @@
 
 using namespace std;
 
+extern GlobalSymbolTable* global_symtab;
+
 void GlobalSymbolTable::increase_level(){
     pair<int,int> curr_level = level_stack.top();
     int new_main_level = curr_level.first + 1;
@@ -78,7 +80,20 @@ void LocalSymbolTable::add_entry(Node* symtab_entry){
 
 Node* LocalSymbolTable::get_entry(string name){
     // nested scope 
-    if(hashed_names.find(name)!=hashed_names.end())
-        return symbol_table_entries[hashed_names[name]];
-    
+    LocalSymbolTable* temp = this;
+    while(temp != NULL){
+        if(temp->hashed_names.find(name)!=temp->hashed_names.end())
+            return temp->symbol_table_entries[temp->hashed_names[name]];
+        else{
+            temp = (LocalSymbolTable*)(temp->parent);
+        }
+    }
+    return NULL;
+}
+
+LocalSymbolTable* get_local_symtab(pair<int,int> curr_level){
+    if(global_symtab->symbol_tables.size() <= curr_level.first || global_symtab->symbol_tables[curr_level.first].size() <= curr_level.second){
+        // throw compiler error;
+    }
+    else return ((LocalSymbolTable*)(global_symtab->symbol_tables[curr_level.first][curr_level.second]));
 }

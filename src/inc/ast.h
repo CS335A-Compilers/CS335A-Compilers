@@ -5,7 +5,7 @@ using namespace std;
 enum ModifierType {PUBLIC, PROTECTED, PRIVATE, ABSTRACT, STATIC, SEALED, NONSEALED, STRICTFP, TRANSITIVE, FINAL, VOLATILE, SYNCHRONIZED, TRANSIENT, NATIVE, };
 enum Types {BYTE, SHORT, INT, LONG, CHAR, FLOAT, DOUBLE, BOOLEAN, VOID, ARRAY, };
 // symbol table entry is added whenever one of these declaration is done
-enum DeclarationType {VARIABLE_DECLARATION, CLASS_DECLARATION, METHOD_DECLARATION, };
+enum DeclarationType {VARIABLE_DECLARATION, CLASS_DECLARATION, METHOD_DECLARATION, OBJECT_DECLARATION, };
 
 class Node {
 
@@ -30,6 +30,12 @@ class Type : public Node{
         // gives enum index value of the data type
         int primitivetypeIndex;
         Type(string lex, int primitivetype);
+};
+
+class IdentifiersList : public Node {
+    public:
+        vector<string> identifiers;
+        IdentifiersList(string lex, string single_ident, vector<string> idents);
 };
 
 // Need changes; 
@@ -139,3 +145,4 @@ void  createDOT(Node* root, char* output_file);
 void  createAST(Node* root, char* output_file);
 Node* createNode(string str);
 Node* cloneRoot(Node* root);
+bool typenameErrorChecking(Node* node, pair<int,int> curr_level);
