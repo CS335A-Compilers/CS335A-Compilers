@@ -12,17 +12,10 @@ void GlobalSymbolTable::increase_level(){
     pair<int,int> new_level = {new_main_level, new_sub_level};
     level_stack.push(new_level);
     // creating sybmol table entry for new_level;
-    if(curr_level.first != 0 || current_level.second != 0){
-        GlobalSymbolTable* parent_symbtab = symbol_tables[curr_level.first][curr_level.second];
-        LocalSymbolTable* symbtab = new LocalSymbolTable(new_level, parent_symbtab);
-        if(symbol_tables.size() <= new_main_level) symbol_tables.push_back({symbtab});
-        else symbol_tables[new_main_level].push_back(symbtab);
-    }
-    else{
-        LocalSymbolTable* symbtab = new LocalSymbolTable(new_level, NULL);
-        if(symbol_tables.size() <= new_main_level) symbol_tables.push_back({symbtab});
-        else symbol_tables[new_main_level].push_back(symbtab);
-    }
+    GlobalSymbolTable* parent_symbtab = symbol_tables[curr_level.first][curr_level.second];
+    LocalSymbolTable* symbtab = new LocalSymbolTable(new_level, parent_symbtab);
+    if(symbol_tables.size() <= new_main_level) symbol_tables.push_back({symbtab});
+    else symbol_tables[new_main_level].push_back(symbtab);
     current_level = level_stack.top();
     return ;
 }
@@ -54,6 +47,7 @@ void LocalSymbolTable::add_entry(Node* symtab_entry){
     // cout<<symtab_entry->lexeme<<" "<<symtab_entry->line_no<<" "<<symtab_entry->name<<endl;
     if(symtab_entry->entry_type == CLASS_DECLARATION){
         NormalClassDeclaration* temp = (NormalClassDeclaration*)(symtab_entry);
+        cout<<"class entry added: "<<(symtab_entry->name)<<" at level: "<<global_symtab->current_level.first<<" "<<global_symtab->current_level.second<<endl;
         // throw error if bad modifier list combination done
         // throw error if constructor method name doesnt match with the class name
     }
@@ -66,10 +60,12 @@ void LocalSymbolTable::add_entry(Node* symtab_entry){
     }
     else if(symtab_entry->entry_type == VARIABLE_DECLARATION){
         LocalVariableDeclaration* temp = (LocalVariableDeclaration*)(symtab_entry);
+        if(temp->type->primitivetypeIndex == -1){
+            cout<<"object of class type: "<<temp->type->class_instantiated_from->name<<" declared named : "<<temp->name<<" \n";
+        }
         // cout<<temp->variable_declarator->identifier<<endl;
-        // cout<<temp->type->primitivetypeIndex<<endl;
         // cout<<temp->variable_declarator->num_of_dims<<endl;
-        // cout<<temp->isFieldVariable;
+        if(temp->isFieldVariable) cout<<"field member it is\n";
         // throw error if bad modifier list combination done
     }
     else {
@@ -81,12 +77,17 @@ void LocalSymbolTable::add_entry(Node* symtab_entry){
 Node* LocalSymbolTable::get_entry(string name){
     // nested scope 
     LocalSymbolTable* temp = this;
-    while(temp != NULL){
-        if(temp->hashed_names.find(name)!=temp->hashed_names.end())
-            return temp->symbol_table_entries[temp->hashed_names[name]];
-        else{
-            temp = (LocalSymbolTable*)(temp->parent);
+    if(name.find('.') == string::npos){
+        while(temp != NULL){
+            if(temp->hashed_names.find(name)!=temp->hashed_names.end())
+                return temp->symbol_table_entries[temp->hashed_names[name]];
+            else{
+                temp = (LocalSymbolTable*)(temp->parent);
+            }
         }
+    }
+    else{
+        // ##################  support for obj1.obj2 pending  ##################
     }
     return NULL;
 }

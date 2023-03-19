@@ -1,7 +1,11 @@
 public class test {
-    // private short x;
+    int x, y;
+    test t;
+    // test(int x){
+
+    // }
     public void main(){
-        y = false;
-        x = false;
+        // x = 1;
+        test t4;
     }
 }

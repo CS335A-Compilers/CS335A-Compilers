@@ -5,7 +5,7 @@ using namespace std;
 enum ModifierType {PUBLIC, PROTECTED, PRIVATE, ABSTRACT, STATIC, SEALED, NONSEALED, STRICTFP, TRANSITIVE, FINAL, VOLATILE, SYNCHRONIZED, TRANSIENT, NATIVE, };
 enum Types {BYTE, SHORT, INT, LONG, CHAR, FLOAT, DOUBLE, BOOLEAN, VOID, ARRAY, };
 // symbol table entry is added whenever one of these declaration is done
-enum DeclarationType {VARIABLE_DECLARATION, CLASS_DECLARATION, METHOD_DECLARATION, OBJECT_DECLARATION, };
+enum DeclarationType {VARIABLE_DECLARATION, CLASS_DECLARATION, METHOD_DECLARATION, };
 
 class Node {
 
@@ -28,7 +28,9 @@ class Type : public Node{
     public :
         Type() = default;
         // gives enum index value of the data type
+        // gives -1 if type is class_type;
         int primitivetypeIndex;
+        Node* class_instantiated_from;
         Type(string lex, int primitivetype);
 };
 
@@ -38,10 +40,13 @@ class IdentifiersList : public Node {
         IdentifiersList(string lex, string single_ident, vector<string> idents);
 };
 
+class LocalVariableDeclaration;
+
 // Need changes; 
 class Value : public Node {
     public:
         // array is used to store both single variable or 1d array or 2d or 3d arrays;
+        // value of -1 means that the variable is an object;
         int primitivetypeIndex;
         vector<int> int_val;
         vector<float> float_val;
@@ -51,10 +56,12 @@ class Value : public Node {
         // for byte and short type, values are stored in int_val itself
         bool is_byte_val;
         bool is_short_val;
-        int dim1_count;
-        int dim2_count;
-        int dim3_count;
         // to access (say 2d array x[a][b]) we access by int_val[a*dim1_count + b*dim2_count];
+        long long int dim1_count;
+        long long int dim2_count;
+        long long int dim3_count;
+        // support for object values, maps from field members pointers to their current value;
+        map<LocalVariableDeclaration*, Value*> field_members;
 };
 
 class Dims : public Node {

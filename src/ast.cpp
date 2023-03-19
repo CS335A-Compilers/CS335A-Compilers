@@ -141,13 +141,16 @@ bool typenameErrorChecking(Node* node, pair<int,int> curr_level){
     int n = lists->identifiers.size();
     if(n==1){
         Node* temp = get_local_symtab(curr_level)->get_entry(lists->identifiers[0]);
-        if(temp == NULL){
-            // throw error;
-            yyerror("Variable not declared in the scope");
-            return false;
-        }
-        else return true;
+        if(temp != NULL) return true;
+
     }
+    else{
+        string class_name = lists->identifiers[0];
+
+    }
+    yyerror("Variable not declared in the scope");
+    return false;
+    
 }
 
 void addVariablesToSymtab(Type* t, VariableDeclaratorList* declarator_list, pair<int,int> curr_level, ModifierList* modif_lists, bool is_field_variable){
@@ -155,7 +158,7 @@ void addVariablesToSymtab(Type* t, VariableDeclaratorList* declarator_list, pair
         LocalVariableDeclaration* locale = new LocalVariableDeclaration("local_variable_declaration", t, declarator_list->lists[i], modif_lists);
         locale->isFieldVariable = is_field_variable;
         locale->entry_type = VARIABLE_DECLARATION;
-        ((LocalSymbolTable*)(global_symtab->symbol_tables[curr_level.first][curr_level.second]))->add_entry(locale);
+        get_local_symtab(global_symtab->current_level)->add_entry(locale);
     }
     return ;
 }
