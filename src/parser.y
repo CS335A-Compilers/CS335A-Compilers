@@ -206,7 +206,7 @@ condtional_expression
 
 conditional_or_expression
             :   conditional_and_expression                                                                                                      {Node* node = createNode("condtional or expression"); node->addChildren({$1}); $$ = node;}           
-            |   conditional_or_expression OR_OP conditional_and_expression                                                                      {Expression* evalExpr = evalOR($1, $3); Expression* node = new Expression("condtional or expression", evalExpr->value, evalExpr->isPrimary, evalExpr->isLiteral); node->addChildren({$1,$2,$3}); $$ = node;}           
+            |   conditional_or_expression OR_OP conditional_and_expression                                                                      {Expression* evalExpr = evalOR($1, $3); if(evalExpr == NULL) YYERROR; Expression* node = new Expression("condtional or expression", evalExpr->value, evalExpr->isPrimary, evalExpr->isLiteral); node->addChildren({$1,$2,$3}); $$ = node;}           
 
 conditional_and_expression
             :   inclusive_or_expression                                                                                                         {Node* node = createNode("condtional and expression"); node->addChildren({$1}); $$ = node;}           
