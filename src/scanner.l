@@ -90,7 +90,6 @@ OCTAL_EXCAPE                \\{OCTAL_DIGIT}|\\{OCTAL_DIGIT}{OCTAL_DIGIT}|\\[0-3]
 "assert"                {char* temp = strdup(yytext); yylval.lex_val = temp; return(assert_keyword_terminal);}
 "default"               {char* temp = strdup(yytext); yylval.lex_val = temp; return(default_keyword_terminal);}
 "if"                    {char* temp = strdup(yytext); yylval.lex_val = temp; return(if_keyword_terminal);}
-"package"               {char* temp = strdup(yytext); yylval.lex_val = temp; return(package_keyword_terminal);}
 "synchronized"          {char* temp = strdup(yytext); yylval.lex_val = temp; return(synchronized_keyword_terminal);}
 "boolean"               {char* temp = strdup(yytext); yylval.lex_val = temp; return(boolean_keyword_terminal);}
 "do"                    {char* temp = strdup(yytext); yylval.lex_val = temp; return(do_keyword_terminal);}
@@ -224,6 +223,7 @@ OCTAL_EXCAPE                \\{OCTAL_DIGIT}|\\{OCTAL_DIGIT}{OCTAL_DIGIT}|\\[0-3]
 "requires"              {char* temp = strdup(yytext); yylval.lex_val = temp; return(requires_keyword_terminal);}
 "uses"                  {char* temp = strdup(yytext); yylval.lex_val = temp; return(uses_keyword_terminal);}
 "module"                {char* temp = strdup(yytext); yylval.lex_val = temp; return(module_keyword_terminal);}
+"package"               {char* temp = strdup(yytext); yylval.lex_val = temp; return(package_keyword_terminal);}
 "permits"               {char* temp = strdup(yytext); yylval.lex_val = temp; return(permits_keyword_terminal);}
 "sealed"                {char* temp = strdup(yytext); yylval.lex_val = temp; return(sealed_keyword_terminal);}
 "non-sealed"            {char* temp = strdup(yytext); yylval.lex_val = temp; return(nonsealed_keyword_terminal);}

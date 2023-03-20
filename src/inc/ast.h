@@ -3,9 +3,9 @@
 using namespace std;
 
 enum ModifierType {PUBLIC, PROTECTED, PRIVATE, ABSTRACT, STATIC, SEALED, NONSEALED, STRICTFP, TRANSITIVE, FINAL, VOLATILE, SYNCHRONIZED, TRANSIENT, NATIVE, };
-enum Types {BYTE, SHORT, INT, LONG, CHAR, FLOAT, DOUBLE, BOOLEAN, VOID, };
+enum Types {BYTE, SHORT, INT, LONG, CHAR, FLOAT, DOUBLE, BOOLEAN, VOID, ARRAY, };
 // symbol table entry is added whenever one of these declaration is done
-enum DeclarationType {VARIABLE_DECLARATION, CLASS_DECLARATION, METHOD_DECLARATION, PACKAGE_DECLARATION, IMPORT_DECLARATION, };
+enum DeclarationType {VARIABLE_DECLARATION, CLASS_DECLARATION, METHOD_DECLARATION, };
 
 class Node {
 
@@ -20,34 +20,60 @@ class Node {
         int line_no;
         long long int id;
         Node(string lex);
+        pair<int,int> parent_level;
         void addChildren(vector<Node*> childrens);
 };
 
 class Type : public Node{
     public :
-        // typeIndex gives primitive type index if type is primitve else gives -1;
         Type() = default;
+        // gives enum index value of the data type
+        // gives -1 if type is class_type;
         int primitivetypeIndex;
+        Node* class_instantiated_from;
         Type(string lex, int primitivetype);
 };
 
+class IdentifiersList : public Node {
+    public:
+        vector<string> identifiers;
+        IdentifiersList(string lex, string single_ident, vector<string> idents);
+};
+
+class LocalVariableDeclaration;
+
+// Need changes; 
 class Value : public Node {
     public:
+        // array is used to store both single variable or 1d array or 2d or 3d arrays;
+        // value of -1 means that the variable is an object;
         int primitivetypeIndex;
-        int int_val;
-        float float_val;
-        double double_val;
-        long long_val;
-        bool boolean_val;
+        // long and int both stored in num_val itself
+        vector<long long> num_val;
+        vector<float> float_val;
+        vector<double> double_val;
+        vector<bool> boolean_val;
         // for byte and short type, values are stored in int_val itself
         bool is_byte_val;
         bool is_short_val;
+        // to access (say 2d array x[a][b]) we access by int_val[a*dim1_count + b*dim2_count];
+        long long int dim1_count;
+        long long int dim2_count;
+        long long int dim3_count;
+        // support for object values, maps from field members pointers to their current value;
+        map<LocalVariableDeclaration*, Value*> field_members;
+};
+
+class Dims : public Node {
+    public:
+        int count_dims;
+        Dims(string lex, int num);
 };
 
 class VariableDeclaratorId : public Node {
     public:
         string identifier;
-        int num_of_dims;    // currently assuming num of dims to 0;
+        int num_of_dims;
         Value* initialized_value;
         VariableDeclaratorId(string lex, string identifier, int num, Value* initialized_value);
 };
@@ -88,8 +114,10 @@ class ModifierList : public Node{
 class LocalVariableDeclaration : public Node{
     public:
         Type* type;
+        ModifierList* modifiers_lists;
+        bool isFieldVariable;
         VariableDeclaratorId* variable_declarator;
-        LocalVariableDeclaration(string lex, Type* t, VariableDeclaratorId* variable_decl_id);
+        LocalVariableDeclaration(string lex, Type* t, VariableDeclaratorId* variable_decl_id, ModifierList* modif_lists);
 };
 
 class MethodDeclaration : public Node {
@@ -97,6 +125,7 @@ class MethodDeclaration : public Node {
         ModifierList* modifiers;
         Type* type;
         FormalParameterList* formal_parameter_list;
+        bool isConstructor;
         // ReceiverParameter* receiver_parameter;
         // contructor
         MethodDeclaration(string lex);
@@ -104,22 +133,9 @@ class MethodDeclaration : public Node {
         MethodDeclaration(const MethodDeclaration* obj);
 };
 
-// class TypeParamater : public Node {
-//     public :
-
-// };
-
-// class TypeParameterList : public Node {
-//     public:
-//         vector<TypeParamter*> type_paramter_list;
-//         TypeParameterList(string lex, TypeParameter* single_parameter, vector<TypeParameter*> parameters);
-// };
-
 // class ClassExtendList : public Node {
 
 // };
-
-
 
 class NormalClassDeclaration : public Node {
     public:
@@ -128,11 +144,21 @@ class NormalClassDeclaration : public Node {
         NormalClassDeclaration(string lex, ModifierList* list, string identifier ); 
 };
 
+class Expression : public Node {
+    public:
+        Value* value;
+        // isPrimary is true if the expression is simple variable, object or literal
+        bool isPrimary;
+        bool isLiteral;
+        Expression(string lex, Value* val, bool primary, bool literal);
+};
+
 // Helper funtion related to ast.h
-void addVariablesToSymtab(Type* t, VariableDeclaratorList* declarator_list, pair<int,int> curr_level);
+void addVariablesToSymtab(Type* t, VariableDeclaratorList* declarator_list, pair<int,int> curr_level, ModifierList* modif_lists, bool is_field_variable);
 Node* convertToAST(Node* root);
 void  writeEdges(Node* root, FILE* file);
 void  createDOT(Node* root, char* output_file);
 void  createAST(Node* root, char* output_file);
 Node* createNode(string str);
 Node* cloneRoot(Node* root);
+bool typenameErrorChecking(Node* node, pair<int,int> curr_level);

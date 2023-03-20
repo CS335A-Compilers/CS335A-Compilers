@@ -9,11 +9,14 @@ using namespace std;
 #include "inc/symtab.h"
 
 extern int yylineno;
+extern void yyerror(char const*);
 extern GlobalSymbolTable* global_symtab;
+
 int Node::node_id = 0;
 
 Node::Node(string lex){
     lexeme = lex;
+    name = lex;
     children.resize(0);
     isTerminal = false;
     node_id++;
@@ -27,6 +30,17 @@ void Node::addChildren(vector<Node*> childrens){
         this->children.push_back(childrens[i]);
     }
     return ;
+}
+
+IdentifiersList::IdentifiersList(string lex, string single_ident, vector<string> idents)
+    : Node(lex){
+    if(single_ident != "")
+        identifiers.push_back(single_ident);
+    for(int i=0;i<idents.size();i++){
+        if(idents[i]!="") {
+            identifiers.push_back(idents[i]);
+        }
+    }
 }
 
 FormalParameterList::FormalParameterList(string lex, FormalParameter* single_parameter, vector<FormalParameter*> parameters)
@@ -55,13 +69,14 @@ Type::Type(string lex, int primitivetype)
 
 MethodDeclaration::MethodDeclaration(string lex)
     : Node(lex) {
-    line_no = yylineno;
+    isConstructor = false;
 }
 
 MethodDeclaration::MethodDeclaration(const MethodDeclaration* obj)
     : Node(obj->lexeme){
     modifiers = obj->modifiers;
     type = obj->type;
+    isConstructor = false;
     formal_parameter_list = obj->formal_parameter_list;
 }
 
@@ -81,11 +96,12 @@ ModifierList::ModifierList(string lex, Modifier* single_modifier, vector<Modifie
     }
 }
 
-VariableDeclaratorId::VariableDeclaratorId(string lex, string ident, int num, Value* initialized_value = NULL)
+VariableDeclaratorId::VariableDeclaratorId(string lex, string ident, int num, Value* value)
     : Node(lex){    
     identifier = ident;
     name = ident;
     num_of_dims = num;
+    initialized_value = value;
 }
 
 VariableDeclaratorList::VariableDeclaratorList(string lex, VariableDeclaratorId* single_variable, vector<VariableDeclaratorId*> variables)
@@ -99,10 +115,11 @@ VariableDeclaratorList::VariableDeclaratorList(string lex, VariableDeclaratorId*
     }
 }
 
-LocalVariableDeclaration::LocalVariableDeclaration(string lex, Type* t, VariableDeclaratorId* variable_decl_id)
+LocalVariableDeclaration::LocalVariableDeclaration(string lex, Type* t, VariableDeclaratorId* variable_decl_id, ModifierList* modif_lists)
     : Node(lex){
     type = t;
     name = variable_decl_id->name;
+    modifiers_lists = modif_lists;
     variable_declarator = variable_decl_id;
 }
 
@@ -112,13 +129,43 @@ NormalClassDeclaration::NormalClassDeclaration(string lex, ModifierList* list, s
     name = identifier;
 }
 
+Dims::Dims(string lex, int num)
+    : Node(lex){
+    count_dims = num;
+}
+
+Expression::Expression(string lex, Value* val, bool primary, bool literal)
+    : Node(lex){
+    value = val;
+    isPrimary = primary;
+    isLiteral = literal;
+}
+
 /* ####################   Helper funtion related to ast  #################### */
 
-void addVariablesToSymtab(Type* t, VariableDeclaratorList* declarator_list, pair<int,int> curr_level){
+bool typenameErrorChecking(Node* node, pair<int,int> curr_level){
+    IdentifiersList* lists = (IdentifiersList*)node;
+    int n = lists->identifiers.size();
+    if(n==1){
+        Node* temp = get_local_symtab(curr_level)->get_entry(lists->identifiers[0]);
+        if(temp != NULL) return true;
+
+    }
+    else{
+        string class_name = lists->identifiers[0];
+        
+    }
+    yyerror("Variable not declared in the scope");
+    return false;
+    
+}
+
+void addVariablesToSymtab(Type* t, VariableDeclaratorList* declarator_list, pair<int,int> curr_level, ModifierList* modif_lists, bool is_field_variable){
     for(int i=0;i<declarator_list->lists.size();i++){
-        LocalVariableDeclaration* locale = new LocalVariableDeclaration("local_variable_declaration", t, declarator_list->lists[i]);
+        LocalVariableDeclaration* locale = new LocalVariableDeclaration("local_variable_declaration", t, declarator_list->lists[i], modif_lists);
+        locale->isFieldVariable = is_field_variable;
         locale->entry_type = VARIABLE_DECLARATION;
-        ((LocalSymbolTable*)(global_symtab->symbol_tables[curr_level.first][curr_level.second]))->add_entry(locale);
+        get_local_symtab(global_symtab->current_level)->add_entry(locale);
     }
     return ;
 }

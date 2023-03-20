@@ -26,11 +26,13 @@
     MethodDeclaration* method_declaration;
     VariableDeclaratorId* variable_declarator_id;
     VariableDeclaratorList* variable_declarator_list;
-    
+    Dims* dims;
+    Expression* expression;
+    IdentifiersList* identifiers_list;
 }
 // type == nonterminal, token = terminal
 
-%token<lex_val> goto_keyword_terminal const_keyword_terminal __keyword_terminal abstract_keyword_terminal continue_keyword_terminal for_keyword_terminal new_keyword_terminal  assert_keyword_terminal default_keyword_terminal if_keyword_terminal package_keyword_terminal synchronized_keyword_terminal boolean_keyword_terminal do_keyword_terminal private_keyword_terminal this_keyword_terminal break_keyword_terminal double_keyword_terminal implements_keyword_terminal protected_keyword_terminal throw_keyword_terminal byte_keyword_terminal else_keyword_terminal public_keyword_terminal instanceof_keyword_terminal return_keyword_terminal transient_keyword_terminal extends_keyword_terminal int_keyword_terminal short_keyword_terminal char_keyword_terminal final_keyword_terminal static_keyword_terminal void_keyword_terminal class_keyword_terminal long_keyword_terminal strictfp_keyword_terminal volatile_keyword_terminal float_keyword_terminal native_keyword_terminal super_keyword_terminal while_keyword_terminal record_keyword_terminal
+%token<lex_val> goto_keyword_terminal const_keyword_terminal __keyword_terminal abstract_keyword_terminal continue_keyword_terminal for_keyword_terminal new_keyword_terminal  assert_keyword_terminal default_keyword_terminal if_keyword_terminal synchronized_keyword_terminal boolean_keyword_terminal do_keyword_terminal private_keyword_terminal this_keyword_terminal break_keyword_terminal double_keyword_terminal implements_keyword_terminal protected_keyword_terminal throw_keyword_terminal byte_keyword_terminal else_keyword_terminal public_keyword_terminal instanceof_keyword_terminal return_keyword_terminal transient_keyword_terminal extends_keyword_terminal int_keyword_terminal short_keyword_terminal char_keyword_terminal final_keyword_terminal static_keyword_terminal void_keyword_terminal class_keyword_terminal long_keyword_terminal strictfp_keyword_terminal volatile_keyword_terminal float_keyword_terminal native_keyword_terminal super_keyword_terminal while_keyword_terminal record_keyword_terminal
 %token<lex_val> '=' '>' '<' '!' '~' '?' ':' '+' '-' '*' '/' '&' '|' '^' '%' ',' '.' ';' '(' ')' '[' ']' '{' '}' '@'
 %token<lex_val> EQ_OP_TERMINAL GE_OP_TERMINAL LE_OP_TERMINAL NE_OP_TERMINAL AND_OP_TERMINAL OR_OP_TERMINAL INC_OP_TERMINAL DEC_OP_TERMINAL LEFT_OP_TERMINAL RIGHT_OP_TERMINAL BIT_RIGHT_SHFT_OP_TERMINAL ADD_ASSIGN_TERMINAL SUB_ASSIGN_TERMINAL MUL_ASSIGN_TERMINAL DIV_ASSIGN_TERMINAL AND_ASSIGN_TERMINAL OR_ASSIGN_TERMINAL XOR_ASSIGN_TERMINAL MOD_ASSIGN_TERMINAL LEFT_ASSIGN_TERMINAL RIGHT_ASSIGN_TERMINAL BIT_RIGHT_SHFT_ASSIGN_TERMINAL DOUBLE_COLON_TERMINAL
 %token<lex_val> IDENTIFIERS_TERMINAL LITERALS_TERMINAL
@@ -41,21 +43,23 @@
 %left RIGHT_OP_TERMINAL LEFT_OP_TERMINAL
 %left INC_OP_TERMINAL DEC_OP_TERMINAL
 
-%type<node> ABSTRACT_KEYWORD CONTINUE_KEYWORD FOR_KEYWORD NEW_KEYWORD ASSERT_KEYWORD IF_KEYWORD PACKAGE_KEYWORD SYNCHRONIZED_KEYWORD BOOLEAN_KEYWORD DO_KEYWORD PRIVATE_KEYWORD THIS_KEYWORD BREAK_KEYWORD DOUBLE_KEYWORD PROTECTED_KEYWORD EXTENDS_KEYWORD THROW_KEYWORD BYTE_KEYWORD ELSE_KEYWORD PUBLIC_KEYWORD INSTANCEOF_KEYWORD RETURN_KEYWORD TRANSIENT_KEYWORD INT_KEYWORD SHORT_KEYWORD CHAR_KEYWORD FINAL_KEYWORD STATIC_KEYWORD VOID_KEYWORD CLASS_KEYWORD LONG_KEYWORD STRICTFP_KEYWORD VOLATILE_KEYWORD FLOAT_KEYWORD NATIVE_KEYWORD SUPER_KEYWORD WHILE_KEYWORD
+%type<node> ABSTRACT_KEYWORD CONTINUE_KEYWORD FOR_KEYWORD NEW_KEYWORD ASSERT_KEYWORD IF_KEYWORD SYNCHRONIZED_KEYWORD BOOLEAN_KEYWORD DO_KEYWORD PRIVATE_KEYWORD THIS_KEYWORD BREAK_KEYWORD DOUBLE_KEYWORD PROTECTED_KEYWORD EXTENDS_KEYWORD THROW_KEYWORD BYTE_KEYWORD ELSE_KEYWORD PUBLIC_KEYWORD INSTANCEOF_KEYWORD RETURN_KEYWORD TRANSIENT_KEYWORD INT_KEYWORD SHORT_KEYWORD CHAR_KEYWORD FINAL_KEYWORD STATIC_KEYWORD VOID_KEYWORD CLASS_KEYWORD LONG_KEYWORD STRICTFP_KEYWORD VOLATILE_KEYWORD FLOAT_KEYWORD NATIVE_KEYWORD SUPER_KEYWORD WHILE_KEYWORD
 %type<node> ASSIGNMENT_OP GT_OP LT_OP EX_OP TL_OP QN_OP COLON_OP PLUS_OP MINUS_OP STAR_OP DIV_OP ND_OP BAR_OP RAISE_OP PCNT_OP COMMA_OP DOT_OP SEMICOLON_OP OP_BRCKT CLOSE_BRCKT OP_SQR_BRCKT CLOSE_SQR_BRCKT OP_CURLY_BRCKT CLOSE_CURLY_BRCKT
 %type<node> EQ_OP GE_OP  LE_OP  NE_OP  AND_OP  OR_OP  INC_OP  DEC_OP  LEFT_OP  RIGHT_OP  BIT_RIGHT_SHFT_OP ADD_ASSIGN  SUB_ASSIGN  MUL_ASSIGN  DIV_ASSIGN  AND_ASSIGN  OR_ASSIGN  XOR_ASSIGN  MOD_ASSIGN  LEFT_ASSIGN  RIGHT_ASSIGN  BIT_RIGHT_SHFT_ASSIGN   DOUBLE_COLON
 %type<node> IDENTIFIERS LITERALS
 
-%type<node> additive_expression and_expression argument_list argument_list_zero_or_one array_access array_creation_expression array_initializer array_type assert_statement assignment assignment_expression assignment_operators basic_for_statement basic_for_statement_no_short_if block block_statement block_statements block_statements_zero_or_more block_statements_zero_or_one break_statement class_body class_body_declaration class_body_declaration_zero_or_more class_body_zero_or_one class_declaration class_extends class_extends_zero_or_one class_instance_creation_expression class_literal class_member_declaration class_type comma_expression_zero_or_more comma_statement_expression_zero_or_more commas_zero_or_more compilation_unit conditional_and_expression conditional_or_expression condtional_expression constructor_body constructor_declaration constructor_declarator continue_statement dim_expr dim_exprs dims dims_zero_or_one do_statememt empty_array_one_or_more empty_statement enhanced_for_statement enhanced_for_statement_no_short_if equality_expression exclusive_or_expression explicit_constructor_invocation expression expression_statement expression_zero_or_one field_access field_declaration for_init for_init_zero_or_one for_statement for_statement_no_short_if for_update for_update_zero_or_one identifier_dot_zero_or_one identifier_zero_or_one if_then_else_statement if_then_else_statement_no_short_if if_then_statement inclusive_or_expression instance_of_expression labeled_statement labeled_statement_no_short_if local_class_or_interface_declaration local_variable_declaration local_variable_declaration_statement method_invocation method_reference  multiplicative_expression normal_class_declaration ordinary_compilation_unit package_declaration pattern post_decrement_expression post_increment_expression postfix_expression pre_decrement_expression pre_increment_expression primary primary_no_new_array reciever_parameter reference_type relational_expression return_statement shift_expression start_state statement statement_expression statement_expression_list statement_no_short_if statement_without_trailing_substatement static_initializer synchronized_statement throw_statement top_level_class_or_interface_declaration top_level_class_or_interface_declaration_zero_or_more  type_name type_pattern unary_expression unary_expression_not_plus_minus unqualified_class_instance_creation_expression variable_initializer variable_initializer_list variable_initializer_list_zero_or_more while_statement while_statement_no_short_if
+%type<node> normal_class_declaration_statement argument_list argument_list_zero_or_one array_access array_initializer array_type assert_statement assignment assignment_operators basic_for_statement basic_for_statement_no_short_if block block_statement block_statements block_statements_zero_or_more block_statements_zero_or_one break_statement class_body class_body_declaration class_body_declaration_zero_or_more class_body_zero_or_one class_declaration class_extends class_extends_zero_or_one class_type  commas_zero_or_more compilation_unit constructor_body continue_statement dim_expr dim_exprs do_statememt empty_statement enhanced_for_statement enhanced_for_statement_no_short_if explicit_constructor_invocation field_access field_declaration for_init for_init_zero_or_one for_statement for_statement_no_short_if for_update for_update_zero_or_one identifier_zero_or_one if_then_else_statement if_then_else_statement_no_short_if if_then_statement labeled_statement labeled_statement_no_short_if local_class_or_interface_declaration local_variable_declaration local_variable_declaration_statement method_invocation method_reference normal_class_declaration ordinary_compilation_unit pattern reference_type return_statement start_state statement  statement_no_short_if statement_without_trailing_substatement static_initializer synchronized_statement throw_statement top_level_class_or_interface_declaration top_level_class_or_interface_declaration_zero_or_more   type_pattern   variable_initializer variable_initializer_list variable_initializer_list_zero_or_more while_statement while_statement_no_short_if
+%type<expression> unqualified_class_instance_creation_expression class_instance_creation_expression additive_expression and_expression array_creation_expression assignment_expression comma_expression_zero_or_more unary_expression unary_expression_not_plus_minus statement_expression statement_expression_list comma_statement_expression_zero_or_more conditional_and_expression conditional_or_expression condtional_expression equality_expression exclusive_or_expression expression expression_statement expression_zero_or_one inclusive_or_expression instance_of_expression multiplicative_expression post_decrement_expression post_increment_expression postfix_expression pre_decrement_expression pre_increment_expression primary primary_no_new_array relational_expression shift_expression 
 %type<formal_parameter> formal_parameter 
 %type<formal_parameter_list> formal_parameter_list formal_parameter_list_zero_or_one
 %type<modifier_list> modifiers_zero_or_more
 %type<modifier> modifiers
 %type<type> unann_type primitive_type numeric_type
-%type<method_declaration> method_declaration method_header method_declarator
+%type<method_declaration> constructor_declaration constructor_declarator method_declaration method_header method_declarator
 %type<variable_declarator_id> variable_declarator_id variable_declarator
 %type<variable_declarator_list> variable_declarator_list comma_variable_declarator_zero_or_more
-
+%type<dims> dims dims_zero_or_one
+%type<identifiers_list> type_name type_name_scoping
 %% 
 
 //  ########   COMPILATION UNIT   ########  
@@ -69,7 +73,7 @@ compilation_unit
 
 ordinary_compilation_unit
             :   top_level_class_or_interface_declaration_zero_or_more                                                                           {Node* node = createNode("ordinary compilation unit"); node->addChildren({$1}); $$ = node;}
-            |   package_declaration top_level_class_or_interface_declaration_zero_or_more                                                       {Node* node = createNode("ordinary compilation unit"); node->addChildren({$1, $2}); $$ = node;}
+        //     |   package_declaration top_level_class_or_interface_declaration_zero_or_more                                                       {Node* node = createNode("ordinary compilation unit"); node->addChildren({$1, $2}); $$ = node;}
         //     |   import_declaration import_declaration_zero_or_more top_level_class_or_interface_declaration_zero_or_more                        {Node* node = createNode("ordinary compilation unit"); node->addChildren({$1, $2, $3}); $$ = node;}
         //     |   package_declaration import_declaration import_declaration_zero_or_more top_level_class_or_interface_declaration_zero_or_more    {Node* node = createNode("ordinary compilation unit"); node->addChildren({$1, $2, $3, $4}); $$ = node;}
 
@@ -84,8 +88,8 @@ top_level_class_or_interface_declaration_zero_or_more
 // modular_compilation_unit
 //             :   import_declaration_zero_or_more module_declaration                                                                              {Node* node = createNode("modular compilation unit"); node->addChildren({$1, $2}); $$ = node;}
 
-package_declaration
-            :   PACKAGE_KEYWORD type_name SEMICOLON_OP                                                                                          {Node* node = createNode("package declaration"); node->addChildren({$1,$2,$3}); $$ = node;}
+// package_declaration
+//             :   PACKAGE_KEYWORD type_name SEMICOLON_OP                                                                                          {Node* node = createNode("package declaration"); node->addChildren({$1,$2,$3}); $$ = node;}
 
 // import_declaration
 //             :   single_type_import_declaration                                                                                                  {Node* node = createNode("import declaration"); node->addChildren({$1}); $$ = node;}
@@ -143,24 +147,24 @@ primary
 
 primary_no_new_array
             :   LITERALS                                                                                                                        {Node* node = createNode("primary no new array"); node->addChildren({$1}); $$ = node;}
-            |   class_literal                                                                                                                   {Node* node = createNode("primary no new array"); node->addChildren({$1}); $$ = node;}
             |   THIS_KEYWORD                                                                                                                    {Node* node = createNode("primary no new array"); node->addChildren({$1}); $$ = node;}
-            |   type_name DOT_OP THIS_KEYWORD                                                                                                   {Node* node = createNode("primary no new array"); node->addChildren({$1,$2,$3}); $$ = node;}
-            |   OP_BRCKT expression CLOSE_BRCKT                                                                                                 {Node* node = createNode("primary no new array"); node->addChildren({$1,$2,$3}); $$ = node;}
+        //     |   type_name DOT_OP THIS_KEYWORD                                                                                                   {Node* node = createNode("primary no new array"); node->addChildren({$1,$2,$3}); $$ = node;}
+        //     |   class_literal                                                                                                                   {Node* node = createNode("primary no new array"); node->addChildren({$1}); $$ = node;}
             |   class_instance_creation_expression                                                                                              {Node* node = createNode("primary no new array"); node->addChildren({$1}); $$ = node;}
+            |   method_reference                                                                                                                {Node* node = createNode("primary no new array"); node->addChildren({$1}); $$ = node;}
+            |   OP_BRCKT expression CLOSE_BRCKT                                                                                                 {Node* node = createNode("primary no new array"); node->addChildren({$1,$2,$3}); $$ = node;}
             |   method_invocation                                                                                                               {Node* node = createNode("primary no new array"); node->addChildren({$1}); $$ = node;}
             |   field_access                                                                                                                    {Node* node = createNode("primary no new array"); node->addChildren({$1}); $$ = node;}
             |   array_access                                                                                                                    {Node* node = createNode("primary no new array"); node->addChildren({$1}); $$ = node;}
-            |   method_reference                                                                                                                {Node* node = createNode("primary no new array"); node->addChildren({$1}); $$ = node;}
 
 field_access
             :   primary DOT_OP IDENTIFIERS                                                                                                      {Node* node = createNode("field access"); node->addChildren({$1,$2,$3}); $$ = node;}
             |   SUPER_KEYWORD DOT_OP IDENTIFIERS                                                                                                {Node* node = createNode("field access"); node->addChildren({$1,$2,$3}); $$ = node;}
-            |   type_name DOT_OP SUPER_KEYWORD DOT_OP IDENTIFIERS                                                                               {Node* node = createNode("field access"); node->addChildren({$1,$2,$3,$4,$5}); $$ = node;}
+        //     |   type_name DOT_OP SUPER_KEYWORD DOT_OP IDENTIFIERS                                                                               {Node* node = createNode("field access"); node->addChildren({$1,$2,$3,$4,$5}); $$ = node;}
 
 array_access
             :   type_name OP_SQR_BRCKT expression CLOSE_SQR_BRCKT                                                                         {Node* node = createNode("array access"); node->addChildren({$1,$2,$3,$4}); $$ = node;}
-            |   IDENTIFIERS OP_SQR_BRCKT expression CLOSE_SQR_BRCKT                                                                             {Node* node = createNode("array access"); node->addChildren({$1,$2,$3,$4}); $$ = node;}
+        //     |   IDENTIFIERS OP_SQR_BRCKT expression CLOSE_SQR_BRCKT                                                                             {Node* node = createNode("array access"); node->addChildren({$1,$2,$3,$4}); $$ = node;}
             |   primary_no_new_array OP_SQR_BRCKT expression CLOSE_SQR_BRCKT                                                                    {Node* node = createNode("array access"); node->addChildren({$1,$2,$3,$4}); $$ = node;}
 
 method_reference
@@ -168,7 +172,7 @@ method_reference
             |   IDENTIFIERS DOUBLE_COLON IDENTIFIERS                                                                                            {Node* node = createNode("method reference"); node->addChildren({$1,$2,$3}); $$ = node;}
             |   primary DOUBLE_COLON IDENTIFIERS                                                                                                {Node* node = createNode("method reference"); node->addChildren({$1,$2,$3}); $$ = node;}
             |   SUPER_KEYWORD DOUBLE_COLON IDENTIFIERS                                                                                          {Node* node = createNode("method reference"); node->addChildren({$1,$2,$3}); $$ = node;}
-            |   type_name DOT_OP SUPER_KEYWORD DOUBLE_COLON IDENTIFIERS                                                                         {Node* node = createNode("method reference"); node->addChildren({$1,$2,$3,$4,$5}); $$ = node;}
+        //     |   type_name DOT_OP SUPER_KEYWORD DOUBLE_COLON IDENTIFIERS                                                                         {Node* node = createNode("method reference"); node->addChildren({$1,$2,$3,$4,$5}); $$ = node;}
         //     |   class_type DOUBLE_COLON NEW_KEYWORD
         //     |   array_type DOUBLE_COLON NEW_KEYWORD
         //     |   type_name DOUBLE_COLON type_arguments IDENTIFIERS                                                                               {Node* node = createNode("method reference"); node->addChildren({$1,$2,$3,$4}); $$ = node;}
@@ -178,18 +182,17 @@ method_reference
         //     |   class_type DOUBLE_COLON type_arguments NEW_KEYWORD
 
 method_invocation
-            :   IDENTIFIERS OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT                                                                      {Node* node = createNode("method invocation"); node->addChildren({$1,$2,$3,$4}); $$ = node;}
-            |   type_name DOT_OP IDENTIFIERS OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT                                               {Node* node = createNode("method invocation"); node->addChildren({$1,$2,$3,$4,$5,$6}); $$ = node;}         
+            :   type_name OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT                                                                        {Node* node = createNode("method invocation"); node->addChildren({$1,$2,$3,$4}); $$ = node;}         
             |   primary DOT_OP IDENTIFIERS OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT                                                       {Node* node = createNode("method invocation"); node->addChildren({$1,$2,$3,$4,$5,$6}); $$ = node;}
             |   SUPER_KEYWORD DOT_OP IDENTIFIERS OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT                                                 {Node* node = createNode("method invocation"); node->addChildren({$1,$2,$3,$4,$5,$6}); $$ = node;}
-            |   type_name DOT_OP SUPER_KEYWORD DOT_OP IDENTIFIERS OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT                          {Node* node = createNode("method invocation"); node->addChildren({$1,$2,$3,$4,$5,$6,$7,$8}); $$ = node;}
+        //     |   type_name DOT_OP SUPER_KEYWORD DOT_OP IDENTIFIERS OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT                          {Node* node = createNode("method invocation"); node->addChildren({$1,$2,$3,$4,$5,$6,$7,$8}); $$ = node;}
         //     |   type_name DOT_OP type_arguments IDENTIFIERS OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT                                {Node* node = createNode("method invocation"); node->addChildren({$1,$2,$3,$4,$5,$6,$7}); $$ = node;}           
         //     |   primary DOT_OP type_arguments IDENTIFIERS OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT                                        {Node* node = createNode("method invocation"); node->addChildren({$1,$2,$3,$4,$5,$6,$7}); $$ = node;}           
         //     |   SUPER_KEYWORD DOT_OP type_arguments IDENTIFIERS OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT                                  {Node* node = createNode("method invocation"); node->addChildren({$1,$2,$3,$4,$5,$6,$7}); $$ = node;}           
         //     |   type_name DOT_OP SUPER_KEYWORD DOT_OP type_arguments IDENTIFIERS OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT           {Node* node = createNode("method invocation"); node->addChildren({$1,$2,$3,$4,$5,$6,$7,$8,$9}); $$ = node;}           
 
 expression
-            :   assignment_expression                                                                                                           {Node* node = createNode("expression"); node->addChildren({$1}); $$ = node;}           
+            :   assignment_expression                                                                                                           {Expression* node = new Expression("expression", $1->value, $1->isPrimary, $1->isLiteral); node->addChildren({$1}); $$ = node;}           
         //     |   lambda_expression                                                                                                               {Node* node = createNode("expression"); node->addChildren({$1}); $$ = node;}           
 
 assignment_expression
@@ -203,7 +206,7 @@ condtional_expression
 
 conditional_or_expression
             :   conditional_and_expression                                                                                                      {Node* node = createNode("condtional or expression"); node->addChildren({$1}); $$ = node;}           
-            |   conditional_or_expression OR_OP conditional_and_expression                                                                      {Node* node = createNode("condtional or expression"); node->addChildren({$1,$2,$3}); $$ = node;}           
+            |   conditional_or_expression OR_OP conditional_and_expression                                                                      {Expression* evalExpr = evalOR($1, $3); Expression* node = new Expression("condtional or expression", evalExpr->value, evalExpr->isPrimary, evalExpr->isLiteral); node->addChildren({$1,$2,$3}); $$ = node;}           
 
 conditional_and_expression
             :   inclusive_or_expression                                                                                                         {Node* node = createNode("condtional and expression"); node->addChildren({$1}); $$ = node;}           
@@ -340,14 +343,16 @@ post_decrement_expression
 
 class_instance_creation_expression
             :   unqualified_class_instance_creation_expression                                                                                          {Node* node = createNode("class instance creation expression"); node->addChildren({$1}); $$ = node;}           
-            |   type_name DOT_OP unqualified_class_instance_creation_expression                                                                         {Node* node = createNode("class instance creation expression"); node->addChildren({$1,$2,$3}); $$ = node;}           
-            |   primary DOT_OP unqualified_class_instance_creation_expression                                                                           {Node* node = createNode("class instance creation expression"); node->addChildren({$1,$2,$3}); $$ = node;}           
+        //     |   type_name DOT_OP unqualified_class_instance_creation_expression                                                                         {Node* node = createNode("class instance creation expression"); node->addChildren({$1,$2,$3}); $$ = node;}           
+        //     |   primary DOT_OP unqualified_class_instance_creation_expression                                                                           {Node* node = createNode("class instance creation expression"); node->addChildren({$1,$2,$3}); $$ = node;}           
 
 unqualified_class_instance_creation_expression
-            :   NEW_KEYWORD IDENTIFIERS OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT class_body_zero_or_one                                           {Node* node = createNode("unqualified class instance creation expression"); node->addChildren({$1,$2,$3,$4,$5,$6}); $$ = node;}           
+            :   NEW_KEYWORD IDENTIFIERS OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT class_body_zero_or_one                                           {Node* node = createNode("unqualified class instance creation expression"); node->addChildren({$1,$2,$3,$4,$5,$6}); $$ = node;}
         //     |   NEW_KEYWORD type_arguments IDENTIFIERS OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT class_body_zero_or_one                            {Node* node = createNode("unqualified class instance creation expression"); node->addChildren({$1,$2,$3,$4,$5,$6,$7}); $$ = node;}           
         //     |   NEW_KEYWORD class_or_interface_type_to_instantiate OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT class_body_zero_or_one                {Node* node = createNode("unqualified class instance creation expression"); node->addChildren({$1,$2,$3,$4,$5,$6}); $$ = node;}           
         //     |   NEW_KEYWORD type_arguments class_or_interface_type_to_instantiate OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT class_body_zero_or_one {Node* node = createNode("unqualified class instance creation expression"); node->addChildren({$1,$2,$3,$4,$5,$6,$7}); $$ = node;}           
+
+// ##############  class_body is ignored for time being  ##################
 
 class_body_zero_or_one
             :   /* empty */                                                                                                                             {Node* node = createNode("class body zero or one"); node->addChildren({}); $$ = node;}           
@@ -365,7 +370,7 @@ comma_expression_zero_or_more
         //     |   IDENTIFIERS type_arguments                                                                                                              {Node* node = createNode("class or interface type to instantiate"); node->addChildren({$1,$2}); $$ = node;}           
 
 assignment
-            :   type_name assignment_operators expression                                                                                         {Node* node = createNode("assignment"); node->addChildren({$1,$2,$3}); $$ = node;}           
+            :   type_name assignment_operators expression                                                                                               {Node* node = createNode("assignment"); node->addChildren({$1,$2,$3}); $$ = node;}           
             |   field_access assignment_operators expression                                                                                            {Node* node = createNode("assignment"); node->addChildren({$1,$2,$3}); $$ = node;}           
             |   array_access assignment_operators expression                                                                                            {Node* node = createNode("assignment"); node->addChildren({$1,$2,$3}); $$ = node;}           
 
@@ -390,8 +395,8 @@ array_creation_expression
             |   NEW_KEYWORD class_type dims array_initializer                                                                                           {Node* node = createNode("array creation expression"); node->addChildren({$1,$2,$3,$4}); $$ = node;}           
 
 dims_zero_or_one
-            :   /* empty */                                                                                                                             {Node* node = createNode("dims zero or one"); node->addChildren({}); $$ = node;}           
-            |   dims                                                                                                                                    {Node* node = createNode("dims zero or one"); node->addChildren({$1}); $$ = node;}           
+            :   /* empty */                                                                                                                             {Dims* node = new Dims("dims zero or one", 0); node->addChildren({}); $$ = node;}           
+            |   dims                                                                                                                                    {Dims* node = new Dims("dims zero or one", $1->count_dims); node->addChildren({$1}); $$ = node;}           
 
 dim_exprs
             :   /* empty */                                                                                                                             {Node* node = createNode("dim exprs"); node->addChildren({}); $$ = node;}           
@@ -400,9 +405,9 @@ dim_exprs
 dim_expr    
             :  OP_SQR_BRCKT expression CLOSE_SQR_BRCKT                                                                                                  {Node* node = createNode("dim expr"); node->addChildren({$1,$2,$3}); $$ = node;}
 
-dims 
-            :   OP_SQR_BRCKT CLOSE_SQR_BRCKT                                                                                                            {Node* node = createNode("dims"); node->addChildren({$1,$2}); $$ = node;}
-            |   OP_SQR_BRCKT CLOSE_SQR_BRCKT dims                                                                                                       {Node* node = createNode("dims"); node->addChildren({$1,$2,$3}); $$ = node;} 
+dims
+            :   OP_SQR_BRCKT CLOSE_SQR_BRCKT                                                                                                            {Dims* node = new Dims("dims", 1); node->addChildren({$1,$2}); $$ = node;}
+            |   OP_SQR_BRCKT CLOSE_SQR_BRCKT dims                                                                                                       {Dims* node = new Dims("dims", $3->count_dims + 1); node->addChildren({$1,$2,$3}); $$ = node;} 
 
 primitive_type
             :   numeric_type                                                                                                                            {Type* node = new Type("primitive type", $1->primitivetypeIndex); node->addChildren({$1}); $$ = node;}
@@ -469,23 +474,22 @@ variable_initializer
 //             :   unann_type                                                                                                                              {Node* node = createNode("lambda parameter type"); node->addChildren({$1}); $$ = node;}
 //             |   VAR_KEYWORD                                                                                                                             {Node* node = createNode("lambda parameter type"); node->addChildren({$1}); $$ = node;}
 
-class_literal
-            :   type_name DOT_OP CLASS_KEYWORD                                                                                                          {Node* node = createNode("class literal"); node->addChildren({$1,$2,$3}); $$ = node;}
-            |   numeric_type DOT_OP CLASS_KEYWORD                                                                                                       {Node* node = createNode("class literal"); node->addChildren({$1,$2,$3}); $$ = node;}
-            |   BOOLEAN_KEYWORD DOT_OP CLASS_KEYWORD                                                                                                    {Node* node = createNode("class literal"); node->addChildren({$1,$2,$3}); $$ = node;}
-            |   VOID_KEYWORD DOT_OP CLASS_KEYWORD                                                                                                       {Node* node = createNode("class literal"); node->addChildren({$1,$2,$3}); $$ = node;}
-            |   type_name empty_array_one_or_more DOT_OP CLASS_KEYWORD                                                                                  {Node* node = createNode("class literal"); node->addChildren({$1,$2,$3,$4}); $$ = node;}
-            |   numeric_type empty_array_one_or_more DOT_OP CLASS_KEYWORD                                                                               {Node* node = createNode("class literal"); node->addChildren({$1,$2,$3,$4}); $$ = node;}
-            |   BOOLEAN_KEYWORD empty_array_one_or_more DOT_OP CLASS_KEYWORD                                                                            {Node* node = createNode("class literal"); node->addChildren({$1,$2,$3,$4}); $$ = node;}
-            |   VOID_KEYWORD empty_array_one_or_more DOT_OP CLASS_KEYWORD                                                                               {Node* node = createNode("class literal"); node->addChildren({$1,$2,$3,$4}); $$ = node;}
-
-empty_array_one_or_more
-            :   OP_SQR_BRCKT CLOSE_SQR_BRCKT                                                                                                            {Node* node = createNode("empty array one or more"); node->addChildren({$1,$2}); $$ = node;}
-            |   OP_SQR_BRCKT CLOSE_SQR_BRCKT empty_array_one_or_more                                                                                    {Node* node = createNode("empty array one or more"); node->addChildren({$1,$2,$3}); $$ = node;}
+// class_literal
+//             :   type_name DOT_OP CLASS_KEYWORD                                                                                                          {Node* node = createNode("class literal"); node->addChildren({$1,$2,$3}); $$ = node;}
+//             |   numeric_type DOT_OP CLASS_KEYWORD                                                                                                       {Node* node = createNode("class literal"); node->addChildren({$1,$2,$3}); $$ = node;}
+//             |   BOOLEAN_KEYWORD DOT_OP CLASS_KEYWORD                                                                                                    {Node* node = createNode("class literal"); node->addChildren({$1,$2,$3}); $$ = node;}
+//             |   VOID_KEYWORD DOT_OP CLASS_KEYWORD                                                                                                       {Node* node = createNode("class literal"); node->addChildren({$1,$2,$3}); $$ = node;}
+//             |   type_name dims DOT_OP CLASS_KEYWORD                                                                                  {Node* node = createNode("class literal"); node->addChildren({$1,$2,$3,$4}); $$ = node;}
+//             |   numeric_type dims DOT_OP CLASS_KEYWORD                                                                               {Node* node = createNode("class literal"); node->addChildren({$1,$2,$3,$4}); $$ = node;}
+//             |   BOOLEAN_KEYWORD dims DOT_OP CLASS_KEYWORD                                                                            {Node* node = createNode("class literal"); node->addChildren({$1,$2,$3,$4}); $$ = node;}
+//             |   VOID_KEYWORD dims DOT_OP CLASS_KEYWORD                                                                               {Node* node = createNode("class literal"); node->addChildren({$1,$2,$3,$4}); $$ = node;}
 
 type_name
-            :   IDENTIFIERS                                                                                                                             {Node* node = createNode("type name"); node->addChildren({$1}); $$ = node;}
-            |   type_name DOT_OP IDENTIFIERS                                                                                                            {Node* node = createNode("type name"); node->addChildren({$1,$2,$3}); $$ = node;}
+            :   type_name_scoping                                                                                                                             {IdentifiersList* node = new IdentifiersList("type name", "", $1->identifiers); if(!typenameErrorChecking(node, global_symtab->current_level)) YYERROR; $$ = node;}
+
+type_name_scoping
+            :   IDENTIFIERS                                                                                                                             {IdentifiersList* node = new IdentifiersList("type name", $1->lexeme, {}); node->addChildren({$1}); $$ = node;}
+            |   type_name_scoping DOT_OP IDENTIFIERS                                                                                                            {IdentifiersList* node = new IdentifiersList("type name", $3->lexeme, $1->identifiers); node->addChildren({$1,$2,$3}); $$ = node;}
 
 // ########   MODIFIERS   ########  
 
@@ -599,7 +603,7 @@ array_type
 //  ########   BLOCKS, STATEMENTS AND PATTERNS   ########  
 
 block
-        :   OP_CURLY_BRCKT block_statements_zero_or_one CLOSE_CURLY_BRCKT                                                                               {Node* node = createNode("block"); node->addChildren({$1,$2,$3}); $$ = node;}
+        :   OP_CURLY_BRCKT block_statements_zero_or_one CLOSE_CURLY_BRCKT                                                                               {Node* node = createNode("block"); node->addChildren({$1,$2,$3}); node->parent_level = $1->parent_level; $$ = node;}
 
 block_statements_zero_or_one
         :   /* empty */                                                                                                                                 {Node* node = createNode("block statements zero or one"); node->addChildren({}); $$ = node;}
@@ -628,7 +632,7 @@ local_variable_declaration
         // :   VAR_KEYWORD variable_declarator_list                                                                                                        {Node* node = createNode("local variable declaration"); node->addChildren({$1,$2}); $$ = node;}
         // :   numeric_type dims variable_declarator_list                                                                                                  {Node* node = createNode("local variable declaration"); node->addChildren({$1,$2,$3}); $$ = node;}
         // |   BOOLEAN_KEYWORD dims variable_declarator_list                                                                                               {Node* node = createNode("local variable declaration"); node->addChildren({$1,$2,$3}); $$ = node;}
-        :   unann_type variable_declarator_list                                                                                                         {Node* node = createNode("local variable declaration"); node->addChildren({$1,$2}); addVariablesToSymtab($1, $2, global_symtab->current_level); $$ = node;}
+        :   unann_type variable_declarator_list                                                                                                         {Node* node = createNode("local variable declaration"); node->addChildren({$1,$2}); addVariablesToSymtab($1, $2, global_symtab->current_level, NULL, false); $$ = node;}
         // |   type_name variable_declarator_list                                                                                                          {Node* node = createNode("local variable declaration"); node->addChildren({$1,$2}); $$ = node;}
         // |   FINAL_KEYWORD VAR_KEYWORD variable_declarator_list                                                                                          {Node* node = createNode("local variable declaration"); node->addChildren({$1,$2,$3}); $$ = node;}
         |   FINAL_KEYWORD unann_type variable_declarator_list                                                                                           {Node* node = createNode("local variable declaration"); node->addChildren({$1,$2,$3}); $$ = node;}
@@ -892,7 +896,10 @@ class_declaration
 //         :  IDENTIFIERS OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT class_body_zero_or_one                                                            {Node* node = createNode("enum constant"); node->addChildren({$1,$2,$3,$4,$5}); $$ = node;}
 
 normal_class_declaration
-        :  modifiers_zero_or_more CLASS_KEYWORD IDENTIFIERS class_extends_zero_or_one class_body                                                          {NormalClassDeclaration* node = new NormalClassDeclaration("normal class declaration", $1, $3->lexeme); node->line_no = $2->line_no; node->entry_type = CLASS_DECLARATION; node->addChildren({$1,$2,$3,$4,$5}); ((LocalSymbolTable*)((global_symtab->symbol_tables)[global_symtab->current_level.first][global_symtab->current_level.second]))->add_entry(node); $$ = node;}
+        :  normal_class_declaration_statement class_body                                                                                                   {Node* node = createNode("normal_class_declaration"); ((LocalSymbolTable*)((global_symtab->symbol_tables)[$2->parent_level.first][$2->parent_level.second]))->level_node = (Node*)(node); node->addChildren({$1,$2}); $$ = node;}
+
+normal_class_declaration_statement
+        :  modifiers_zero_or_more CLASS_KEYWORD IDENTIFIERS class_extends_zero_or_one                                                                      {NormalClassDeclaration* node = new NormalClassDeclaration("normal class declaration statement", $1, $3->lexeme); node->line_no = $2->line_no; node->entry_type = CLASS_DECLARATION; node->addChildren({$1,$2,$3,$4}); get_local_symtab(global_symtab->current_level)->add_entry(node); $$ = node;}
 
 // type_parameters_zero_or_one
 //         :   /* empty */                                                                                                                                 {Node* node = createNode("type parameters zero or one"); node->addChildren({}); $$ = node;}
@@ -939,27 +946,24 @@ class_extends
 //         :  PERMITS_KEYWORD type_name comma_type_name_zero_or_more                                                                                       {Node* node = createNode("class permits"); node->addChildren({$1,$2,$3}); $$ = node;}
 
 class_body
-        :  OP_CURLY_BRCKT class_body_declaration_zero_or_more CLOSE_CURLY_BRCKT                                                                         {Node* node = createNode("class body"); node->addChildren({$1,$2,$3}); $$ = node;}
+        :  OP_CURLY_BRCKT class_body_declaration_zero_or_more CLOSE_CURLY_BRCKT                                                                         {Node* node = createNode("class body"); node->addChildren({$1,$2,$3}); node->parent_level = $1->parent_level; $$ = node;}
 
 class_body_declaration_zero_or_more
         :   /* empty */                                                                                                                                 {Node* node = createNode("class body declaration zero or more"); node->addChildren({}); $$ = node;}
         |  class_body_declaration class_body_declaration_zero_or_more                                                                                   {Node* node = createNode("class body declaration zero or more"); node->addChildren({$1,$2}); $$ = node;}
 
 class_body_declaration
-        :  class_member_declaration                                                                                                                     {Node* node = createNode("class body declaration"); node->addChildren({$1}); $$ = node;}
+        :  constructor_declaration                                                                                                                      {Node* node = createNode("class body declaration"); node->addChildren({$1}); $$ = node;}
         |  block                                                                                                                                        {Node* node = createNode("class body declaration"); node->addChildren({$1}); $$ = node;}
         |  static_initializer                                                                                                                           {Node* node = createNode("class body declaration"); node->addChildren({$1}); $$ = node;}
-        |  constructor_declaration                                                                                                                      {Node* node = createNode("class body declaration"); node->addChildren({$1}); $$ = node;}
-
-class_member_declaration
-        :  field_declaration                                                                                                                            {Node* node = createNode("class member declaration"); node->addChildren({$1}); $$ = node;}
-        |  method_declaration                                                                                                                           {Node* node = createNode("class member declaration"); node->addChildren({$1}); $$ = node;}              
-        |  class_declaration                                                                                                                            {Node* node = createNode("class member declaration"); node->addChildren({$1}); $$ = node;}
-        // |  interface_declaration                                                                                                                        {Node* node = createNode("class member declaration"); node->addChildren({$1}); $$ = node;}
-        |  SEMICOLON_OP                                                                                                                                 {Node* node = createNode("class member declaration"); node->addChildren({$1}); $$ = node;}
+        |  field_declaration                                                                                                                            {Node* node = createNode("class body declaration"); node->addChildren({$1}); $$ = node;}
+        |  method_declaration                                                                                                                           {Node* node = createNode("class body declaration"); node->addChildren({$1}); $$ = node;}              
+        // |  class_declaration                                                                                                                            {Node* node = createNode("class body declaration"); node->addChildren({$1}); $$ = node;}
+        // |  interface_declaration                                                                                                                        {Node* node = createNode("class body declaration"); node->addChildren({$1}); $$ = node;}
+        |  SEMICOLON_OP                                                                                                                                 {Node* node = createNode("class body declaration"); node->addChildren({$1}); $$ = node;}
 
 field_declaration
-        :  modifiers_zero_or_more unann_type variable_declarator_list SEMICOLON_OP                                                                      {Node* node = createNode("field declaration"); node->addChildren({$1,$2,$3,$4}); $$ = node;}
+        :  modifiers_zero_or_more unann_type variable_declarator_list SEMICOLON_OP                                                                      {Node* node = createNode("field declaration"); addVariablesToSymtab($2, $3, global_symtab->current_level, $1, true); node->addChildren({$1,$2,$3,$4}); $$ = node;}
 
 variable_declarator_list
         :  variable_declarator comma_variable_declarator_zero_or_more                                                                                   {VariableDeclaratorList* node = new VariableDeclaratorList("variable declarator list", $1, $2->lists); node->addChildren({$1,$2}); $$ = node;}
@@ -969,14 +973,15 @@ comma_variable_declarator_zero_or_more
         |  comma_variable_declarator_zero_or_more COMMA_OP variable_declarator                                                                          {VariableDeclaratorList* node = new VariableDeclaratorList("comma variable declarator zero or more", $3, $1->lists); node->addChildren({$1,$2,$3}); $$ = node;}
 
 variable_declarator
-        :  variable_declarator_id                                                                                                                       {VariableDeclaratorId* node = new VariableDeclaratorId("variable declarator", $1->identifier, 0, NULL); node->addChildren({$1}); $$ = node;}
-        // |  variable_declarator_id ASSIGNMENT_OP variable_initializer                                                                                    {VariableDeclaratorId* node = new VariableDeclaratorId("variable declarator", $1->identifier, 0, $3); node->addChildren({$1,$2,$3}); $$ = node;}
+        :  variable_declarator_id                                                                                                                       {VariableDeclaratorId* node = new VariableDeclaratorId("variable_declarator", $1->identifier, $1->num_of_dims, NULL); node->addChildren({$1}); $$ = node;}
+        // |  variable_declarator_id ASSIGNMENT_OP variable_initializer                                                                                    {VariableDeclaratorId* node = new VariableDeclaratorId("variable_declarator", $1->identifier, $1->num_of_dims, $3); node->addChildren({$1,$2,$3}); $$ = &node;}
 
 variable_declarator_id
-        :  IDENTIFIERS dims_zero_or_one                                                                                                                 {VariableDeclaratorId* node = new VariableDeclaratorId("variable declarator id", $1->lexeme, 0, NULL); node->addChildren({$1,$2}); $$ = node;}
+        :  IDENTIFIERS dims_zero_or_one                                                                                                                 {VariableDeclaratorId* node = new VariableDeclaratorId("variable declarator id", $1->lexeme, $2->count_dims, NULL); node->addChildren({$1,$2}); $$ = node;}
 
 unann_type
         :  primitive_type                                                                                                                               {Type* node = new Type("unann type", $1->primitivetypeIndex); node->addChildren({$1}); $$ = node;}
+        |  type_name                                                                                                                                    {Type* node = new Type("unann type", -1); node->class_instantiated_from = get_local_symtab(global_symtab->current_level)->get_entry($1->identifiers[0]); node->addChildren({$1}); $$ = node;}
         // |  unann_reference_type                                                                                                                      {Type* node = new Type("unann type", $1->primitivetypeIndex); node->addChildren({$1}); $$ = node;}
 
 // unann_reference_type
@@ -989,12 +994,12 @@ unann_type
 //         |  unann_class_type DOT_OP IDENTIFIERS                                                                                                          {Node* node = createNode("unann class type"); node->addChildren({$1,$2,$3}); $$ = node;}
 
 method_declaration
-        :  modifiers_zero_or_more method_header block                                                                                                   {MethodDeclaration* node($2); node->modifiers = $1; node->addChildren({$1,$2,$3}); node->entry_type = METHOD_DECLARATION; ((LocalSymbolTable*)((global_symtab->symbol_tables)[global_symtab->current_level.first][global_symtab->current_level.second]))->add_entry(node); $$ = node;}
-        |  modifiers_zero_or_more method_header SEMICOLON_OP                                                                                            {MethodDeclaration* node($2); node->modifiers = $1; node->addChildren({$1,$2,$3}); node->entry_type = METHOD_DECLARATION; ((LocalSymbolTable*)((global_symtab->symbol_tables)[global_symtab->current_level.first][global_symtab->current_level.second]))->add_entry(node); $$ = node;}
+        :  modifiers_zero_or_more method_header block                                                                                                   {MethodDeclaration* node = new MethodDeclaration("method_declaration"); node->name = $2->name; node->formal_parameter_list = $2->formal_parameter_list; node->type = $2->type; node->modifiers = $2->modifiers; node->addChildren({$1,$2,$3}); node->entry_type = METHOD_DECLARATION; get_local_symtab(global_symtab->current_level)->add_entry(node); ((LocalSymbolTable*)((global_symtab->symbol_tables)[$3->parent_level.first][$3->parent_level.second]))->level_node = (Node*)(node); $$ = node;}
+        |  modifiers_zero_or_more method_header SEMICOLON_OP                                                                                            {MethodDeclaration* node = new MethodDeclaration("method_declaration"); node->name = $2->name; node->formal_parameter_list = $2->formal_parameter_list; node->type = $2->type; node->modifiers = $2->modifiers; node->addChildren({$1,$2,$3}); node->entry_type = METHOD_DECLARATION; get_local_symtab(global_symtab->current_level)->add_entry(node); $$ = node;}
 
 method_header
-        :  unann_type method_declarator                                                                                                                 {MethodDeclaration* node($2); node->type = $1; node->addChildren({$1,$2}); $$ = node;}
-        |  VOID_KEYWORD method_declarator                                                                                                               {Type* t = new Type("result", 8); MethodDeclaration* node($2); node->type = t; node->addChildren({$1,$2}); $$ = node;}
+        :  unann_type method_declarator                                                                                                                 {MethodDeclaration* node = new MethodDeclaration("method_header"); node->name = $2->name; node->formal_parameter_list = $2->formal_parameter_list; node->type = $1; node->addChildren({$1,$2}); $$ = node;}
+        |  VOID_KEYWORD method_declarator                                                                                                               {Type* t = new Type("result", 8); MethodDeclaration* node = new MethodDeclaration("method_header"); node->name = $2->name; node->formal_parameter_list = $2->formal_parameter_list; node->type = t; node->addChildren({$1,$2}); $$ = node;}
         // |  type_parameters unann_type method_declarator                                                                                                 {Node* node = createNode("method header"); node->addChildren({$1,$2,$3,$4}); $$ = node;}
         // |  type_parameters VOID_KEYWORD method_declarator                                                                                               {Node* node = createNode("method header"); node->addChildren({$1,$2,$3,$4}); $$ = node;}
 
@@ -1003,19 +1008,19 @@ method_header
 //         |   throws                                                                                                                                      {Node* node = createNode("throws zero or one"); node->addChildren({$1}); $$ = node;}
 
 method_declarator
-        :  IDENTIFIERS OP_BRCKT formal_parameter_list_zero_or_one  CLOSE_BRCKT dims_zero_or_one                                                          {MethodDeclaration* node = new MethodDeclaration("method declarator"); node->name = $1->lexeme; node->formal_parameter_list = $3; node->addChildren({$1,$2,$3,$4,$5}); $$ = node;}
+        :  IDENTIFIERS OP_BRCKT formal_parameter_list_zero_or_one CLOSE_BRCKT dims_zero_or_one                                                          {MethodDeclaration* node = new MethodDeclaration("method declarator"); node->name = $1->lexeme; node->formal_parameter_list = $3; node->addChildren({$1,$2,$3,$4,$5}); $$ = node;}
         // |  IDENTIFIERS OP_BRCKT reciever_parameter COMMA_OP formal_parameter_list_zero_or_one CLOSE_BRCKT dims_zero_or_one                              {Node* node = createNode("method declarator"); node->addChildren({$1,$2,$3,$4,$5,$6,$7}); $$ = node;}
 
 formal_parameter_list_zero_or_one
         :   /* empty */                                                                                                                                 {FormalParameterList* node = new FormalParameterList("formal parameter list zero or one", NULL, {}); node->addChildren({}); $$ = node;}
         |  formal_parameter_list                                                                                                                        {FormalParameterList* node = new FormalParameterList("formal parameter list zero or one", NULL, $1->lists); node->addChildren({$1}); $$ = node;}
 
-reciever_parameter
-        :  unann_type identifier_dot_zero_or_one THIS_KEYWORD                                                                                           {Node* node = createNode("reciever parameter"); node->addChildren({$1,$2,$3}); $$ = node;}
+// reciever_parameter
+//         :  unann_type identifier_dot_zero_or_one THIS_KEYWORD                                                                                           {Node* node = createNode("reciever parameter"); node->addChildren({$1,$2,$3}); $$ = node;}
 
-identifier_dot_zero_or_one
-        :  /* empty */                                                                                                                                  {Node* node = createNode("identifier dot zero or one"); node->addChildren({}); $$ = node;}
-        |  IDENTIFIERS DOT_OP                                                                                                                           {Node* node = createNode("identifier dot zero or one"); node->addChildren({$1,$2}); $$ = node;}
+// identifier_dot_zero_or_one
+//         :  /* empty */                                                                                                                                  {Node* node = createNode("identifier dot zero or one"); node->addChildren({}); $$ = node;}
+//         |  IDENTIFIERS DOT_OP                                                                                                                           {Node* node = createNode("identifier dot zero or one"); node->addChildren({$1,$2}); $$ = node;}
 
 formal_parameter_list
         :  formal_parameter                                                                                                                             {FormalParameterList* node = new FormalParameterList("formal parameter list", $1, {}); node->addChildren({$1}); $$ = node;}
@@ -1043,11 +1048,11 @@ static_initializer
         :  STATIC_KEYWORD block                                                                                                                         {Node* node = createNode("static initializer"); node->addChildren({$1,$2}); $$ = node;}
 
 constructor_declaration
-        :  modifiers_zero_or_more constructor_declarator constructor_body                                                            {Node* node = createNode("constructor declaration"); node->addChildren({$1,$2,$3}); $$ = node;}
+        :  modifiers_zero_or_more constructor_declarator constructor_body                                                                                  {MethodDeclaration* node = new MethodDeclaration("constructor_declaration"); node->name = $2->name; node->formal_parameter_list = $2->formal_parameter_list; node->modifiers = $1; node->entry_type = METHOD_DECLARATION; node->isConstructor = true; node->addChildren({$1,$2,$3}); get_local_symtab(global_symtab->current_level)->add_entry(node); $$ = node;}
 
 constructor_declarator
-        :  IDENTIFIERS OP_BRCKT formal_parameter_list_zero_or_one CLOSE_BRCKT                                                                           {Node* node = createNode("constructor declarator"); node->addChildren({$1,$2,$3,$4}); $$ = node;}
-        |  IDENTIFIERS OP_BRCKT reciever_parameter COMMA_OP formal_parameter_list_zero_or_one CLOSE_BRCKT                                               {Node* node = createNode("constructor declarator"); node->addChildren({$1,$2,$3,$4,$5,$6}); $$ = node;}
+        :  IDENTIFIERS OP_BRCKT formal_parameter_list_zero_or_one CLOSE_BRCKT                                                                           {MethodDeclaration* node = new MethodDeclaration("constructor declarator"); node->name = $1->lexeme; node->formal_parameter_list = $3;  node->addChildren({$1,$2,$3,$4}); $$ = node;}
+        // |  IDENTIFIERS OP_BRCKT reciever_parameter COMMA_OP formal_parameter_list_zero_or_one CLOSE_BRCKT                                               {Node* node = createNode("constructor declarator"); node->addChildren({$1,$2,$3,$4,$5,$6}); $$ = node;}
         // |  type_parameters IDENTIFIERS OP_BRCKT formal_parameter_list_zero_or_one CLOSE_BRCKT                                                           {Node* node = createNode("constructor declarator"); node->addChildren({$1,$2,$3,$4,$5}); $$ = node;}
         // |  type_parameters IDENTIFIERS OP_BRCKT reciever_parameter COMMA_OP formal_parameter_list_zero_or_one CLOSE_BRCKT                               {Node* node = createNode("constructor declarator"); node->addChildren({$1,$2,$3,$4,$5,$6,$7}); $$ = node;}
 
@@ -1060,8 +1065,8 @@ constructor_body
 explicit_constructor_invocation
         :  THIS_KEYWORD OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT SEMICOLON_OP                                                                     {Node* node = createNode("explicit constructor invocation"); node->addChildren({$1,$2,$3,$4,$5}); $$ = node;}
         |  SUPER_KEYWORD OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT SEMICOLON_OP                                                                    {Node* node = createNode("explicit constructor invocation"); node->addChildren({$1,$2,$3,$4,$5}); $$ = node;}
-        |  type_name DOT_OP SUPER_KEYWORD OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT SEMICOLON_OP                                             {Node* node = createNode("explicit constructor invocation"); node->addChildren({$1,$2,$3,$4,$5,$6,$7}); $$ = node;}
-        |  primary DOT_OP SUPER_KEYWORD OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT SEMICOLON_OP                                                     {Node* node = createNode("explicit constructor invocation"); node->addChildren({$1,$2,$3,$4,$5,$6,$7}); $$ = node;}
+        // |  type_name DOT_OP SUPER_KEYWORD OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT SEMICOLON_OP                                             {Node* node = createNode("explicit constructor invocation"); node->addChildren({$1,$2,$3,$4,$5,$6,$7}); $$ = node;}
+        // |  primary DOT_OP SUPER_KEYWORD OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT SEMICOLON_OP                                                     {Node* node = createNode("explicit constructor invocation"); node->addChildren({$1,$2,$3,$4,$5,$6,$7}); $$ = node;}
         // |  type_arguments THIS_KEYWORD OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT SEMICOLON_OP                                                      {Node* node = createNode("explicit constructor invocation"); node->addChildren({$1,$2,$3,$4,$5,$6}); $$ = node;}
         // |  type_arguments SUPER_KEYWORD OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT SEMICOLON_OP                                                     {Node* node = createNode("explicit constructor invocation"); node->addChildren({$1,$2,$3,$4,$5,$6}); $$ = node;}
         // |  type_name DOT_OP type_arguments SUPER_KEYWORD OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT SEMICOLON_OP                              {Node* node = createNode("explicit constructor invocation"); node->addChildren({$1,$2,$3,$4,$5,$6,$7,$8}); $$ = node;}
@@ -1110,15 +1115,15 @@ DOT_OP
 SEMICOLON_OP
         :       ';'                                                     {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 OP_BRCKT
-        :       '('                                                     {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
+        :       '('                                                     {Node* temp = createNode($1); temp->isTerminal = true; global_symtab->increase_level(); $$ = temp;}
 CLOSE_BRCKT
-        :       ')'                                                     {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
+        :       ')'                                                     {Node* temp = createNode($1); temp->isTerminal = true; global_symtab->decrease_level(); $$ = temp;}
 OP_SQR_BRCKT
         :       '['                                                     {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 CLOSE_SQR_BRCKT
         :       ']'                                                     {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 OP_CURLY_BRCKT
-        :       '{'                                                     {Node* temp = createNode($1); temp->isTerminal = true; global_symtab->increase_level(); $$ = temp;}
+        :       '{'                                                     {Node* temp = createNode($1); temp->isTerminal = true; global_symtab->increase_level(); temp->parent_level = global_symtab->current_level; $$ = temp;}
 CLOSE_CURLY_BRCKT
         :       '}'                                                     {Node* temp = createNode($1); temp->isTerminal = true; global_symtab->decrease_level(); $$ = temp;}
 
@@ -1146,8 +1151,8 @@ ASSERT_KEYWORD
 IF_KEYWORD
         :       if_keyword_terminal                                                     {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
-PACKAGE_KEYWORD
-        :       package_keyword_terminal                                                {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
+// PACKAGE_KEYWORD
+//         :       package_keyword_terminal                                                {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 SYNCHRONIZED_KEYWORD
         :       synchronized_keyword_terminal                                           {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}

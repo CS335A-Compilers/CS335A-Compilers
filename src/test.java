@@ -1,7 +1,15 @@
 public class test {
-    public static void main(int temp){
-        int x, z;
-        float y;
-    }
+    float x;
+    // test t;
+    // // test(int x){
 
+    // }
+    public void main(){
+        // x = 1;
+        // if(x){
+
+        // }
+        x = 5 + 6 + 8;
+        // test t4;
+    }
 }
