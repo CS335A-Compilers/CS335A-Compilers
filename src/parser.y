@@ -1502,6 +1502,11 @@ int main(int argc, char **argv){
 
     // Extract the first token
     char * token_in = strtok(argv[1], "=");
+    if (strcmp(token_in, "--input") != 0){
+        printf("Usage: %s [--input=<input_file_name> --output=<output_file_name>][--verbose]\n", argv[0]);
+        printf("--verbose is an optional flag ...\n");
+        return 0;
+    }
     // loop through the string to extract all other tokens
     while( token_in != NULL ) {
        strcpy(input_file, token_in);
@@ -1518,6 +1523,11 @@ int main(int argc, char **argv){
 
     // Extract the first token
     char * token_out = strtok(argv[2], "=");
+    if (strcmp(token_out, "--output") != 0){
+        printf("Usage: %s [--input=<input_file_name> --output=<output_file_name>][--verbose]\n", argv[0]);
+        printf("--verbose is an optional flag ...\n");
+        return 0;
+    }
     // loop through the string to extract all other tokens
     while( token_out != NULL ) {
        strcpy(output_file, token_out);
