@@ -1,11 +1,15 @@
 public class test {
-    int x, y;
-    test t;
-    // test(int x){
+    float x;
+    // test t;
+    // // test(int x){
 
     // }
     public void main(){
         // x = 1;
-        test t4;
+        // if(x){
+
+        // }
+        x = 5 + 6 + 8;
+        // test t4;
     }
 }

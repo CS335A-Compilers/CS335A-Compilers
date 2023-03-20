@@ -48,10 +48,10 @@ class Value : public Node {
         // array is used to store both single variable or 1d array or 2d or 3d arrays;
         // value of -1 means that the variable is an object;
         int primitivetypeIndex;
-        vector<int> int_val;
+        // long and int both stored in num_val itself
+        vector<long long> num_val;
         vector<float> float_val;
         vector<double> double_val;
-        vector<long> long_val;
         vector<bool> boolean_val;
         // for byte and short type, values are stored in int_val itself
         bool is_byte_val;
@@ -142,6 +142,15 @@ class NormalClassDeclaration : public Node {
         ModifierList* modifiers_list;
         // ClassExtends* class_extends;
         NormalClassDeclaration(string lex, ModifierList* list, string identifier ); 
+};
+
+class Expression : public Node {
+    public:
+        Value* value;
+        // isPrimary is true if the expression is simple variable, object or literal
+        bool isPrimary;
+        bool isLiteral;
+        Expression(string lex, Value* val, bool primary, bool literal);
 };
 
 // Helper funtion related to ast.h
