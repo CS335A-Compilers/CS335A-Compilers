@@ -53,9 +53,12 @@ class Value : public Node {
         vector<float> float_val;
         vector<double> double_val;
         vector<bool> boolean_val;
+        vector<string> string_val;
         // for byte and short type, values are stored in int_val itself
         bool is_byte_val;
         bool is_short_val;
+        //for char to check whether it is char or not
+        bool is_char_val;
         // to access (say 2d array x[a][b]) we access by int_val[a*dim1_count + b*dim2_count];
         long long int dim1_count;
         long long int dim2_count;
