@@ -150,6 +150,8 @@ class Expression : public Node {
         // isPrimary is true if the expression is simple variable, object or literal
         bool isPrimary;
         bool isLiteral;
+        // temp registor where expression is stored;
+        int registor_index;
         Expression(string lex, Value* val, bool primary, bool literal);
 };
 

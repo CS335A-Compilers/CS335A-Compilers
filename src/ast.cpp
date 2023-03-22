@@ -139,6 +139,8 @@ Expression::Expression(string lex, Value* val, bool primary, bool literal)
     value = val;
     isPrimary = primary;
     isLiteral = literal;
+    registor_index = -1;
+    
 }
 
 /* ####################   Helper funtion related to ast  #################### */
