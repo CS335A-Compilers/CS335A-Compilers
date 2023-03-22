@@ -1,8 +1,12 @@
-#include "../bits/stdc++.h"
+#include "bits/stdc++.h"
 #include "inc/3ac.h"
 
 using namespace std;
+
 extern void yyerror(char const*);
+extern vector<bool> temporary_registors_in_use;
+extern vector<ThreeAC*> threeAC_list;
+extern map<string, int> method_address;
 
 ThreeAC::ThreeAC(string operand, int t, int t1, int t2, int form){
     op = operand;
@@ -13,8 +17,12 @@ ThreeAC::ThreeAC(string operand, int t, int t1, int t2, int form){
 }
 
 void print3AC(ThreeAC* inst){
-    if(inst->form == 0)
-        cout<<"t"<<inst->t<<" "<<inst->op<<" "<<"t"<<inst->t1<<" "<<"t"<<inst->t2<<endl;
+    if(inst->form == 0){
+        if(inst->t1 == -1)
+            cout<<"t"<<inst->t<<" "<<inst->op<<" "<<"t"<<inst->t2<<endl;
+        else 
+            cout<<"t"<<inst->t<<" "<<inst->op<<" "<<"t"<<inst->t1<<" "<<"t"<<inst->t2<<endl;
+    }
     else if(inst->form == 1)
         cout<<"goto "<<inst->t1<<endl;
     else if(inst->form == 2)

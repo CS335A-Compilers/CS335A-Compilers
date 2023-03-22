@@ -170,7 +170,6 @@ OCTAL_EXCAPE                \\{OCTAL_DIGIT}|\\{OCTAL_DIGIT}{OCTAL_DIGIT}|\\[0-3]
 "{"                     {char* temp = strdup(yytext); yylval.lex_val = temp; return('{');}
 "}"                     {char* temp = strdup(yytext); yylval.lex_val = temp; return('}');}
 "@"                     {char* temp = strdup(yytext); yylval.lex_val = temp; return('@');}
-"::"                    {char* temp = strdup(yytext); yylval.lex_val = temp; return(DOUBLE_COLON_TERMINAL);}
 
 "/*"                              {BEGIN(comment_state);}
 <comment_state>[^*\n]+            {}
@@ -182,14 +181,14 @@ OCTAL_EXCAPE                \\{OCTAL_DIGIT}|\\{OCTAL_DIGIT}{OCTAL_DIGIT}|\\[0-3]
 
 \'                          {BEGIN(chars);}
 <chars>{LINE_TERMINATOR}    {showError("", MULTI_LINE_ERROR); return(0);}
-<chars>[^'\\]'              {char* temp = strdup(yytext); temp[1]=temp[0]; temp[0]='\''; temp[2]='\''; BEGIN(INITIAL); (yylval.node)->lexeme = strdup(temp); return LITERALS_TERMINAL;}
-<chars>{ESCAPE_SEQUENCE}'   {char* temp = strdup(yytext); temp[0]='\''; temp[1]=*convertExcapeChar(temp[1]); temp[2]='\'';  BEGIN(INITIAL); (yylval.node)->lexeme = strdup(temp); return LITERALS_TERMINAL;}
+<chars>[^'\\]'              {char* temp = strdup(yytext); temp[1]=temp[0]; temp[0]='\''; temp[2]='\''; BEGIN(INITIAL); (yylval.node)->lexeme = strdup(temp); return CHAR_LITERALS;}
+<chars>{ESCAPE_SEQUENCE}'   {char* temp = strdup(yytext); temp[0]='\''; temp[1]=*convertExcapeChar(temp[1]); temp[2]='\'';  BEGIN(INITIAL); (yylval.node)->lexeme = strdup(temp); return CHAR_LITERALS;}
 
 \"                                {BEGIN(str_state); char* temp = strdup(yytext); initBuffer(temp);}
 <str_state>{LINE_TERMINATOR}      {showError("", MULTI_LINE_ERROR); return(0);}
 <str_state>[^"\\]                 {char* temp = strdup(yytext); pushBuffer(temp);}
 <str_state>{ESCAPE_SEQUENCE}      {char* temp = strdup(yytext); pushBuffer(convertExcapeChar(temp[1]));}
-<str_state>\"                     {BEGIN(INITIAL); char* temp = strdup(yytext); endBuffer(temp); char* lex = strcpy(new char[string_buffer.length() + 1], string_buffer.c_str()); yylval.lex_val = lex; return LITERALS_TERMINAL;}
+<str_state>\"                     {BEGIN(INITIAL); char* temp = strdup(yytext); endBuffer(temp); char* lex = strcpy(new char[string_buffer.length() + 1], string_buffer.c_str()); yylval.lex_val = lex; return STRING_LITERALS;}
 
 ["]["]["]                                   {BEGIN(text_block_start); char* temp = strdup(yytext); initBuffer(temp);}
 <text_block_start>["]["]["]{BLANK_SPACE}*   {}
@@ -198,9 +197,10 @@ OCTAL_EXCAPE                \\{OCTAL_DIGIT}|\\{OCTAL_DIGIT}{OCTAL_DIGIT}|\\[0-3]
 <text_block_chars>[^\\]                     {char* temp = strdup(yytext); pushBuffer(temp);}
 <text_block_chars>[\\]?{LINE_TERMINATOR}    {char* temp = strdup(yytext); temp[0] = temp[1]; temp[1]='\0'; pushBuffer(temp);}
 <text_block_chars>[\\][^\n\r]               {string temp = strdup(yytext); showError(temp, BADEXCAPESEQ); return(0);}
-<text_block_chars>["]["]["]                 {BEGIN(INITIAL); char* temp = strdup(yytext); endBuffer(temp); char* lex = strcpy(new char[string_buffer.length() + 1], string_buffer.c_str()); yylval.lex_val = lex; return LITERALS_TERMINAL;}
+<text_block_chars>["]["]["]                 {BEGIN(INITIAL); char* temp = strdup(yytext); endBuffer(temp); char* lex = strcpy(new char[string_buffer.length() + 1], string_buffer.c_str()); yylval.lex_val = lex; return STRING_LITERALS;}
 
-{NUM_LITERALS}              {char* temp = strdup(yytext); yylval.lex_val = temp; return LITERALS_TERMINAL;}
+{INT_LITERAL}               {char* temp = strdup(yytext); yylval.lex_val = temp; return NUM_LITERALS;}
+{FLOAT_LITERAL}             {char* temp = strdup(yytext); yylval.lex_val = temp; return DOUBLE_LITERALS;}
 {IDENTIFIER}                {char* temp = strdup(yytext); yylval.lex_val = temp; return IDENTIFIERS_TERMINAL;}
 
 {BLANK_SPACE}+              {}
@@ -240,6 +240,7 @@ OCTAL_EXCAPE                \\{OCTAL_DIGIT}|\\{OCTAL_DIGIT}{OCTAL_DIGIT}|\\[0-3]
 "yield"                 {char* temp = strdup(yytext); yylval.lex_val = temp; return(yield_keyword_terminal);}
 "import"                {char* temp = strdup(yytext); yylval.lex_val = temp; return(import_keyword_terminal);}
 "catch"                 {char* temp = strdup(yytext); yylval.lex_val = temp; return(catch_keyword_terminal);}
+"::"                    {char* temp = strdup(yytext); yylval.lex_val = temp; return(DOUBLE_COLON_TERMINAL);}
 "finally"               {char* temp = strdup(yytext); yylval.lex_val = temp; return(finally_keyword_terminal);}
 "try"                   {char* temp = strdup(yytext); yylval.lex_val = temp; return(try_keyword_terminal);}
 "<>"                    {char* temp = strdup(yytext); yylval.lex_val = temp; return(DIAMOND_TERMINAL);}

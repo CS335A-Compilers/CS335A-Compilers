@@ -65,6 +65,7 @@ class Value : public Node {
         long long int dim3_count;
         // support for object values, maps from field members pointers to their current value;
         map<LocalVariableDeclaration*, Value*> field_members;
+        Value();
 };
 
 class Dims : public Node {
@@ -143,6 +144,7 @@ class MethodDeclaration : public Node {
 class NormalClassDeclaration : public Node {
     public:
         ModifierList* modifiers_list;
+        vector<LocalVariableDeclaration*> field_variables;
         // ClassExtends* class_extends;
         NormalClassDeclaration(string lex, ModifierList* list, string identifier ); 
 };
@@ -166,7 +168,7 @@ class ExpressionList : public Node{
 
 // Helper funtion related to ast.h
 void addVariablesToSymtab(Type* t, VariableDeclaratorList* declarator_list, pair<int,int> curr_level, ModifierList* modif_lists, bool is_field_variable);
-Value* createObject(string class_name, ExpressionList exp_list, pair<int,int> curr_level);
+Value* createObject(string class_name, ExpressionList* exp_list, pair<int,int> curr_level);
 Node* convertToAST(Node* root);
 void  writeEdges(Node* root, FILE* file);
 void  createDOT(Node* root, char* output_file);

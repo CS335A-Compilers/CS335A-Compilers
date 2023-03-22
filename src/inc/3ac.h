@@ -1,11 +1,10 @@
 #include <iostream>
 #include <bits/stdc++.h>
 
-#include "ast.h"
+#include "expression.h"
 
 #define MAX_REGISTORS 8
 
-vector<bool> temporary_registors_in_use(MAX_REGISTORS, false);
 
 class ThreeAC {
     public:
@@ -25,9 +24,7 @@ class ThreeAC {
         ThreeAC(string operand, int t, int t1, int t2, int form);
 };
 
-vector<ThreeAC*> threeAC_list;
-map<string, int> method_address;
-
 void print3AC(ThreeAC* inst);
 int findEmptyRegistor();
 void addInstruction(Expression* e, Expression* e1, Expression* e2, string op, int form);
+void generate3AC();
