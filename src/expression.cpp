@@ -125,11 +125,15 @@ Expression* evalBITWISE(string lex,Expression* e1,string op,Expression* e2){
 Expression* evalEQ(string lex,Expression* e1,string op,Expression* e2){
     if(e1==NULL||e2==NULL)
         return NULL;
-    if(!((e1->value->num_val.size()!=0 && e2->value->num_val.size()!=0)||(e1->value->boolean_val.size()!=0 && e2->value->boolean_val.size()!=0)||(e1->value->float_val.size()!=0 && e2->value->float_val.size()!=0)||(e1->value->double_val.size()!=0 && e2->value->double_val.size()!=0)||(e1->value->string_val.size()!=0 && e2->value->string_val.size()!=0)))
-        {
-            yyerror("Incomparable types: cannot be compared");
-            return NULL;
-        } //throw error
+    // if(!((e1->value->num_val.size()!=0 && e2->value->num_val.size()!=0)||(e1->value->boolean_val.size()!=0 && e2->value->boolean_val.size()!=0)||(e1->value->float_val.size()!=0 && e2->value->float_val.size()!=0)||(e1->value->double_val.size()!=0 && e2->value->double_val.size()!=0)||(e1->value->string_val.size()!=0 && e2->value->string_val.size()!=0)))
+    //     {
+    //         yyerror("Incomparable types: cannot be compared");
+    //         return NULL;
+    //     } //throw error
+    if(e1->value->primitivetypeIndex == 7 || e1->value->primitivetypeIndex == 8 || e2->value->primitivetypeIndex == 7 || e2->value->primitivetypeIndex == 8 ){
+        // throw error
+
+    }
     bool val;
     Value* va;
     if(op=="==")
@@ -190,6 +194,7 @@ Expression* evalEQ(string lex,Expression* e1,string op,Expression* e2){
     }
     va->boolean_val.push_back(val);
     Expression* obj=new Expression(lex,va,false,false);
+
     return obj;
 }
 
@@ -234,15 +239,16 @@ Expression* evalSHIFT(string lex,Expression* e1,string op,Expression* e2){
     else if(op==">>>")
         val=(unsigned int)e1->value->num_val[0] >> (unsigned int)e2->value->num_val[0];
     Value* va= new Value();
+    va->primitivetypeIndex = BOOLEAN;
     va->boolean_val.push_back(val);
     Expression* obj=new Expression(lex,va,false,false);
     return obj;   
 }
-Expression* evalARITHMETIC(string lex,Expression* e1,string op,Expression* e2){
+Expression* evalARITHMETIC(string lex,string op,Expression* e1,Expression* e2){
 
     if(e1==NULL||e2==NULL)
         return NULL;
-    if(e1->value->num_val.size()==0||e2->value->num_val.size()==0||e1->value->float_val.size()==0||e1->value->float_val.size()==0||e1->value->double_val.size()==0||e1->value->double_val.size()==0)
+    if(e1->value->num_val.size()==0||e2->value->num_val.size()==0||e1->value->float_val.size()==0||e2->value->float_val.size()==0||e1->value->double_val.size()==0||e2->value->double_val.size()==0)
         {
             yyerror("Error: bad operand types for binary operator");
             return NULL;

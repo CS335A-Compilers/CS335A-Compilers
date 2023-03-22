@@ -2,7 +2,8 @@
     #include <stdio.h>
     #include <string.h>
     #include "inc/helper.h"
-    #include "inc/symtab.h"
+//     #include "inc/symtab.h"
+    #include "inc/expression.h"
     #define YYDEBUG 1
 
     int yylex(void);
@@ -32,7 +33,7 @@
 }
 // type == nonterminal, token = terminal
 
-%token<lex_val> goto_keyword_terminal const_keyword_terminal __keyword_terminal abstract_keyword_terminal continue_keyword_terminal for_keyword_terminal new_keyword_terminal  assert_keyword_terminal default_keyword_terminal if_keyword_terminal synchronized_keyword_terminal boolean_keyword_terminal do_keyword_terminal private_keyword_terminal this_keyword_terminal break_keyword_terminal double_keyword_terminal implements_keyword_terminal protected_keyword_terminal throw_keyword_terminal byte_keyword_terminal else_keyword_terminal public_keyword_terminal instanceof_keyword_terminal return_keyword_terminal transient_keyword_terminal extends_keyword_terminal int_keyword_terminal short_keyword_terminal char_keyword_terminal final_keyword_terminal static_keyword_terminal void_keyword_terminal class_keyword_terminal long_keyword_terminal strictfp_keyword_terminal volatile_keyword_terminal float_keyword_terminal native_keyword_terminal super_keyword_terminal while_keyword_terminal record_keyword_terminal
+%token<lex_val> goto_keyword_terminal const_keyword_terminal __keyword_terminal abstract_keyword_terminal continue_keyword_terminal for_keyword_terminal new_keyword_terminal  assert_keyword_terminal default_keyword_terminal if_keyword_terminal synchronized_keyword_terminal boolean_keyword_terminal do_keyword_terminal private_keyword_terminal this_keyword_terminal break_keyword_terminal double_keyword_terminal implements_keyword_terminal protected_keyword_terminal throw_keyword_terminal byte_keyword_terminal else_keyword_terminal public_keyword_terminal return_keyword_terminal transient_keyword_terminal extends_keyword_terminal int_keyword_terminal short_keyword_terminal char_keyword_terminal final_keyword_terminal static_keyword_terminal void_keyword_terminal class_keyword_terminal long_keyword_terminal strictfp_keyword_terminal volatile_keyword_terminal float_keyword_terminal native_keyword_terminal super_keyword_terminal while_keyword_terminal record_keyword_terminal
 %token<lex_val> '=' '>' '<' '!' '~' '?' ':' '+' '-' '*' '/' '&' '|' '^' '%' ',' '.' ';' '(' ')' '[' ']' '{' '}' '@'
 %token<lex_val> EQ_OP_TERMINAL GE_OP_TERMINAL LE_OP_TERMINAL NE_OP_TERMINAL AND_OP_TERMINAL OR_OP_TERMINAL INC_OP_TERMINAL DEC_OP_TERMINAL LEFT_OP_TERMINAL RIGHT_OP_TERMINAL BIT_RIGHT_SHFT_OP_TERMINAL ADD_ASSIGN_TERMINAL SUB_ASSIGN_TERMINAL MUL_ASSIGN_TERMINAL DIV_ASSIGN_TERMINAL AND_ASSIGN_TERMINAL OR_ASSIGN_TERMINAL XOR_ASSIGN_TERMINAL MOD_ASSIGN_TERMINAL LEFT_ASSIGN_TERMINAL RIGHT_ASSIGN_TERMINAL BIT_RIGHT_SHFT_ASSIGN_TERMINAL DOUBLE_COLON_TERMINAL
 %token<lex_val> IDENTIFIERS_TERMINAL LITERALS_TERMINAL
@@ -43,13 +44,13 @@
 %left RIGHT_OP_TERMINAL LEFT_OP_TERMINAL
 %left INC_OP_TERMINAL DEC_OP_TERMINAL
 
-%type<node> ABSTRACT_KEYWORD CONTINUE_KEYWORD FOR_KEYWORD NEW_KEYWORD ASSERT_KEYWORD IF_KEYWORD SYNCHRONIZED_KEYWORD BOOLEAN_KEYWORD DO_KEYWORD PRIVATE_KEYWORD THIS_KEYWORD BREAK_KEYWORD DOUBLE_KEYWORD PROTECTED_KEYWORD EXTENDS_KEYWORD THROW_KEYWORD BYTE_KEYWORD ELSE_KEYWORD PUBLIC_KEYWORD INSTANCEOF_KEYWORD RETURN_KEYWORD TRANSIENT_KEYWORD INT_KEYWORD SHORT_KEYWORD CHAR_KEYWORD FINAL_KEYWORD STATIC_KEYWORD VOID_KEYWORD CLASS_KEYWORD LONG_KEYWORD STRICTFP_KEYWORD VOLATILE_KEYWORD FLOAT_KEYWORD NATIVE_KEYWORD SUPER_KEYWORD WHILE_KEYWORD
+%type<node> ABSTRACT_KEYWORD CONTINUE_KEYWORD FOR_KEYWORD NEW_KEYWORD ASSERT_KEYWORD IF_KEYWORD SYNCHRONIZED_KEYWORD BOOLEAN_KEYWORD DO_KEYWORD PRIVATE_KEYWORD THIS_KEYWORD BREAK_KEYWORD DOUBLE_KEYWORD PROTECTED_KEYWORD EXTENDS_KEYWORD THROW_KEYWORD BYTE_KEYWORD ELSE_KEYWORD PUBLIC_KEYWORD RETURN_KEYWORD TRANSIENT_KEYWORD INT_KEYWORD SHORT_KEYWORD CHAR_KEYWORD FINAL_KEYWORD STATIC_KEYWORD VOID_KEYWORD CLASS_KEYWORD LONG_KEYWORD STRICTFP_KEYWORD VOLATILE_KEYWORD FLOAT_KEYWORD NATIVE_KEYWORD SUPER_KEYWORD WHILE_KEYWORD
 %type<node> ASSIGNMENT_OP GT_OP LT_OP EX_OP TL_OP QN_OP COLON_OP PLUS_OP MINUS_OP STAR_OP DIV_OP ND_OP BAR_OP RAISE_OP PCNT_OP COMMA_OP DOT_OP SEMICOLON_OP OP_BRCKT CLOSE_BRCKT OP_SQR_BRCKT CLOSE_SQR_BRCKT OP_CURLY_BRCKT CLOSE_CURLY_BRCKT
 %type<node> EQ_OP GE_OP  LE_OP  NE_OP  AND_OP  OR_OP  INC_OP  DEC_OP  LEFT_OP  RIGHT_OP  BIT_RIGHT_SHFT_OP ADD_ASSIGN  SUB_ASSIGN  MUL_ASSIGN  DIV_ASSIGN  AND_ASSIGN  OR_ASSIGN  XOR_ASSIGN  MOD_ASSIGN  LEFT_ASSIGN  RIGHT_ASSIGN  BIT_RIGHT_SHFT_ASSIGN   DOUBLE_COLON
 %type<node> IDENTIFIERS LITERALS
 
-%type<node> normal_class_declaration_statement argument_list argument_list_zero_or_one array_access array_initializer array_type assert_statement assignment assignment_operators basic_for_statement basic_for_statement_no_short_if block block_statement block_statements block_statements_zero_or_more block_statements_zero_or_one break_statement class_body class_body_declaration class_body_declaration_zero_or_more class_body_zero_or_one class_declaration class_extends class_extends_zero_or_one class_type  commas_zero_or_more compilation_unit constructor_body continue_statement dim_expr dim_exprs do_statememt empty_statement enhanced_for_statement enhanced_for_statement_no_short_if explicit_constructor_invocation field_access field_declaration for_init for_init_zero_or_one for_statement for_statement_no_short_if for_update for_update_zero_or_one identifier_zero_or_one if_then_else_statement if_then_else_statement_no_short_if if_then_statement labeled_statement labeled_statement_no_short_if local_class_or_interface_declaration local_variable_declaration local_variable_declaration_statement method_invocation method_reference normal_class_declaration ordinary_compilation_unit pattern reference_type return_statement start_state statement  statement_no_short_if statement_without_trailing_substatement static_initializer synchronized_statement throw_statement top_level_class_or_interface_declaration top_level_class_or_interface_declaration_zero_or_more   type_pattern   variable_initializer variable_initializer_list variable_initializer_list_zero_or_more while_statement while_statement_no_short_if
-%type<expression> unqualified_class_instance_creation_expression class_instance_creation_expression additive_expression and_expression array_creation_expression assignment_expression comma_expression_zero_or_more unary_expression unary_expression_not_plus_minus statement_expression statement_expression_list comma_statement_expression_zero_or_more conditional_and_expression conditional_or_expression condtional_expression equality_expression exclusive_or_expression expression expression_statement expression_zero_or_one inclusive_or_expression instance_of_expression multiplicative_expression post_decrement_expression post_increment_expression postfix_expression pre_decrement_expression pre_increment_expression primary primary_no_new_array relational_expression shift_expression 
+%type<node> normal_class_declaration_statement argument_list argument_list_zero_or_one array_access array_initializer assert_statement assignment assignment_operators basic_for_statement basic_for_statement_no_short_if block block_statement block_statements block_statements_zero_or_more block_statements_zero_or_one break_statement class_body class_body_declaration class_body_declaration_zero_or_more class_body_zero_or_one class_declaration class_extends class_extends_zero_or_one class_type  commas_zero_or_more compilation_unit constructor_body continue_statement dim_expr dim_exprs do_statememt empty_statement enhanced_for_statement enhanced_for_statement_no_short_if explicit_constructor_invocation field_access field_declaration for_init for_init_zero_or_one for_statement for_statement_no_short_if for_update for_update_zero_or_one identifier_zero_or_one if_then_else_statement if_then_else_statement_no_short_if if_then_statement labeled_statement labeled_statement_no_short_if local_class_or_interface_declaration local_variable_declaration local_variable_declaration_statement method_invocation method_reference normal_class_declaration ordinary_compilation_unit return_statement start_state statement  statement_no_short_if statement_without_trailing_substatement static_initializer synchronized_statement throw_statement top_level_class_or_interface_declaration top_level_class_or_interface_declaration_zero_or_more variable_initializer variable_initializer_list variable_initializer_list_zero_or_more while_statement while_statement_no_short_if
+%type<expression> unqualified_class_instance_creation_expression class_instance_creation_expression additive_expression and_expression array_creation_expression assignment_expression comma_expression_zero_or_more unary_expression unary_expression_not_plus_minus statement_expression statement_expression_list comma_statement_expression_zero_or_more conditional_and_expression conditional_or_expression condtional_expression equality_expression exclusive_or_expression expression expression_statement expression_zero_or_one inclusive_or_expression multiplicative_expression post_decrement_expression post_increment_expression postfix_expression pre_decrement_expression pre_increment_expression primary primary_no_new_array relational_expression shift_expression 
 %type<formal_parameter> formal_parameter 
 %type<formal_parameter_list> formal_parameter_list formal_parameter_list_zero_or_one
 %type<modifier_list> modifiers_zero_or_more
@@ -192,50 +193,50 @@ method_invocation
         //     |   type_name DOT_OP SUPER_KEYWORD DOT_OP type_arguments IDENTIFIERS OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT           {Node* node = createNode("method invocation"); node->addChildren({$1,$2,$3,$4,$5,$6,$7,$8,$9}); $$ = node;}           
 
 expression
-            :   assignment_expression                                                                                                           {Expression* node =grammar_1("expression", $1, $1->isPrimary, $1->isLiteral);if(NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
-        //     |   lambda_expression                                                                                                               {Expression* node = grammar_1("expression", $1, $1->isPrimary, $1->isLiteral);if(NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
+            :   assignment_expression                                                                                                           {Expression* node =grammar_1("expression", $1, $1->isPrimary, $1->isLiteral);if(node == NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
+        //     |   lambda_expression                                                                                                               {Expression* node = grammar_1("expression", $1, $1->isPrimary, $1->isLiteral);if(node == NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
 
 assignment_expression
-            :   condtional_expression                                                                                                           {Expression* node = grammar_1("assignment expression",$1, $1->isPrimary, $1->isLiteral);if(NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
-            |   assignment                                                                                                                      {Expression* node = grammar_1("assignment expression",$1, $1->isPrimary, $1->isLiteral);if(NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
+            :   condtional_expression                                                                                                           {Expression* node = grammar_1("assignment expression",$1, $1->isPrimary, $1->isLiteral);if(node == NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
+            |   assignment                                                                                                                      {Expression* node = grammar_1("assignment expression",$1, $1->isPrimary, $1->isLiteral);if(node == NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
 
 condtional_expression
-            :   conditional_or_expression                                                                                                       {Expression* node = grammar_1("condtional expression",$1, $1->isPrimary, $1->isLiteral);if(NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
-            |   conditional_or_expression QN_OP expression COLON_OP condtional_expression                                                       {Expression* node = cond_qn_co("condtional expression",$1,$3,$5); node->addChildren({$1,$2,$3,$4,$5});if(NULL) YYERROR; $$ = node;}           
+            :   conditional_or_expression                                                                                                       {Expression* node = grammar_1("condtional expression",$1, $1->isPrimary, $1->isLiteral);if(node == NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
+            |   conditional_or_expression QN_OP expression COLON_OP condtional_expression                                                       {Expression* node = cond_qn_co("condtional expression",$1,$3,$5); node->addChildren({$1,$2,$3,$4,$5});if(node == NULL) YYERROR; $$ = node;}           
         //     |   conditional_or_expression QN_OP expression COLON_OP lambda_expression                                                           {Node* node = createNode("condtional expression"); node->addChildren({$1,$2,$3,$4,$5}); $$ = node;}           
 
 conditional_or_expression
-            :   conditional_and_expression                                                                                                      {Expression* node = grammar_1("condtional or expression",$1,$1->isPrimary, $1->isLiteral);if(NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
-            |   conditional_or_expression OR_OP conditional_and_expression                                                                      {Expression* node = evalOR_AND("condtional or expression",$1,$3);if(NULL) YYERROR; node->addChildren({$1,$2,$3}); $$ = node;}           
+            :   conditional_and_expression                                                                                                      {Expression* node = grammar_1("condtional or expression",$1,$1->isPrimary, $1->isLiteral);if(node == NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
+            |   conditional_or_expression OR_OP conditional_and_expression                                                                      {Expression* node = evalOR_AND("condtional or expression",$1,$3);if(node == NULL) YYERROR; node->addChildren({$1,$2,$3}); $$ = node;}           
 
 conditional_and_expression
-            :   inclusive_or_expression                                                                                                         {Expression* node = grammar_1("condtional and expression",$1,$1->isPrimary, $1->isLiteral);if(NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
-            |   conditional_and_expression AND_OP inclusive_or_expression                                                                       {Expression* node = evalOR_AND("condtional and expression",$1,$3);if(NULL) YYERROR; node->addChildren({$1,$2,$3}); $$ = node;}           
+            :   inclusive_or_expression                                                                                                         {Expression* node = grammar_1("condtional and expression",$1,$1->isPrimary, $1->isLiteral);if(node == NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
+            |   conditional_and_expression AND_OP inclusive_or_expression                                                                       {Expression* node = evalOR_AND("condtional and expression",$1,$3);if(node == NULL) YYERROR; node->addChildren({$1,$2,$3}); $$ = node;}           
 
 inclusive_or_expression
-            :   exclusive_or_expression                                                                                                         {Expression* node = grammar_1("inclusive or expression",$1,$1->isPrimary, $1->isLiteral);if(NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
-            |   inclusive_or_expression BAR_OP exclusive_or_expression                                                                          {Expression* node = evalBITWISE("inclusive or expression",$1,$3);if(NULL) YYERROR; node->addChildren({$1,$2,$3}); $$ = node;}           
+            :   exclusive_or_expression                                                                                                         {Expression* node = grammar_1("inclusive or expression",$1,$1->isPrimary, $1->isLiteral);if(node == NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
+            |   inclusive_or_expression BAR_OP exclusive_or_expression                                                                          {Expression* node = evalBITWISE("inclusive or expression",$1,$3);if(node == NULL) YYERROR; node->addChildren({$1,$2,$3}); $$ = node;}           
 
 exclusive_or_expression
-            :   and_expression                                                                                                                  {Expression* node = grammar_1("exclusive or expression",$1,$1->isPrimary, $1->isLiteral);if(NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
-            |   exclusive_or_expression RAISE_OP and_expression                                                                                 {Expression* node = evalBITWISE("exclusive or expression",$1,$3);if(NULL) YYERROR; node->addChildren({$1,$2,$3}); $$ = node;}           
+            :   and_expression                                                                                                                  {Expression* node = grammar_1("exclusive or expression",$1,$1->isPrimary, $1->isLiteral);if(node == NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
+            |   exclusive_or_expression RAISE_OP and_expression                                                                                 {Expression* node = evalBITWISE("exclusive or expression",$1,$3);if(node == NULL) YYERROR; node->addChildren({$1,$2,$3}); $$ = node;}           
 
 and_expression
-            :   equality_expression                                                                                                             {Expression* node = grammar_1("and expression",$1,$1->isPrimary, $1->isLiteral);if(NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
-            |   and_expression ND_OP equality_expression                                                                                        {Expression* node = evalBITWISE("and expression",$1,$3);if(NULL) YYERROR; node->addChildren({$1,$2,$3}); $$ = node;}           
+            :   equality_expression                                                                                                             {Expression* node = grammar_1("and expression",$1,$1->isPrimary, $1->isLiteral);if(node == NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
+            |   and_expression ND_OP equality_expression                                                                                        {Expression* node = evalBITWISE("and expression",$1,$3);if(node == NULL) YYERROR; node->addChildren({$1,$2,$3}); $$ = node;}           
 
 equality_expression
-            :   relational_expression                                                                                                           {Expression* node = grammar_1("equality expression",$1,$1->isPrimary, $1->isLiteral);if(NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
-            |   equality_expression EQ_OP relational_expression                                                                                 {Expression* node = evalEN("equality expression",$1,"==",$3);if(NULL) YYERROR; node->addChildren({$1,$2,$3}); $$ = node;}           
-            |   equality_expression NE_OP relational_expression                                                                                 {Expression* node = evalEN("equality expression",$1,"!=",$3);if(NULL) YYERROR; node->addChildren({$1,$2,$3}); $$ = node;}           
+            :   relational_expression                                                                                                           {Expression* node = grammar_1("equality expression",$1,$1->isPrimary, $1->isLiteral);if(node == NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
+            |   equality_expression EQ_OP relational_expression                                                                                 {Expression* node = evalEN("equality expression",$1,"==",$3);if(node == NULL) YYERROR; node->addChildren({$1,$2,$3}); $$ = node;}           
+            |   equality_expression NE_OP relational_expression                                                                                 {Expression* node = evalEN("equality expression",$1,"!=",$3);if(node == NULL) YYERROR; node->addChildren({$1,$2,$3}); $$ = node;}           
 
 relational_expression
-            :   shift_expression                                                                                                                {Expression* node = grammar_1("relational expression",$1,$1->isPrimary, $1->isLiteral);if(NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
-            |   relational_expression LT_OP shift_expression                                                                                    {Expression* node = evalRELATIONAL("relational expression",$1,$3);if(NULL) YYERROR; node->addChildren({$1,$2,$3}); $$ = node;}           
-            |   relational_expression GT_OP shift_expression                                                                                    {Expression* node = evalRELATIONAL("relational expression",$1,$3);if(NULL) YYERROR; node->addChildren({$1,$2,$3}); $$ = node;}           
-            |   relational_expression LE_OP shift_expression                                                                                    {Expression* node = evalRELATIONAL("relational expression",$1,$3);if(NULL) YYERROR; node->addChildren({$1,$2,$3}); $$ = node;}           
-            |   relational_expression GE_OP shift_expression                                                                                    {Expression* node = evalRELATIONAL("relational expression",$1,$3);if(NULL) YYERROR; node->addChildren({$1,$2,$3}); $$ = node;}           
-           // |   instance_of_expression                                                                                                          {Expression* node = grammar_1("relational expression",$1,$1->isPrimary, $1->isLiteral);if(NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
+            :   shift_expression                                                                                                                {Expression* node = grammar_1("relational expression",$1,$1->isPrimary, $1->isLiteral);if(node == NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
+            |   relational_expression LT_OP shift_expression                                                                                    {Expression* node = evalRELATIONAL("relational expression",$1,$3);if(node == NULL) YYERROR; node->addChildren({$1,$2,$3}); $$ = node;}           
+            |   relational_expression GT_OP shift_expression                                                                                    {Expression* node = evalRELATIONAL("relational expression",$1,$3);if(node == NULL) YYERROR; node->addChildren({$1,$2,$3}); $$ = node;}           
+            |   relational_expression LE_OP shift_expression                                                                                    {Expression* node = evalRELATIONAL("relational expression",$1,$3);if(node == NULL) YYERROR; node->addChildren({$1,$2,$3}); $$ = node;}           
+            |   relational_expression GE_OP shift_expression                                                                                    {Expression* node = evalRELATIONAL("relational expression",$1,$3);if(node == NULL) YYERROR; node->addChildren({$1,$2,$3}); $$ = node;}           
+           // |   instance_of_expression                                                                                                          {Expression* node = grammar_1("relational expression",$1,$1->isPrimary, $1->isLiteral);if(node == NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
 
 // unann_array_type
         // :  primitive_type dims                                                                                                                  {Node* node = createNode("unann array type"); node->addChildren({$1,$2}); $$ = node;}           
@@ -243,58 +244,58 @@ relational_expression
         // |  IDENTIFIERS dims                                                                                                                     {Node* node = createNode("unann array type"); node->addChildren({$1,$2}); $$ = node;}           
 
 //instance_of_expression
-           // :   relational_expression INSTANCEOF_KEYWORD reference_type                                                                         {Expression* node = evalINSTANCE("instance of expression",$1,$3);if(NULL) YYERROR; node->addChildren({$1,$2,$3}); $$ = node;}           
-           // |   relational_expression INSTANCEOF_KEYWORD pattern                                                                                {Expression* node = evalINSTANCE("instance of expression",$1,$3);if(NULL) YYERROR; node->addChildren({$1,$2,$3}); $$ = node;}           
-           // |   relational_expression INSTANCEOF_KEYWORD primitive_type dims                                                                    {Expression* node = evalINSTANCE("instance of expression",$1,$3);if(NULL) YYERROR; node->addChildren({$1,$2,$3,$4}); $$ = node;}           
+           // :   relational_expression INSTANCEOF_KEYWORD reference_type                                                                         {Expression* node = evalINSTANCE("instance of expression",$1,$3);if(node == NULL) YYERROR; node->addChildren({$1,$2,$3}); $$ = node;}           
+           // |   relational_expression INSTANCEOF_KEYWORD pattern                                                                                {Expression* node = evalINSTANCE("instance of expression",$1,$3);if(node == NULL) YYERROR; node->addChildren({$1,$2,$3}); $$ = node;}           
+           // |   relational_expression INSTANCEOF_KEYWORD primitive_type dims                                                                    {Expression* node = evalINSTANCE("instance of expression",$1,$3);if(node == NULL) YYERROR; node->addChildren({$1,$2,$3,$4}); $$ = node;}           
 
 shift_expression
-            :   additive_expression                                                                                                             {Expression* node = grammar_1("shift expression",$1,$1->isPrimary,$1->isLiteral);if(NULL) YYERROR; node->addChildren({$1}); $$ = node;}
-            |   shift_expression LEFT_OP additive_expression                                                                                    {Expression* node = evalSHIFT("shift expression","<<",$1,$3);if(NULL) YYERROR;  node->addChildren({$1,$2,$3}); $$ = node;}           
-            |   shift_expression RIGHT_OP additive_expression                                                                                   {Expression* node = evalSHIFT("shift expression",">>",$1,$3);if(NULL) YYERROR; node->addChildren({$1,$2,$3}); $$ = node;}           
-            |   shift_expression BIT_RIGHT_SHFT_OP additive_expression                                                                          {Expression* node = evalSHIFT("shift expression",">>>",$1,$3);if(NULL) YYERROR; node->addChildren({$1,$2,$3}); $$ = node;}           
+            :   additive_expression                                                                                                             {Expression* node = grammar_1("shift expression",$1,$1->isPrimary,$1->isLiteral);if(node == NULL) YYERROR; node->addChildren({$1}); $$ = node;}
+            |   shift_expression LEFT_OP additive_expression                                                                                    {Expression* node = evalSHIFT("shift expression",$1,"<<",$3);if(node == NULL) YYERROR;  node->addChildren({$1,$2,$3}); $$ = node;}           
+            |   shift_expression RIGHT_OP additive_expression                                                                                   {Expression* node = evalSHIFT("shift expression",$1,">>",$3);if(node == NULL) YYERROR; node->addChildren({$1,$2,$3}); $$ = node;}           
+            |   shift_expression BIT_RIGHT_SHFT_OP additive_expression                                                                          {Expression* node = evalSHIFT("shift expression",$1,">>>",$3);if(node == NULL) YYERROR; node->addChildren({$1,$2,$3}); $$ = node;}           
 
 additive_expression
-            :   multiplicative_expression                                                                                                       {Expression* node = grammar_1("additive expression",$1->isPrimary,$1->isLiteral);if(NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
-            |   additive_expression PLUS_OP multiplicative_expression                                                                           {Expression* node = evalARITHMETIC("additive expression","+",$1,$3);if(NULL) YYERROR; node->addChildren({$1,$2,$3}); $$ = node;}           
-            |   additive_expression MINUS_OP multiplicative_expression                                                                          {Expression* node = evalARITHMETIC("additive expression","-",$1,$3);if(NULL) YYERROR; node->addChildren({$1,$2,$3}); $$ = node;}           
+            :   multiplicative_expression                                                                                                       {Expression* node = grammar_1("additive expression",$1->isPrimary,$1->isLiteral);if(node == NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
+            |   additive_expression PLUS_OP multiplicative_expression                                                                           {Expression* node = evalARITHMETIC("additive expression","+",$1,$3);if(node == NULL) YYERROR; node->addChildren({$1,$2,$3}); $$ = node;}           
+            |   additive_expression MINUS_OP multiplicative_expression                                                                          {Expression* node = evalARITHMETIC("additive expression","-",$1,$3);if(node == NULL) YYERROR; node->addChildren({$1,$2,$3}); $$ = node;}           
 
 multiplicative_expression
-            :   unary_expression                                                                                                                {Expression* node = grammar_1("multiplicative expression",$1->isPrimary,$1->isLiteral);if(NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
-            |   multiplicative_expression STAR_OP unary_expression                                                                              {Expression* node = evalARITHMETIC("multiplicative expression","*",$1,$3);if(NULL) YYERROR; node->addChildren({$1,$2,$3}); $$ = node;}           
-            |   multiplicative_expression PCNT_OP unary_expression                                                                              {Expression* node = evalARITHMETIC("multiplicative expression","%",$1,$3);if(NULL) YYERROR; node->addChildren({$1,$2,$3}); $$ = node;}           
-            |   multiplicative_expression DIV_OP unary_expression                                                                               {Expression* node = evalARITHMETIC("multiplicative expression","/",$1,$3);if(NULL) YYERROR; node->addChildren({$1,$2,$3}); $$ = node;}           
+            :   unary_expression                                                                                                                {Expression* node = grammar_1("multiplicative expression",$1->isPrimary,$1->isLiteral);if(node == NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
+            |   multiplicative_expression STAR_OP unary_expression                                                                              {Expression* node = evalARITHMETIC("multiplicative expression","*",$1,$3);if(node == NULL) YYERROR; node->addChildren({$1,$2,$3}); $$ = node;}           
+            |   multiplicative_expression PCNT_OP unary_expression                                                                              {Expression* node = evalARITHMETIC("multiplicative expression","%",$1,$3);if(node == NULL) YYERROR; node->addChildren({$1,$2,$3}); $$ = node;}           
+            |   multiplicative_expression DIV_OP unary_expression                                                                               {Expression* node = evalARITHMETIC("multiplicative expression","/",$1,$3);if(node == NULL) YYERROR; node->addChildren({$1,$2,$3}); $$ = node;}           
 
 unary_expression
-            :   pre_increment_expression                                                                                                        {Expression* node = grammar_1("unary expression",$1->isPrimary,$1->isLiteral);if(NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
-            |   pre_decrement_expression                                                                                                        {Expression* node = grammar_1("unary expression",$1->isPrimary,$1->isLiteral);if(NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
-            |   PLUS_OP unary_expression                                                                                                        {Expression* node = evalUNARY("unary expression","+",$2);if(NULL) YYERROR; node->addChildren({$1,$2}); $$ = node;}           
-            |   MINUS_OP unary_expression                                                                                                       {Expression* node = evalUNARY("unary expression","-",$2);if(NULL) YYERROR; node->addChildren({$1,$2}); $$ = node;}           
-            |   unary_expression_not_plus_minus                                                                                                 {Expression* node = grammar_1("unary expression",$1->isPrimary,$1->isLiteral);if(NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
+            :   pre_increment_expression                                                                                                        {Expression* node = grammar_1("unary expression",$1->isPrimary,$1->isLiteral);if(node == NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
+            |   pre_decrement_expression                                                                                                        {Expression* node = grammar_1("unary expression",$1->isPrimary,$1->isLiteral);if(node == NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
+            |   PLUS_OP unary_expression                                                                                                        {Expression* node = evalUNARY("unary expression","+",$2);if(node == NULL) YYERROR; node->addChildren({$1,$2}); $$ = node;}           
+            |   MINUS_OP unary_expression                                                                                                       {Expression* node = evalUNARY("unary expression","-",$2);if(node == NULL) YYERROR; node->addChildren({$1,$2}); $$ = node;}           
+            |   unary_expression_not_plus_minus                                                                                                 {Expression* node = grammar_1("unary expression",$1->isPrimary,$1->isLiteral);if(node == NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
 
 pre_increment_expression
-            :   INC_OP unary_expression                                                                                                         {Expression* node = evalIC_DC("pre increment expression","++",$2);if(NULL) YYERROR; node->addChildren({$1,$2}); $$ = node;}           
+            :   INC_OP unary_expression                                                                                                         {Expression* node = evalIC_DC("pre increment expression","++",$2);if(node == NULL) YYERROR; node->addChildren({$1,$2}); $$ = node;}           
 
 pre_decrement_expression
-            :   DEC_OP unary_expression                                                                                                         {Expression* node = evalIC_DC("pre decrement expression","--",$2);if(NULL) YYERROR; node->addChildren({$1,$2}); $$ = node;}           
+            :   DEC_OP unary_expression                                                                                                         {Expression* node = evalIC_DC("pre decrement expression","--",$2);if(node == NULL) YYERROR; node->addChildren({$1,$2}); $$ = node;}           
 
 unary_expression_not_plus_minus
-            :   postfix_expression                                                                                                              {Expression* node = grammar_1("unary expression not plus minus",$1->isPrimary,$1->isLiteral);if(NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
-            |   TL_OP unary_expression                                                                                                          {Expression* node = evalTL("unary expression not plus minus",$2);if(NULL) YYERROR; node->addChildren({$1,$2}); $$ = node;}           
-            |   EX_OP unary_expression                                                                                                          {expression* node = evalEX("unary expression not plus minus",$2);if(NULL) YYERROR; node->addChildren({$1,$2}); $$ = node;}           
-        //     |   cast_expression                                                                                                                 {Node* node = createNode("unary expression not plus minus");if(NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
-        //     |   switch_expression                                                                                                               {Node* node = createNode("unary expression not plus minus");if(NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
+            :   postfix_expression                                                                                                              {Expression* node = grammar_1("unary expression not plus minus",$1, $1->isPrimary,$1->isLiteral);if(node == NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
+            |   TL_OP unary_expression                                                                                                          {Expression* node = evalTL("unary expression not plus minus",$2);if(node == NULL) YYERROR; node->addChildren({$1,$2}); $$ = node;}           
+            |   EX_OP unary_expression                                                                                                          {Expression* node = evalEX("unary expression not plus minus",$2);if(node == NULL) YYERROR; node->addChildren({$1,$2}); $$ = node;}           
+        //     |   cast_expression                                                                                                                 {Node* node = createNode("unary expression not plus minus");if(node == NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
+        //     |   switch_expression                                                                                                               {Node* node = createNode("unary expression not plus minus");if(node == NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
 
 postfix_expression
-            :   primary                                                                                                                         {Expression* node = grammar_1("postfix expression",$1->isPrimary,$1->isLiteral);if(NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
-            |   type_name                                                                                                                       {Expression* node = grammar_1("postfix expression",$1->isPrimary,$1->isLiteral);if(NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
-            |   post_increment_expression                                                                                                       {Expression* node = grammar_1("postfix expression",$1->isPrimary,$1->isLiteral);if(NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
-            |   post_decrement_expression                                                                                                       {Expression* node = grammar_1("postfix expression",$1->isPrimary,$1->isLiteral);if(NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
+            :   primary                                                                                                                         {Expression* node = grammar_1("postfix expression",$1, $1->isPrimary,$1->isLiteral);if(node == NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
+            |   type_name                                                                                                                       {Expression* node = grammar_1("postfix expression",$1, $1->isPrimary,$1->isLiteral);if(node == NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
+            |   post_increment_expression                                                                                                       {Expression* node = grammar_1("postfix expression",$1, $1->isPrimary,$1->isLiteral);if(node == NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
+            |   post_decrement_expression                                                                                                       {Expression* node = grammar_1("postfix expression",$1, $1->isPrimary,$1->isLiteral);if(node == NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
 
 post_increment_expression
-            :   postfix_expression INC_OP                                                                                                       {Expression* node = evalIC_DC("post increment expression","++",$1);if(NULL) YYERROR; node->addChildren({$1,$2}); $$ = node;}           
+            :   postfix_expression INC_OP                                                                                                       {Expression* node = evalIC_DC("post increment expression","++",$1);if(node == NULL) YYERROR; node->addChildren({$1,$2}); $$ = node;}           
 
 post_decrement_expression
-            :   postfix_expression DEC_OP                                                                                                       {Expression* node = evalIC_DC("post decrement expression","--",$1);if(NULL) YYERROR; node->addChildren({$1,$2}); $$ = node;}           
+            :   postfix_expression DEC_OP                                                                                                       {Expression* node = evalIC_DC("post decrement expression","--",$1);if(node == NULL) YYERROR; node->addChildren({$1,$2}); $$ = node;}           
 
 // cast_expression
 //             :   OP_BRCKT primitive_type CLOSE_BRCKT unary_expression                                                                                    {Node* node = createNode("cast expression"); node->addChildren({$1,$2,$3,$4}); $$ = node;}           
@@ -562,12 +563,12 @@ class_type
 //             |   QN_OP SUPER_KEYWORD reference_type                                                                                                      {Node* node = createNode("wild card"); node->addChildren({$1,$2,$3}); $$ = node;}
 //             |   QN_OP SUPER_KEYWORD primitive_type dims                                                                                                 {Node* node = createNode("wild card"); node->addChildren({$1,$2,$3,$4}); $$ = node;}
 
-reference_type
-            :   class_type                                                                                                                              {Node* node = createNode("reference type"); node->addChildren({$1}); $$ = node;}
-            |   array_type                                                                                                                              {Node* node = createNode("reference type"); node->addChildren({$1}); $$ = node;}
+// reference_type
+//             :   class_type                                                                                                                              {Node* node = createNode("reference type"); node->addChildren({$1}); $$ = node;}
+//             |   array_type                                                                                                                              {Node* node = createNode("reference type"); node->addChildren({$1}); $$ = node;}
 
-array_type
-            :   class_type dims                                                                                                                         {Node* node = createNode("array type"); node->addChildren({$1,$2}); $$ = node;}
+// array_type
+//             :   class_type dims                                                                                                                         {Node* node = createNode("array type"); node->addChildren({$1,$2}); $$ = node;}
 
 // interface_extends_zero_or_one
 //             :   /* empty */                                                                                                                             {Node* node = createNode("interface extends zero or one"); node->addChildren({}); $$ = node;}
@@ -841,11 +842,11 @@ synchronized_statement
 //         |  type_name                                                                                                                                    {Node* node = createNode("resource"); node->addChildren({$1}); $$ = node;}
 //         |  field_access                                                                                                                                 {Node* node = createNode("resource"); node->addChildren({$1}); $$ = node;}
 
-pattern 
-        :  type_pattern                                                                                                                                 {Node* node = createNode("pattern"); node->addChildren({$1}); $$ = node;}
+// pattern 
+//         :  type_pattern                                                                                                                                 {Node* node = createNode("pattern"); node->addChildren({$1}); $$ = node;}
 
-type_pattern 
-        : local_variable_declaration                                                                                                                    {Node* node = createNode("type pattern"); node->addChildren({$1}); $$ = node;}
+// type_pattern 
+//         : local_variable_declaration                                                                                                                    {Node* node = createNode("type pattern"); node->addChildren({$1}); $$ = node;}
 
 //  ########   CLASSES   ########  
 
@@ -1205,8 +1206,8 @@ PUBLIC_KEYWORD
 // ENUM_KEYWORD
 //         :       enum_keyword_terminal                                                   {Node* temp = createNode($1); temp->isTerminal = true;  $$ = temp;}
 
-INSTANCEOF_KEYWORD
-        :       instanceof_keyword_terminal                                             {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
+// INSTANCEOF_KEYWORD
+//         :       instanceof_keyword_terminal                                             {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 RETURN_KEYWORD
         :       return_keyword_terminal                                                 {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}

@@ -1,5 +1,5 @@
 #include <bits/stdc++.h>
-#include "ast.h"
+#include "symtab.h"
 using namespace std;
 
 Expression* grammar_1(string lex,Expression* e1,bool isprimary,bool isliteral);   //grammar that has only one 
@@ -9,9 +9,8 @@ Expression* evalBITWISE(string lex,Expression* e1,string op,Expression* e2);
 Expression* evalEN(string lex,Expression* e1,string op,Expression* e2);
 Expression* evalRELATIONAL(string lex,Expression* e1,Expression* e2);
 Expression* evalSHIFT(string lex,Expression* e1,string op,Expression* e2);
-Expression* evalARITHMETIC(string lex,Expression* e1,string op,Expression* e2);
+Expression* evalARITHMETIC(string lex,string op,Expression* e1,Expression* e2);
 Expression* evalUNARY(string lex,string op,Expression* e1);
 Expression* evalIC_DC(string lex,string op,Expression* e1);
 Expression* evalTL(string lex,Expression* e1);
 Expression* evalEX(string lex,Expression* e1);
-
