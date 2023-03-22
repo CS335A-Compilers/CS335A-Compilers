@@ -85,12 +85,12 @@ top_level_class_or_interface_declaration
 //  ########   EXPRESSIONS   ########  
 
 primary
-            :   primary_no_new_array                                                                                                            {Node* node = createNode("primary"); node->addChildren({$1}); $$ = node;}
-            |   array_creation_expression                                                                                                       {Node* node = createNode("primary"); node->addChildren({$1}); $$ = node;}
+            :   primary_no_new_array                                                                                                            {Expression* node = grammar_1("primary",$1, $1->isPrimary, $1->isLiteral); node->addChildren({$1}); $$ = node;}
+            |   array_creation_expression                                                                                                       {Expression* node = grammar_1("primary",$1, $1->isPrimary, $1->isLiteral); node->addChildren({$1}); $$ = node;}
 
 primary_no_new_array
-            :   LITERALS                                                                                                                        {Node* node = createNode("primary no new array"); node->addChildren({$1}); $$ = node;}
-            |   THIS_KEYWORD                                                                                                                    {Node* node = createNode("primary no new array"); node->addChildren({$1}); $$ = node;}
+            :   LITERALS                                                                                                                        {Expression* node = grammar_1("primary no new array",$1, $1->isPrimary, $1->isLiteral); node->addChildren({$1}); $$ = node;}
+            |   THIS_KEYWORD                                                                                                                    {Expression* node = grammar_1("primary no new array",$1, $1->isPrimary, $1->isLiteral); node->addChildren({$1}); $$ = node;}
         //     |   type_name DOT_OP THIS_KEYWORD                                                                                                   {Node* node = createNode("primary no new array"); node->addChildren({$1,$2,$3}); $$ = node;}
         //     |   class_literal                                                                                                                   {Node* node = createNode("primary no new array"); node->addChildren({$1}); $$ = node;}
             |   class_instance_creation_expression                                                                                              {Node* node = createNode("primary no new array"); node->addChildren({$1}); $$ = node;}
