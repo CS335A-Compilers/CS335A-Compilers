@@ -1,5 +1,6 @@
 #include "bits/stdc++.h"
 #include "inc/expression.h"
+#include "inc/3ac.h"
 
 using namespace std;
 
@@ -77,6 +78,7 @@ Expression* cond_qn_co(string lex,Expression* e1,Expression* e2,Expression* e3){
         Expression* obj=new Expression(lex,e3->value,false,false);
         return obj;
     }
+    
 
 }
 Expression* evalOR_AND(string lex,Expression* e1,string op,Expression* e2){
@@ -118,6 +120,7 @@ Expression* evalBITWISE(string lex,Expression* e1,string op,Expression* e2){
     va= new Value();
     va->num_val.push_back(val);
     Expression* obj=new Expression(lex,va,false,false);
+    addInstruction(obj, e1, e2, op, 0);
     return obj; 
 }
 
