@@ -5,7 +5,9 @@ public class test {
 
     // }
     public void main(){
-        // x = 1;
+        x = 1.0;
+        int y = 5.0;
+        
         // if(x){
 
         // }
