@@ -20,30 +20,28 @@ double getValue(Value* val){
         return (double)(val->num_val[0]);
         break;
     case 4:
-        return (double)(val->num_val[0]);
-        break;
-    case 5:
         return (double)(val->float_val[0]);
         break;
-    case 6:
+    case 5:
         return (double)(val->double_val[0]);
         break;
-    case 7:
+    case 6:
         return (double)(val->boolean_val[0]);
         break;
-    case 8:
-        return (double)(val->num_val[0]);
-        break;
-    case 9:
-        return (double)(val->num_val[0]);
-        break;
+    //case 7:
+       // return (double)(val->boolean_val[0]);
+        //break;
+    //case 8:
+        //return (double)(val->num_val[0]);
+        //break;
+    
     default:
         break;
     }
 }
 double doubleMod(double a, double b) {
     // determine the common factor dynamically based on the number of decimal places in the inputs
-    int factor = pow(10, max(std::numeric_limits<double>::digits10 - floor(log10(abs(a))), 
+    int factor = pow(10, max(numeric_limits<double>::digits10 - floor(log10(abs(a))), 
                                         numeric_limits<double>::digits10 - floor(log10(abs(b)))));
     long long intA = static_cast<long long>(a * factor);
     long long intB = static_cast<long long>(b * factor);
@@ -62,7 +60,7 @@ Expression* grammar_1(string lex,Expression* e1,bool isprimary,bool isliteral){
 Expression* cond_qn_co(string lex,Expression* e1,Expression* e2,Expression* e3){
     if(e1==NULL||e2==NULL)
         return NULL;
-    if(e1->value->boolean_val.size()==0||e2->value->boolean_val.size()==0||e3->value->boolean_val.size()==0)
+    if(e1->value->boolean_val.size()==0||(e2->value->primitivetypeIndex!=e3->value->primitivetypeIndex && (e1->value->primitivetypeIndex >5||e2->value->primitivetypeIndex >5)))
     {
         yyerror("Incompatible types: cannot be converted to boolean");
         return NULL;
@@ -84,7 +82,7 @@ Expression* evalOR_AND(string lex,Expression* e1,string op,Expression* e2){
         return NULL;
     if(e1->value->boolean_val.size()==0||e2->value->boolean_val.size()==0)
         {
-            yyerror("Incompatible types: cannot be converted to boolean");
+            yyerror("Error: bad operand types for binary operator");
             return NULL;
         }//throw error
     bool val;
@@ -125,14 +123,10 @@ Expression* evalBITWISE(string lex,Expression* e1,string op,Expression* e2){
 Expression* evalEQ(string lex,Expression* e1,string op,Expression* e2){
     if(e1==NULL||e2==NULL)
         return NULL;
-    // if(!((e1->value->num_val.size()!=0 && e2->value->num_val.size()!=0)||(e1->value->boolean_val.size()!=0 && e2->value->boolean_val.size()!=0)||(e1->value->float_val.size()!=0 && e2->value->float_val.size()!=0)||(e1->value->double_val.size()!=0 && e2->value->double_val.size()!=0)||(e1->value->string_val.size()!=0 && e2->value->string_val.size()!=0)))
-    //     {
-    //         yyerror("Incomparable types: cannot be compared");
-    //         return NULL;
-    //     } //throw error
-    if(e1->value->primitivetypeIndex == 7 || e1->value->primitivetypeIndex == 8 || e2->value->primitivetypeIndex == 7 || e2->value->primitivetypeIndex == 8 ){
+    if(e1->value->primitivetypeIndex == 7 || e2->value->primitivetypeIndex == 7 ){
         // throw error
-
+        yyerror("Incomparable types: cannot be compared");
+        return NULL;
     }
     bool val;
     Value* va;
@@ -147,6 +141,16 @@ Expression* evalEQ(string lex,Expression* e1,string op,Expression* e2){
         {
             val=e1->value->boolean_val[0] == e2->value->boolean_val[0];
             va= new Value();
+        } 
+        else if(e1->value->num_val.size()!=0 && e2->value->float_val.size()!=0)
+        {
+            val=e1->value->num_val[0] == e2->value->float_val[0];
+            va= new Value();
+        }
+        else if(e1->value->float_val.size()!=0 && e2->value->num_val.size()!=0)
+        {
+            val=e1->value->float_val[0] == e2->value->num_val[0];
+            va= new Value();
         }  
         else if(e1->value->float_val.size()!=0 && e2->value->float_val.size()!=0)
         {
@@ -156,6 +160,26 @@ Expression* evalEQ(string lex,Expression* e1,string op,Expression* e2){
         else if(e1->value->double_val.size()!=0 && e2->value->double_val.size()!=0)
         {
             val=e1->value->double_val[0] == e2->value->double_val[0];
+            va= new Value();
+        }
+        else if(e1->value->double_val.size()!=0 && e2->value->num_val.size()!=0)
+        {
+            val=e1->value->double_val[0] == e2->value->num_val[0];
+            va= new Value();
+        }  
+        else if(e1->value->num_val.size()!=0 && e2->value->double_val.size()!=0)
+        {
+            val=e1->value->num_val[0] == e2->value->double_val[0];
+            va= new Value();
+        }
+        else if(e1->value->double_val.size()!=0 && e2->value->float_val.size()!=0)
+        {
+            val=e1->value->double_val[0] == e2->value->float_val[0];
+            va= new Value();
+        }  
+        else if(e1->value->float_val.size()!=0 && e2->value->double_val.size()!=0)
+        {
+            val=e1->value->float_val[0] == e2->value->double_val[0];
             va= new Value();
         }
         else if(e1->value->string_val.size()!=0 && e2->value->string_val.size()!=0)
@@ -186,6 +210,36 @@ Expression* evalEQ(string lex,Expression* e1,string op,Expression* e2){
             val=e1->value->double_val[0] != e2->value->double_val[0];
             va= new Value();
         }
+        else if(e1->value->num_val.size()!=0 && e2->value->float_val.size()!=0)
+        {
+            val=e1->value->num_val[0] != e2->value->float_val[0];
+            va= new Value();
+        }
+        else if(e1->value->float_val.size()!=0 && e2->value->num_val.size()!=0)
+        {
+            val=e1->value->float_val[0] != e2->value->num_val[0];
+            va= new Value();
+        } 
+        else if(e1->value->double_val.size()!=0 && e2->value->num_val.size()!=0)
+        {
+            val=e1->value->double_val[0] != e2->value->num_val[0];
+            va= new Value();
+        }  
+        else if(e1->value->num_val.size()!=0 && e2->value->double_val.size()!=0)
+        {
+            val=e1->value->num_val[0] != e2->value->double_val[0];
+            va= new Value();
+        }
+        else if(e1->value->double_val.size()!=0 && e2->value->float_val.size()!=0)
+        {
+            val=e1->value->double_val[0] != e2->value->float_val[0];
+            va= new Value();
+        }  
+        else if(e1->value->float_val.size()!=0 && e2->value->double_val.size()!=0)
+        {
+            val=e1->value->float_val[0] != e2->value->double_val[0];
+            va= new Value();
+        }
         else if(e1->value->string_val.size()!=0 && e2->value->string_val.size()!=0)
         {
             val=e1->value->string_val[0] != e2->value->string_val[0];
@@ -202,21 +256,37 @@ Expression* evalEQ(string lex,Expression* e1,string op,Expression* e2){
 Expression* evalRELATIONAL(string lex,Expression* e1,string op,Expression* e2){
     if(e1==NULL||e2==NULL)
         return NULL;
-    if(e1->value->primitivetypeIndex >= 7)
+    if(e1->value->primitivetypeIndex >= 6 && e1->value->primitivetypeIndex !=9)
         {
             yyerror("Incomparable types: cannot be compared");
             return NULL;
         }
-    double d1 = getValue(e1->value), d2 = getValue(e2->value);
     bool val;
-    if(op==">")
-        val=d1>d2;
-    if(op=="<")
-        val=d1<d2;
-    if(op==">=")
-        val=d1>=d2;
-    if(op=="<=")
-        val=d1<=d2;
+    if(e1->value->primitivetypeIndex==9)
+        {
+            if(op==">")
+                val=e1->value->string_val > e2->value->string_val;
+            if(op=="<")
+                val=e1->value->string_val < e2->value->string_val;
+            if(op==">=")
+                val=e1->value->string_val >= e2->value->string_val;
+            if(op=="<=")
+                val=e1->value->string_val <= e2->value->string_val;
+        }
+    else 
+        {
+            double d1 = getValue(e1->value), d2 = getValue(e2->value);
+        
+            if(op==">")
+                val=d1>d2;
+            if(op=="<")
+                val=d1<d2;
+            if(op==">=")
+                val=d1>=d2;
+            if(op=="<=")
+                val=d1<=d2;
+        }
+    
     Value* va= new Value();
     va->boolean_val.push_back(val);
     Expression* obj=new Expression(lex,va,false,false);
@@ -239,8 +309,8 @@ Expression* evalSHIFT(string lex,Expression* e1,string op,Expression* e2){
     else if(op==">>>")
         val=(unsigned int)e1->value->num_val[0] >> (unsigned int)e2->value->num_val[0];
     Value* va= new Value();
-    va->primitivetypeIndex = BOOLEAN;
-    va->boolean_val.push_back(val);
+    va->primitivetypeIndex = 3;
+    va->num_val.push_back(val);
     Expression* obj=new Expression(lex,va,false,false);
     return obj;   
 }
@@ -406,13 +476,13 @@ Expression* evalARITHMETIC(string lex,string op,Expression* e1,Expression* e2){
         }
         else if(e1->value->num_val.size()!=0 && e2->value->float_val.size()!=0)
         {
-            float val=(double)e1->value->num_val[0] * e2->value->float_val[0];
+            float val=(float)e1->value->num_val[0] * e2->value->float_val[0];
             va= new Value();
             va->float_val.push_back(val);
         }
         else if(e1->value->float_val.size()!=0 && e2->value->num_val.size()!=0)
         {
-            float val=e1->value->float_val[0] * (double)e2->value->num_val[0];
+            float val=e1->value->float_val[0] * (float)e2->value->num_val[0];
             va= new Value();
             va->float_val.push_back(val);
         }
@@ -475,13 +545,13 @@ Expression* evalARITHMETIC(string lex,string op,Expression* e1,Expression* e2){
         }
         else if(e1->value->float_val.size()!=0 && e2->value->double_val.size()!=0)
         {
-            double val=doubleMod((double)e1->value->double_val[0] , e2->value->double_val[0]);
+            double val=doubleMod((double)e1->value->float_val[0] , e2->value->double_val[0]);
             va= new Value();
             va->double_val.push_back(val);
         }
         else if(e1->value->double_val.size()!=0 && e2->value->float_val.size()!=0)
         {
-            double val=doubleMod(e1->value->double_val[0] , (double)e2->value->double_val[0]);
+            double val=doubleMod(e1->value->double_val[0] , (double)e2->value->float_val[0]);
             va= new Value();
             va->double_val.push_back(val);
         }
@@ -554,7 +624,7 @@ Expression* evalUNARY(string lex,string op,Expression* e1){
     //don't know how to do this
     if(e1==NULL)
         return NULL;
-    if(e1->value->primitivetypeIndex >6||e1->value->primitivetypeIndex == 4)
+    if(e1->value->primitivetypeIndex >5)
         {
             yyerror("Error: bad operand types for unary operator");
             return NULL;
@@ -562,21 +632,21 @@ Expression* evalUNARY(string lex,string op,Expression* e1){
     int val;
     if(op=="+")
     {   
-        if(e1->value->primitivetypeIndex <3)
+        if(e1->value->primitivetypeIndex <4)
             val=e1->value->num_val[0];
-        else if(e1->value->primitivetypeIndex ==5)
+        else if(e1->value->primitivetypeIndex ==4)
             val=e1->value->float_val[0];
-        else if(e1->value->primitivetypeIndex ==6)
+        else if(e1->value->primitivetypeIndex ==5)
             val=e1->value->double_val[0];
     }
        
     else if(op=="-")
     {   
-        if(e1->value->primitivetypeIndex <3)
+        if(e1->value->primitivetypeIndex <4)
             val=-e1->value->num_val[0];
-        else if(e1->value->primitivetypeIndex ==5)
+        else if(e1->value->primitivetypeIndex ==4)
             val=-e1->value->float_val[0];
-        else if(e1->value->primitivetypeIndex ==6)
+        else if(e1->value->primitivetypeIndex ==5)
             val=-e1->value->double_val[0];
     }
     Value* va= new Value();
@@ -587,7 +657,7 @@ Expression* evalUNARY(string lex,string op,Expression* e1){
 Expression* evalIC_DC(string lex,string op,Expression* e1){
     if(e1==NULL)
         return NULL;
-    if(e1->value->primitivetypeIndex >6)
+    if(e1->value->primitivetypeIndex >5)
         {
             yyerror("Error: bad operand types for increment or decrement");
             return NULL;
@@ -606,13 +676,13 @@ Expression* evalIC_DC(string lex,string op,Expression* e1){
 Expression* evalTL(string lex,Expression* e1){
     if(e1==NULL)
         return NULL;
-    if(e1->value->primitivetypeIndex >4)
+    if(e1->value->primitivetypeIndex >3)
         {
             yyerror("Error: bad operand types for bitwise complement operator");
             return NULL;
         } //throw error
     int val;
-    if(e1->value->primitivetypeIndex<5)
+    if(e1->value->primitivetypeIndex<4)
         val=~e1->value->num_val[0];
     Value* va= new Value();
     va->boolean_val.push_back(val);
@@ -624,13 +694,13 @@ Expression* evalTL(string lex,Expression* e1){
 Expression* evalEX(string lex,Expression* e1){
     if(e1==NULL)
         return NULL;
-    if(e1->value->primitivetypeIndex!=7)
+    if(e1->value->primitivetypeIndex!=6)
         {
             yyerror("Error: bad operand type for unary operator '!'");
             return NULL;
         } //throw error
     int val;
-    if(e1->value->primitivetypeIndex<5)
+    if(e1->value->primitivetypeIndex<4)
         val=!e1->value->num_val[0];
     Value* va= new Value();
     va->boolean_val.push_back(val);
