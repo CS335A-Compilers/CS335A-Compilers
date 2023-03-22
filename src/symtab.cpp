@@ -74,13 +74,15 @@ void LocalSymbolTable::add_entry(Node* symtab_entry){
     return ;
 }
 
-Node* LocalSymbolTable::get_entry(string name){
+Node* LocalSymbolTable::get_entry(string name, int entry_type = -1){
     // nested scope 
     LocalSymbolTable* temp = this;
     if(name.find('.') == string::npos){
         while(temp != NULL){
-            if(temp->hashed_names.find(name)!=temp->hashed_names.end())
-                return temp->symbol_table_entries[temp->hashed_names[name]];
+            if(temp->hashed_names.find(name)!=temp->hashed_names.end()){
+                Node* res = temp->symbol_table_entries[temp->hashed_names[name]];
+                if((entry_type == -1) || (entry_type == res->entry_type)) return res;
+            }
             else{
                 temp = (LocalSymbolTable*)(temp->parent);
             }
@@ -88,6 +90,7 @@ Node* LocalSymbolTable::get_entry(string name){
     }
     else{
         // ##################  support for obj1.obj2 pending  ##################
+        // not required now, as per piazaa discussion;
     }
     return NULL;
 }

@@ -158,8 +158,15 @@ class Expression : public Node {
         Expression(string lex, Value* val, bool primary, bool literal);
 };
 
+class ExpressionList : public Node{
+    public:
+        vector<Expression*> lists;
+        ExpressionList(string lex, Expression* single, vector<Expression*> expression_list);
+};
+
 // Helper funtion related to ast.h
 void addVariablesToSymtab(Type* t, VariableDeclaratorList* declarator_list, pair<int,int> curr_level, ModifierList* modif_lists, bool is_field_variable);
+Value* createObject(string class_name, ExpressionList exp_list, pair<int,int> curr_level);
 Node* convertToAST(Node* root);
 void  writeEdges(Node* root, FILE* file);
 void  createDOT(Node* root, char* output_file);
