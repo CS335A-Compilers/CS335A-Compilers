@@ -11,11 +11,6 @@ public class test {
         // x = 5;
         // for(x++;x<5;x--){
 
-        // }
-        // if(x){
-
-        // }
-        // x = 5 + 6 + y;
-        // test t4;
     }
+
 }
