@@ -136,6 +136,13 @@ Dims::Dims(string lex, int num)
     count_dims = num;
 }
 
+Expression::Expression(string lex, Value* val, bool primary, bool literal)
+    : Node(lex){
+    value = val;
+    isPrimary = primary;
+    isLiteral = literal;
+}
+
 /* ####################   Helper funtion related to ast  #################### */
 
 bool typenameErrorChecking(Node* node, pair<int,int> curr_level){
@@ -148,7 +155,7 @@ bool typenameErrorChecking(Node* node, pair<int,int> curr_level){
     }
     else{
         string class_name = lists->identifiers[0];
-
+        
     }
     yyerror("Variable not declared in the scope");
     return false;
