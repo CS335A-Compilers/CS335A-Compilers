@@ -199,7 +199,7 @@ unary_expression_not_plus_minus
 
 postfix_expression
             :   primary                                                                                                                         {Expression* node = grammar_1("postfix expression",$1, $1->isPrimary,$1->isLiteral); if(node == NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
-            |   type_name                                                                                                                       {Value* va = ((LocalVariableDeclaration*)(get_local_symtab(global_symtab->current_level)->get_entry($1->createString(), -1)))->variable_declarator->initialized_value; Expression* node = new Expression("postfix expression", va, true, false); if(node == NULL) YYERROR; node->isPrimary = true; node->addChildren({$1}); $$ = node;}           
+            |   type_name                                                                                                                       {if(!typenameErrorChecking($1, global_symtab->current_level, 0)) YYERROR; Value* va = ((LocalVariableDeclaration*)(get_local_symtab(global_symtab->current_level)->get_entry($1->createString(), 0)))->variable_declarator->initialized_value; Expression* node = new Expression("postfix expression", va, true, false); if(node == NULL) YYERROR; node->isPrimary = true; node->addChildren({$1}); $$ = node;}           
             |   post_increment_expression                                                                                                       {Expression* node = grammar_1("postfix expression",$1, $1->isPrimary,$1->isLiteral); if(node == NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
             |   post_decrement_expression                                                                                                       {Expression* node = grammar_1("postfix expression",$1, $1->isPrimary,$1->isLiteral); if(node == NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
 
@@ -339,7 +339,7 @@ variable_initializer
         //     |   array_initializer                                                                                                                    {Expression* node = grammar_1("variable initializer", $1, $1->isPrimary, $1->isLiteral); node->addChildren({$1}); $$ = node;}
 
 type_name
-            :   type_name_scoping                                                                                                                       {IdentifiersList* node = new IdentifiersList("type name", "", $1->identifiers); if(!typenameErrorChecking(node, global_symtab->current_level)) YYERROR; node->addChildren({$1}); $$ = node;}
+            :   type_name_scoping                                                                                                                       {IdentifiersList* node = new IdentifiersList("type name", "", $1->identifiers); if(!typenameErrorChecking(node, global_symtab->current_level, -1)) YYERROR; node->addChildren({$1}); $$ = node;}
 
 type_name_scoping
             :   IDENTIFIERS                                                                                                                             {IdentifiersList* node = new IdentifiersList("type name", $1->lexeme, {}); node->addChildren({$1}); $$ = node;}
@@ -890,23 +890,24 @@ map<string, vector<string>> csv_contents;
 // use the 'fprintf' function to print the lexeme, its token and its count to a CSV file. 
 void print_to_csv() {
     // Loop through the map and write the data to the CSV file
-   for (auto const& z : csv_contents) {
+   for (auto z : csv_contents) {
       // Open the CSV file for writing
       ofstream file("./output/" + z.first + ".csv");
       // Loop through the vector and write each element to the CSV file
       file << "Name,Type,Syntactic Category,Line no" << "\n";
-      for (auto const& v : z.second) {
+      for (auto v : z.second) {
          file << v << "\n";
       }
    }
 }
 
 // Define an array of strings that corresponds to the type values.
-const string typeStrings[] = {"char", "byte", "short", "int", "long", "float", "double", "boolean", "array", "string", "void"};
+vector<string> typeStrings = {"char", "byte", "short", "int", "long", "float", "double", "boolean", "array", "string", "void"};
 vector<string> class_name;
 int class_index = -1;
 
 void get_csv_entries(LocalSymbolTable* scope){
+    if(scope==NULL) return ;
     vector<LocalSymbolTable*> children = scope->children;
     // get the symbol table entries
     vector<Node*> temp_var = scope->symbol_table_entries;
@@ -1146,21 +1147,19 @@ int main(int argc, char **argv){
 //     cout<<va->primitivetypeIndex<<endl<<va->num_val[0];
     fclose(yyin);
 
-    // Print the symbol table
-//     for(int i = 0;i < global_symtab->symbol_tables.size(); i++){
-//         for(int j = 0; j < global_symtab->symbol_tables[i].size(); j++){
-//             // get the local symbol table
-//             LocalSymbolTable* curr_scope = ((LocalSymbolTable*)global_symtab->symbol_tables[i][j]);
-//             get_csv_entries(curr_scope);
-//         }
-//     }
+//     Print the symbol table
+    for(int i = 0;i < global_symtab->symbol_tables.size(); i++){
+        for(int j = 0; j < global_symtab->symbol_tables[i].size(); j++){
+            // get the local symbol table
+            LocalSymbolTable* curr_scope = ((LocalSymbolTable*)global_symtab->symbol_tables[i][j]);
+            get_csv_entries(curr_scope);
+        }
+    }
 //     print_to_csv();
 //     generate3AC();
     return 0;
 }
 
-
-
-void yyerror (char const *s) {
+void yyerror(char const *s) {
   printf("\nerror: %s. Line number %d\n\n", s, yylineno);
 }
