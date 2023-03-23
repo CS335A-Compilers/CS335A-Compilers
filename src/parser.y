@@ -890,23 +890,24 @@ map<string, vector<string>> csv_contents;
 // use the 'fprintf' function to print the lexeme, its token and its count to a CSV file. 
 void print_to_csv() {
     // Loop through the map and write the data to the CSV file
-   for (auto const& z : csv_contents) {
+   for (auto z : csv_contents) {
       // Open the CSV file for writing
       ofstream file("./output/" + z.first + ".csv");
       // Loop through the vector and write each element to the CSV file
       file << "Name,Type,Syntactic Category,Line no" << "\n";
-      for (auto const& v : z.second) {
+      for (auto v : z.second) {
          file << v << "\n";
       }
    }
 }
 
 // Define an array of strings that corresponds to the type values.
-const string typeStrings[] = {"char", "byte", "short", "int", "long", "float", "double", "boolean", "array", "string", "void"};
+vector<string> typeStrings = {"char", "byte", "short", "int", "long", "float", "double", "boolean", "array", "string", "void"};
 vector<string> class_name;
 int class_index = -1;
 
 void get_csv_entries(LocalSymbolTable* scope){
+    if(scope==NULL) return ;
     vector<LocalSymbolTable*> children = scope->children;
     // get the symbol table entries
     vector<Node*> temp_var = scope->symbol_table_entries;
@@ -1154,7 +1155,7 @@ int main(int argc, char **argv){
             get_csv_entries(curr_scope);
         }
     }
-    print_to_csv();
+//     print_to_csv();
 //     generate3AC();
     return 0;
 }
