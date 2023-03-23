@@ -1,11 +1,16 @@
-public class test {
+class test {
+    
     int x = 0;
 
-    public void main() {
-       boolean a = 7 != 'k';
+    void ajj() {
+    //    boolean a = 7 != 'k';
         // x = 'k' >>> 'l';
-        double y = 7 * 9;
-        int xx = x++;
-        // int a = 5;
+        // double y = 7 * 9;
+        // int xx = x++;
+        // int a = 0;
+        // if (a==5){}
+        int z;
+        // z = 5;
+        // test t = new test();
     }
 }
