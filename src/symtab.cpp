@@ -72,7 +72,7 @@ void LocalSymbolTable::add_entry(Node* symtab_entry){
         if(temp->type->primitivetypeIndex == -1){
             // cout<<"object of class type: "<<temp->type->class_instantiated_from->name<<" declared named : "<<temp->name<<" \n";
         }
-        // cout<<"initialized value: "<<temp->variable_declarator->initialized_value->num_val[0];
+        cout<<"initialized value: "<<temp->variable_declarator->initialized_value->num_val[0];
         // cout<<temp->variable_declarator->num_of_dims<<endl;
         // if(temp->isFieldVariable) cout<<"field member it is\n";
         // throw error if bad modifier list combination done

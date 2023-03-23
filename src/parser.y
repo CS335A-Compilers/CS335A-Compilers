@@ -94,7 +94,7 @@ primary
         //     |   array_creation_expression                                                                                                       {Expression* node = grammar_1("primary",$1, $1->isPrimary, $1->isLiteral); node->addChildren({$1}); $$ = node;}
 
 primary_no_new_array
-            :   LITERALS                                                                                                                        {cout<<"literal: "<<$1->value->boolean_val[0]<<endl; Expression* node = grammar_1("primary no new array", $1, $1->isPrimary, $1->isLiteral); node->addChildren({$1}); $$ = node;}
+            :   LITERALS                                                                                                                        {Expression* node = grammar_1("primary no new array", $1, $1->isPrimary, $1->isLiteral); node->addChildren({$1}); $$ = node;}
         //     |   THIS_KEYWORD                                                                                                                    {Expression* node = grammar_1("primary no new array",$1, $1->isPrimary, $1->isLiteral); node->addChildren({$1}); $$ = node;}
         //     |   type_name DOT_OP THIS_KEYWORD                                                                                                   {Node* node = createNode("primary no new array"); node->addChildren({$1,$2,$3}); $$ = node;}
         //     |   class_literal                                                                                                                   {Node* node = createNode("primary no new array"); node->addChildren({$1}); $$ = node;}
@@ -173,7 +173,7 @@ additive_expression
 
 multiplicative_expression
             :   unary_expression                                                                                                                {Expression* node = grammar_1("multiplicative expression",$1,$1->isPrimary,$1->isLiteral);if(node == NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
-            |   multiplicative_expression STAR_OP unary_expression                                                                              {cout<<"first: "<<$1->value->num_val[0]<<" second: "<<$3->value->num_val[0]<<endl; Expression* node = evalARITHMETIC("multiplicative expression","*",$1,$3);if(node == NULL) YYERROR; node->addChildren({$1,$2,$3}); $$ = node;}           
+            |   multiplicative_expression STAR_OP unary_expression                                                                              {Expression* node = evalARITHMETIC("multiplicative expression","*",$1,$3);if(node == NULL) YYERROR; node->addChildren({$1,$2,$3}); $$ = node;}           
             |   multiplicative_expression PCNT_OP unary_expression                                                                              {Expression* node = evalARITHMETIC("multiplicative expression","%",$1,$3);if(node == NULL) YYERROR; node->addChildren({$1,$2,$3}); $$ = node;}           
             |   multiplicative_expression DIV_OP unary_expression                                                                               {Expression* node = evalARITHMETIC("multiplicative expression","/",$1,$3);if(node == NULL) YYERROR; node->addChildren({$1,$2,$3}); $$ = node;}           
 
@@ -335,7 +335,7 @@ variable_initializer_list
             |   variable_initializer COMMA_OP variable_initializer_list                                                                                 {ExpressionList* node = new ExpressionList("variable initializer list", $1, $3->lists); node->addChildren({$1,$2,$3}); $$ = node;}
 
 variable_initializer
-            :   expression                                                                                                                              {Expression* node = grammar_1("variable initializer", $1, $1->isPrimary, $1->isLiteral); cout<<$1->value->boolean_val[0]<<endl; node->addChildren({$1}); $$ = node;}
+            :   expression                                                                                                                              {Expression* node = grammar_1("variable initializer", $1, $1->isPrimary, $1->isLiteral); node->addChildren({$1}); $$ = node;}
         //     |   array_initializer                                                                                                                    {Expression* node = grammar_1("variable initializer", $1, $1->isPrimary, $1->isLiteral); node->addChildren({$1}); $$ = node;}
 
 type_name
