@@ -185,4 +185,4 @@ void  createDOT(Node* root, char* output_file);
 void  createAST(Node* root, char* output_file);
 Node* createNode(string str);
 Node* cloneRoot(Node* root);
-bool typenameErrorChecking(Node* node, pair<int,int> curr_level);
+bool typenameErrorChecking(Node* node, pair<int,int> curr_level, int entry_type);

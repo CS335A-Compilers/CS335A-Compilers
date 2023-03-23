@@ -104,7 +104,6 @@ Node* LocalSymbolTable::get_entry(string name, int entry_type){
     }
     // for input of type x it returns x;
     // for input of type obj.x it returns obj;
-    yyerror("why tf mf");
     return NULL;
 }
 
