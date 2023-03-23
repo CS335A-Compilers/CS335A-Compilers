@@ -91,7 +91,11 @@ void addInstruction(Expression* e, Expression* e1, Expression* e2, string op, in
 
 void generate3AC(){
     int n = threeAC_list.size();
-    for(int i=0;i<n;i++){
+    cout << n << endl;
+    cout << "I sm inside 3ac\n";
+    for (int i = 0; i < n; i++)
+    {
+        cout << "I am inside for loop\n";
         print3AC(threeAC_list[i]);
     }
     return ;

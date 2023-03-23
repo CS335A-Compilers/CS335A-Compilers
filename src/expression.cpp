@@ -6,6 +6,9 @@ using namespace std;
 extern void yyerror(char const*);
 extern GlobalSymbolTable* global_symtab;
 
+// Define an array of strings that corresponds to the type values.
+const string typeStrings[] = {"char", "byte", "short", "int", "long", "float", "double", "boolean", "array", "string", "void"};
+
 double getValue(Value* val){
     switch (val->primitivetypeIndex){
     case 0:
@@ -21,12 +24,15 @@ double getValue(Value* val){
         return (double)(val->num_val[0]);
         break;
     case 4:
-        return (double)(val->float_val[0]);
+        return (double)(val->num_val[0]);
         break;
     case 5:
-        return (double)(val->double_val[0]);
+        return (double)(val->float_val[0]);
         break;
     case 6:
+        return (double)(val->double_val[0]);
+        break;
+    case 7:
         return (double)(val->boolean_val[0]);
         break;
     //case 7:
@@ -40,6 +46,7 @@ double getValue(Value* val){
         break;
     }
 }
+
 double doubleMod(double a, double b) {
     // determine the common factor dynamically based on the number of decimal places in the inputs
     int factor = pow(10, max(numeric_limits<double>::digits10 - floor(log10(abs(a))), 
@@ -52,70 +59,92 @@ double doubleMod(double a, double b) {
 }
 
 Expression* grammar_1(string lex,Expression* e1,bool isprimary,bool isliteral){
-    if(e1==NULL)
-    return NULL;
-    Expression* obj=new Expression(lex,e1->value,isprimary,isliteral);
+    if (e1 == NULL) return NULL;
+    Expression* obj = new Expression(lex, e1->value, isprimary, isliteral);
     obj->registor_index = e1->registor_index;
     obj->primary_exp_val = e1->primary_exp_val;
     return obj;
 }
 
-Expression* cond_qn_co(string lex,Expression* e1,Expression* e2,Expression* e3){
-    if(e1==NULL||e2==NULL)
+// Segmentation fault on character eg : a = (false) ? 'k' : 6;
+Expression* cond_qn_co(string lex, Expression* e1, Expression* e2, Expression* e3){
+    cout << "i am here\n";
+    if (e1 == NULL || e2 == NULL)
         return NULL;
-    if(e1->value->boolean_val.size()==0||(e2->value->primitivetypeIndex!=e3->value->primitivetypeIndex && (e1->value->primitivetypeIndex >5||e2->value->primitivetypeIndex >5))){
-        yyerror("Incompatible types: cannot be converted to boolean");
+    /*
+    Conditional Ternary Operator : type conversion between "char", "byte", "short", 
+                                    "int", "long", "float", "double"
+    */
+    int type1 = e2->value->primitivetypeIndex;
+    int type2 = e3->value->primitivetypeIndex;
+    string data_type1, data_type2;
+    if (type1 != -1){
+        data_type1 = typeStrings[type1];
+    }
+    if (type2 != -1){
+        data_type2 = typeStrings[type2];
+    }
+    string error = "Type mismatch: cannot convert from " + data_type1 + " to " + data_type2;
+    if (e1->value->boolean_val.size() == 0 || (e2->value->primitivetypeIndex != e3->value->primitivetypeIndex && (e2->value->primitivetypeIndex > 6 || e3->value->primitivetypeIndex > 6))){
+        yyerror(error.c_str());
         return NULL;
     }//throw error
-    if(e1->value->boolean_val[0]){
-        Expression* obj=new Expression(lex,e2->value,false,false);
-        return obj;
-    }
-    else{
-        Expression* obj=new Expression(lex,e3->value,false,false);
-        return obj;
-    }
+    Value* va = new Value();
+    va->primitivetypeIndex = max(e2->value->primitivetypeIndex, e3->value->primitivetypeIndex);
+    Expression *obj = new Expression(lex, va, false, false);
+    return obj;
 }
 
-Expression* evalOR_AND(string lex,Expression* e1,string op,Expression* e2){
-    if(e1==NULL||e2==NULL)
+Expression* evalOR_AND(string lex, Expression* e1, string op, Expression* e2){
+    if (e1 == NULL || e2 == NULL)
         return NULL;
-    if(e1->value->boolean_val.size()==0||e2->value->boolean_val.size()==0){
-        yyerror("Error: bad operand types for binary operator");
+    if (e1->value->boolean_val.size() == 0 || e2->value->boolean_val.size() == 0){
+        int type1 = e1->value->primitivetypeIndex;
+        int type2 = e2->value->primitivetypeIndex;
+        string data_type1, data_type2;
+        if (type1 != -1){
+            data_type1 = typeStrings[type1];
+        }
+        if (type2 != -1){
+            data_type2 = typeStrings[type2];
+        }
+        string error = "The operator " + op + " is undefined for the argument types " + data_type1 + ", " + data_type2;
+        yyerror(error.c_str());
+
         return NULL;
     }
-    bool val;
-    if(op=="||")
-        val=e1->value->boolean_val[0]||e2->value->boolean_val[0];
-    else if(op=="&&")
-        val=e1->value->boolean_val[0] && e2->value->boolean_val[0];
+    // bool val;
+    // if (op == "||")
+    //     val = e1->value->boolean_val[0] || e2->value->boolean_val[0];
+    // else if (op=="&&")
+    //     val = e1->value->boolean_val[0] && e2->value->boolean_val[0];
 
-    Value* va= new Value();
-    va->boolean_val.push_back(val);
-    Expression* obj=new Expression(lex,va,false,false);
-    addInstruction(obj, e1,e2,op, 0);
+    Value* va = new Value();
+    va->primitivetypeIndex = 7;
+    Expression *obj = new Expression(lex, va, false, false);
+    // addInstruction(obj, e1, e2, op, 0);
     return obj;  
 }
 
-Expression* evalBITWISE(string lex,Expression* e1,string op,Expression* e2){
-    if(e1==NULL||e2==NULL)
+Expression* evalBITWISE(string lex, Expression* e1, string op, Expression* e2){
+    if (e1 == NULL || e2 == NULL)
         return NULL;
-    if(e1->value->num_val.size()==0||e2->value->num_val.size()==0){
+    if ((e1->value->primitivetypeIndex > 4 || e2->value->primitivetypeIndex > 4)){
         yyerror("Incompatible types: cannot be converted to type accepted for bitwise operator");
         return NULL;
     } 
     long long int val;
-    Value* va;
-    if(op=="|")  
-        val=e1->value->num_val[0] | e2->value->num_val[0];
-    else if(op=="^")
-        val=e1->value->num_val[0] ^ e2->value->num_val[0];
-    else if(op=="&")
-        val=e1->value->num_val[0] & e2->value->num_val[0];
-    va= new Value();
-    va->num_val.push_back(val);
+    Value* va = new Value();
+    // if(op=="|")  
+    //     val=e1->value->num_val[0] | e2->value->num_val[0];
+    // else if(op=="^")
+    //     val=e1->value->num_val[0] ^ e2->value->num_val[0];
+    // else if(op=="&")
+    //     val=e1->value->num_val[0] & e2->value->num_val[0];
+    // va->num_val.push_back(val);
+    va->primitivetypeIndex = max(e2->value->primitivetypeIndex, e1->value->primitivetypeIndex);
     Expression* obj=new Expression(lex,va,false,false);
-    addInstruction(obj, e1, e2, op, 0);
+    // addInstruction(obj, e1, e2, op, 0);
     return obj; 
 }
 
@@ -123,108 +152,111 @@ Expression* evalBITWISE(string lex,Expression* e1,string op,Expression* e2){
 Expression* evalEQ(string lex,Expression* e1,string op,Expression* e2){
     if(e1==NULL||e2==NULL)
         return NULL;
-    if(e1->value->primitivetypeIndex == 7 || e2->value->primitivetypeIndex == 7 ){
+    int t1 = e1->value->primitivetypeIndex, t2 = e2->value->primitivetypeIndex;
+    if (!((t1 < 7 && t2 < 7) || (t1 == t2) || (t1 != 10 && t2 != 10)))
+    {
         yyerror("Incomparable types: cannot be compared");
         return NULL;
     }
     bool val;
-    Value* va;
-    if(op=="=="){
-        if(e1->value->num_val.size()!=0 && e2->value->num_val.size()!=0){
-            val=e1->value->num_val[0] == e2->value->num_val[0];
-            va= new Value();
-        }
-        else if(e1->value->boolean_val.size()!=0 && e2->value->boolean_val.size()!=0){
-            val=e1->value->boolean_val[0] == e2->value->boolean_val[0];
-            va= new Value();
-        } 
-        else if(e1->value->num_val.size()!=0 && e2->value->float_val.size()!=0){
-            val=e1->value->num_val[0] == e2->value->float_val[0];
-            va= new Value();
-        }
-        else if(e1->value->float_val.size()!=0 && e2->value->num_val.size()!=0){
-            val=e1->value->float_val[0] == e2->value->num_val[0];
-            va= new Value();
-        }  
-        else if(e1->value->float_val.size()!=0 && e2->value->float_val.size()!=0){
-            val=e1->value->float_val[0] == e2->value->float_val[0];
-            va= new Value();
-        }
-        else if(e1->value->double_val.size()!=0 && e2->value->double_val.size()!=0){
-            val=e1->value->double_val[0] == e2->value->double_val[0];
-            va= new Value();
-        }
-        else if(e1->value->double_val.size()!=0 && e2->value->num_val.size()!=0){
-            val=e1->value->double_val[0] == e2->value->num_val[0];
-            va= new Value();
-        }  
-        else if(e1->value->num_val.size()!=0 && e2->value->double_val.size()!=0){
-            val=e1->value->num_val[0] == e2->value->double_val[0];
-            va= new Value();
-        }
-        else if(e1->value->double_val.size()!=0 && e2->value->float_val.size()!=0){
-            val=e1->value->double_val[0] == e2->value->float_val[0];
-            va= new Value();
-        }  
-        else if(e1->value->float_val.size()!=0 && e2->value->double_val.size()!=0){
-            val=e1->value->float_val[0] == e2->value->double_val[0];
-            va= new Value();
-        }
-        else if(e1->value->string_val.size()!=0 && e2->value->string_val.size()!=0){
-            val=e1->value->string_val[0] == e2->value->string_val[0];
-            va= new Value();
-        }
-    }
-    else if(op=="!=")
-    {
-        if(e1->value->num_val.size()!=0 && e2->value->num_val.size()!=0){
-            val=e1->value->num_val[0] != e2->value->num_val[0];
-            va= new Value();
-        }
-        else if(e1->value->boolean_val.size()!=0 && e2->value->boolean_val.size()!=0){
-            val=e1->value->boolean_val[0] != e2->value->boolean_val[0];
-            va= new Value();
-        }  
-        else if(e1->value->float_val.size()!=0 && e2->value->float_val.size()!=0){
-            val=e1->value->float_val[0] != e2->value->float_val[0];
-            va= new Value();
-        }
-        else if(e1->value->double_val.size()!=0 && e2->value->double_val.size()!=0){
-            val=e1->value->double_val[0] != e2->value->double_val[0];
-            va= new Value();
-        }
-        else if(e1->value->num_val.size()!=0 && e2->value->float_val.size()!=0){
-            val=e1->value->num_val[0] != e2->value->float_val[0];
-            va= new Value();
-        }
-        else if(e1->value->float_val.size()!=0 && e2->value->num_val.size()!=0){
-            val=e1->value->float_val[0] != e2->value->num_val[0];
-            va= new Value();
-        } 
-        else if(e1->value->double_val.size()!=0 && e2->value->num_val.size()!=0){
-            val=e1->value->double_val[0] != e2->value->num_val[0];
-            va= new Value();
-        }  
-        else if(e1->value->num_val.size()!=0 && e2->value->double_val.size()!=0){
-            val=e1->value->num_val[0] != e2->value->double_val[0];
-            va= new Value();
-        }
-        else if(e1->value->double_val.size()!=0 && e2->value->float_val.size()!=0){
-            val=e1->value->double_val[0] != e2->value->float_val[0];
-            va= new Value();
-        }  
-        else if(e1->value->float_val.size()!=0 && e2->value->double_val.size()!=0){
-            val=e1->value->float_val[0] != e2->value->double_val[0];
-            va= new Value();
-        }
-        else if(e1->value->string_val.size()!=0 && e2->value->string_val.size()!=0){
-            val=e1->value->string_val[0] != e2->value->string_val[0];
-            va= new Value();
-        }
-    }
-    va->boolean_val.push_back(val);
-    Expression* obj=new Expression(lex,va,false,false);
-    addInstruction(obj, e1,e2,op, 0);
+    Value* va = new Value();
+    // if(op=="=="){
+    //     if(e1->value->num_val.size()!=0 && e2->value->num_val.size()!=0){
+    //         val=e1->value->num_val[0] == e2->value->num_val[0];
+    //         va= new Value();
+    //     }
+    //     else if(e1->value->boolean_val.size()!=0 && e2->value->boolean_val.size()!=0){
+    //         val=e1->value->boolean_val[0] == e2->value->boolean_val[0];
+    //         va= new Value();
+    //     } 
+    //     else if(e1->value->num_val.size()!=0 && e2->value->float_val.size()!=0){
+    //         val=e1->value->num_val[0] == e2->value->float_val[0];
+    //         va= new Value();
+    //     }
+    //     else if(e1->value->float_val.size()!=0 && e2->value->num_val.size()!=0){
+    //         val=e1->value->float_val[0] == e2->value->num_val[0];
+    //         va= new Value();
+    //     }  
+    //     else if(e1->value->float_val.size()!=0 && e2->value->float_val.size()!=0){
+    //         val=e1->value->float_val[0] == e2->value->float_val[0];
+    //         va= new Value();
+    //     }
+    //     else if(e1->value->double_val.size()!=0 && e2->value->double_val.size()!=0){
+    //         val=e1->value->double_val[0] == e2->value->double_val[0];
+    //         va= new Value();
+    //     }
+    //     else if(e1->value->double_val.size()!=0 && e2->value->num_val.size()!=0){
+    //         val=e1->value->double_val[0] == e2->value->num_val[0];
+    //         va= new Value();
+    //     }  
+    //     else if(e1->value->num_val.size()!=0 && e2->value->double_val.size()!=0){
+    //         val=e1->value->num_val[0] == e2->value->double_val[0];
+    //         va= new Value();
+    //     }
+    //     else if(e1->value->double_val.size()!=0 && e2->value->float_val.size()!=0){
+    //         val=e1->value->double_val[0] == e2->value->float_val[0];
+    //         va= new Value();
+    //     }  
+    //     else if(e1->value->float_val.size()!=0 && e2->value->double_val.size()!=0){
+    //         val=e1->value->float_val[0] == e2->value->double_val[0];
+    //         va= new Value();
+    //     }
+    //     else if(e1->value->string_val.size()!=0 && e2->value->string_val.size()!=0){
+    //         val=e1->value->string_val[0] == e2->value->string_val[0];
+    //         va= new Value();
+    //     }
+    // }
+    // else if(op=="!=")
+    // {
+    //     if(e1->value->num_val.size()!=0 && e2->value->num_val.size()!=0){
+    //         val=e1->value->num_val[0] != e2->value->num_val[0];
+    //         va= new Value();
+    //     }
+    //     else if(e1->value->boolean_val.size()!=0 && e2->value->boolean_val.size()!=0){
+    //         val=e1->value->boolean_val[0] != e2->value->boolean_val[0];
+    //         va= new Value();
+    //     }  
+    //     else if(e1->value->float_val.size()!=0 && e2->value->float_val.size()!=0){
+    //         val=e1->value->float_val[0] != e2->value->float_val[0];
+    //         va= new Value();
+    //     }
+    //     else if(e1->value->double_val.size()!=0 && e2->value->double_val.size()!=0){
+    //         val=e1->value->double_val[0] != e2->value->double_val[0];
+    //         va= new Value();
+    //     }
+    //     else if(e1->value->num_val.size()!=0 && e2->value->float_val.size()!=0){
+    //         val=e1->value->num_val[0] != e2->value->float_val[0];
+    //         va= new Value();
+    //     }
+    //     else if(e1->value->float_val.size()!=0 && e2->value->num_val.size()!=0){
+    //         val=e1->value->float_val[0] != e2->value->num_val[0];
+    //         va= new Value();
+    //     } 
+    //     else if(e1->value->double_val.size()!=0 && e2->value->num_val.size()!=0){
+    //         val=e1->value->double_val[0] != e2->value->num_val[0];
+    //         va= new Value();
+    //     }  
+    //     else if(e1->value->num_val.size()!=0 && e2->value->double_val.size()!=0){
+    //         val=e1->value->num_val[0] != e2->value->double_val[0];
+    //         va= new Value();
+    //     }
+    //     else if(e1->value->double_val.size()!=0 && e2->value->float_val.size()!=0){
+    //         val=e1->value->double_val[0] != e2->value->float_val[0];
+    //         va= new Value();
+    //     }  
+    //     else if(e1->value->float_val.size()!=0 && e2->value->double_val.size()!=0){
+    //         val=e1->value->float_val[0] != e2->value->double_val[0];
+    //         va= new Value();
+    //     }
+    //     else if(e1->value->string_val.size()!=0 && e2->value->string_val.size()!=0){
+    //         val=e1->value->string_val[0] != e2->value->string_val[0];
+    //         va= new Value();
+    //     }
+    // }
+    // va->boolean_val.push_back(val);oi
+    va->primitivetypeIndex = 7;
+    Expression *obj = new Expression(lex, va, false, false);
+    // addInstruction(obj, e1,e2,op, 0);
     return obj;
 }
 
@@ -293,8 +325,13 @@ Expression* evalARITHMETIC(string lex,string op,Expression* e1,Expression* e2){
     if(e1==NULL||e2==NULL)
         return NULL;
     // wrong type checking;
-    if(e1->value->num_val.size()==0||e2->value->num_val.size()==0||e1->value->float_val.size()==0||e2->value->float_val.size()==0||e1->value->double_val.size()==0||e2->value->double_val.size()==0){
+    cout << "I m hre\n";
+    cout << e1->value->num_val.size() << " " << e1->value->float_val.size() << " " << e1->value->double_val.size() << endl;
+    cout << e2->value->num_val.size() << " " << e2->value->float_val.size() << " " << e2->value->double_val.size() << endl;
+    if ((e1->value->num_val.size() == 0 && e1->value->float_val.size() == 0 && e1->value->double_val.size() == 0) || (e2->value->double_val.size() == 0 && e2->value->num_val.size() == 0 && e2->value->float_val.size() == 0))
+    {
         // cout<<e1->value->num_val[0]<<endl<<e2->value->num_val[0]<<endl;
+        cout << "inside\n";
         yyerror("bad operand types for arthimetic operator");
         return NULL;
     }
