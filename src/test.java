@@ -1,7 +1,5 @@
 public class test {
-    int x=4;
-    // test t;
-    // test(int x){
+    int x = 0;
 
     // }
     public void main(){
