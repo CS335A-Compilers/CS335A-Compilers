@@ -126,7 +126,7 @@ assignment_expression
 
 condtional_expression
             :   conditional_or_expression                                                                                                       {Expression* node = grammar_1("condtional expression",$1, $1->isPrimary, $1->isLiteral);if(node == NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
-            |   conditional_or_expression QN_OP expression COLON_OP condtional_expression                                                       {Expression* node = cond_qn_co("condtional expression",$1,$3,$5); node->addChildren({$1,$2,$3,$4,$5});if(node == NULL) YYERROR; $$ = node;}           
+            |   conditional_or_expression QN_OP expression COLON_OP condtional_expression                                                       {printf("1\n"); Expression* node = cond_qn_co("condtional expression",$1,$3,$5); if(node == NULL) YYERROR; node->addChildren({$1,$2,$3,$4,$5}); $$ = node;}           
 
 conditional_or_expression
             :   conditional_and_expression                                                                                                      {Expression* node = grammar_1("condtional or expression",$1,$1->isPrimary, $1->isLiteral);if(node == NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
@@ -546,7 +546,7 @@ class_declaration
         :  normal_class_declaration                                                                                                                     {Node* node = createNode("class declaration"); node->addChildren({$1}); $$ = node;}
 
 normal_class_declaration
-        :  normal_class_declaration_statement class_body                                                                                                {Node* node = createNode("normal_class_declaration"); ((LocalSymbolTable*)((global_symtab->symbol_tables)[$2->parent_level.first][$2->parent_level.second]))->level_node = (Node*)($1); node->addChildren({$1,$2}); $$ = node;}
+        :  normal_class_declaration_statement class_body                                                                                                   {Node* node = createNode("normal_class_declaration"); ((LocalSymbolTable*)((global_symtab->symbol_tables)[$2->parent_level.first][$2->parent_level.second]))->level_node = (Node*)($1); node->addChildren({$1,$2}); $$ = node;}
 
 normal_class_declaration_statement
         :  modifiers_zero_or_more CLASS_KEYWORD IDENTIFIERS class_extends_zero_or_one                                                                   {NormalClassDeclaration* node = new NormalClassDeclaration("normal class declaration statement", $1, $3->lexeme); node->line_no = $2->line_no; node->entry_type = CLASS_DECLARATION; node->addChildren({$1,$2,$3,$4}); get_local_symtab(global_symtab->current_level)->add_entry(node); $$ = node;}
@@ -595,7 +595,7 @@ unann_type
         |  type_name                                                                                                                                    {Type* node = new Type("unann type", -1); node->class_instantiated_from = get_local_symtab(global_symtab->current_level)->get_entry($1->identifiers[0], -1); node->addChildren({$1}); $$ = node;}
 
 method_declaration
-        :  modifiers_zero_or_more method_header block                                                                                                   {MethodDeclaration* node = new MethodDeclaration("method_declaration"); node->name = $2->name; node->formal_parameter_list = $2->formal_parameter_list; node->type = $2->type; node->modifiers = $2->modifiers; node->addChildren({$1,$2,$3}); node->entry_type = METHOD_DECLARATION; get_local_symtab(global_symtab->current_level)->add_entry(node); ((LocalSymbolTable*)((global_symtab->symbol_tables)[$3->parent_level.first][$3->parent_level.second]))->level_node = (Node*)(node); $$ = node;}
+        :  modifiers_zero_or_more method_header block                                                                                                   {MethodDeclaration* node = new MethodDeclaration("method_declaration"); node->line_no = $1->line_no; node->name = $2->name; node->formal_parameter_list = $2->formal_parameter_list; node->type = $2->type; node->modifiers = $2->modifiers; node->addChildren({$1,$2,$3}); node->entry_type = METHOD_DECLARATION; get_local_symtab(global_symtab->current_level)->add_entry(node); ((LocalSymbolTable*)((global_symtab->symbol_tables)[$3->parent_level.first][$3->parent_level.second]))->level_node = (Node*)(node); $$ = node;}
         |  modifiers_zero_or_more method_header SEMICOLON_OP                                                                                            {MethodDeclaration* node = new MethodDeclaration("method_declaration"); node->name = $2->name; node->formal_parameter_list = $2->formal_parameter_list; node->type = $2->type; node->modifiers = $2->modifiers; node->addChildren({$1,$2,$3}); node->entry_type = METHOD_DECLARATION; get_local_symtab(global_symtab->current_level)->add_entry(node); $$ = node;}
 
 method_header
@@ -876,13 +876,130 @@ IDENTIFIERS
         :       IDENTIFIERS_TERMINAL                                                    {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 LITERALS
-        :       NUM_LITERALS                                                            {Value* va = new Value(); va->num_val.push_back(strtol($1, NULL, 10)); Expression* temp = new Expression($1, va, true, true);  temp->isTerminal = true; $$ = temp;}
-        |       DOUBLE_LITERALS                                                         {Value* va = new Value(); va->double_val.push_back(strtod($1, NULL)); Expression* temp = new Expression($1, va, true, true);  temp->isTerminal = true; $$ = temp;}
-        |       STRING_LITERALS                                                         {Value* va = new Value(); va->string_val.push_back($1); Expression* temp = new Expression($1, va, true, true);  temp->isTerminal = true; $$ = temp;}
-        |       CHAR_LITERALS                                                           {Value* va = new Value(); va->string_val.push_back($1); Expression* temp = new Expression($1, va, true, true); temp->value->is_char_val = true; temp->isTerminal = true; $$ = temp;}
-        |       BOOLEAN_LITERALS                                                        {Value* va = new Value(); va->boolean_val.push_back(stricmp($1,"true")==0); Expression* temp = new Expression($1, va, true, true); temp->value->is_char_val = false; temp->isTerminal = true; $$ = temp;}
+        :       NUM_LITERALS                                                            {Value* va = new Value(); va->primitivetypeIndex = LONG; va->num_val.push_back(strtol($1, NULL, 10)); Expression* temp = new Expression($1, va, true, true);  temp->isTerminal = true; $$ = temp;}
+        |       DOUBLE_LITERALS                                                         {Value* va = new Value(); va->primitivetypeIndex = DOUBLE; va->double_val.push_back(strtod($1, NULL)); Expression* temp = new Expression($1, va, true, true);  temp->isTerminal = true; $$ = temp;}
+        |       STRING_LITERALS                                                         {Value* va = new Value(); va->primitivetypeIndex = STRING; va->string_val.push_back($1); Expression* temp = new Expression($1, va, true, true);  temp->isTerminal = true; $$ = temp;}
+        |       CHAR_LITERALS                                                           {Value* va = new Value(); va->primitivetypeIndex = CHAR; va->string_val.push_back($1); Expression* temp = new Expression($1, va, true, true); temp->isTerminal = true; $$ = temp;}
+        |       BOOLEAN_LITERALS                                                        {Value* va = new Value(); va->primitivetypeIndex = BOOLEAN; va->boolean_val.push_back(strcmp($1,"true")==0); Expression* temp = new Expression($1, va, true, true); temp->value->is_char_val = false; temp->isTerminal = true; $$ = temp;}
 
 %%
+
+string filename;
+map<string, vector<string>> csv_contents;
+/*temp->value->is_char_val = true;*/
+// use the 'fprintf' function to print the lexeme, its token and its count to a CSV file. 
+void print_to_csv() {
+    // Loop through the map and write the data to the CSV file
+   for (auto const& [key, val] : csv_contents) {
+      // Open the CSV file for writing
+      ofstream file("./output/" + key + ".csv");
+      // Loop through the vector and write each element to the CSV file
+      file << "Name,Type,Syntactic Category,Line no" << "\n";
+      for (auto const& v : val) {
+         file << v << "\n";
+      }
+   }
+}
+
+// Define an array of strings that corresponds to the type values.
+const string typeStrings[] = {"char", "byte", "short", "int", "long", "float", "double", "boolean", "array", "string", "void"};
+vector<string> class_name;
+int class_index = -1;
+
+void get_csv_entries(LocalSymbolTable* scope){
+    vector<LocalSymbolTable*> children = scope->children;
+    // get the symbol table entries
+    vector<Node*> temp_var = scope->symbol_table_entries;
+    for (Node* variable : temp_var){
+        if (variable->isWritten ==  false){
+            // For class csv file
+            if(variable->entry_type == CLASS_DECLARATION){
+                variable->isWritten = true;
+                csv_contents.insert({variable->name, {}});
+                class_name.push_back(variable->name);
+                class_index++;
+            }
+
+            if(variable->entry_type == METHOD_DECLARATION){
+                variable->isWritten = true;
+                csv_contents.insert({variable->name, {}});
+                int dt_index = ((MethodDeclaration*)(variable))->type->primitivetypeIndex;
+                string type;
+                if (dt_index == -1){
+                }
+                else{
+                    type = typeStrings[dt_index];
+                }
+                string str = variable->name + "," + type + "," + variable->lexeme + "," + to_string(variable->line_no);
+                csv_contents[class_name[class_index]].push_back(str);
+            }
+            // For method csv file
+            if(variable->entry_type == VARIABLE_DECLARATION){
+                int dt_index = ((LocalVariableDeclaration*)(variable))->type->primitivetypeIndex;
+                string type;
+                if (dt_index == -1){
+                    type = ((LocalVariableDeclaration*)(variable))->type->class_instantiated_from->name;
+                }
+                else{
+                    type = typeStrings[dt_index];
+                }
+                string str = variable->name + "," + type + "," + variable->lexeme + "," + to_string(variable->line_no);
+                LocalSymbolTable* temp = get_local_symtab(variable->current_level);
+                while(true){
+                    if(temp==NULL) break;
+                    if(temp->level_node != NULL && temp->level_node->entry_type == METHOD_DECLARATION) {
+                        break;
+                    }
+                    else{
+                        temp = (LocalSymbolTable*)temp->parent;
+                    }
+                }
+                if(temp!=NULL && temp->level_node != NULL){
+                    variable->isWritten = true;
+                    csv_contents[temp->level_node->name].push_back(str);
+                }
+            }
+            
+        }
+        if (variable->isWritten ==  false){
+            // For class csv file
+            if(variable->entry_type == VARIABLE_DECLARATION){
+                int dt_index = ((LocalVariableDeclaration*)(variable))->type->primitivetypeIndex;
+                string type;
+                if (dt_index == -1){
+                    type = ((LocalVariableDeclaration*)(variable))->type->class_instantiated_from->name;
+                }
+                else{
+                    type = typeStrings[dt_index];
+                }
+                string str = variable->name + "," + type + "," + variable->lexeme + "," + to_string(variable->line_no);
+                LocalSymbolTable* temp = get_local_symtab(variable->current_level);
+                while(true){
+                    if(temp==NULL) break;
+                    if(temp->level_node != NULL && temp->level_node->entry_type == CLASS_DECLARATION) {
+                        break;
+                    }
+                    else{
+                        temp = (LocalSymbolTable*)temp->parent;
+                    }
+                }
+                if(temp!=NULL && temp->level_node != NULL){
+                    variable->isWritten = true;
+                    csv_contents[temp->level_node->name].push_back(str);
+                }
+            }
+        }
+    }
+    Node* level_node = scope->level_node;
+    if (level_node == NULL){
+        return;
+    }
+    if (level_node->entry_type == METHOD_DECLARATION){
+        for (LocalSymbolTable* child : children){
+            get_csv_entries(child);
+        } 
+    }
+}
 
 int main(int argc, char **argv){
     if (argc != 3){
@@ -990,6 +1107,11 @@ int main(int argc, char **argv){
 
     // Extract the first token
     char * token_in = strtok(argv[1], "=");
+    if (strcmp(token_in, "--input") != 0){
+        printf("Usage: %s [--input=<input_file_name> --output=<output_file_name>][--verbose]\n", argv[0]);
+        printf("--verbose is an optional flag ...\n");
+        return 0;
+    }
     // loop through the string to extract all other tokens
     while( token_in != NULL ) {
        strcpy(input_file, token_in);
@@ -1006,6 +1128,11 @@ int main(int argc, char **argv){
 
     // Extract the first token
     char * token_out = strtok(argv[2], "=");
+    if (strcmp(token_out, "--output") != 0){
+        printf("Usage: %s [--input=<input_file_name> --output=<output_file_name>][--verbose]\n", argv[0]);
+        printf("--verbose is an optional flag ...\n");
+        return 0;
+    }
     // loop through the string to extract all other tokens
     while( token_out != NULL ) {
        strcpy(output_file, token_out);
@@ -1017,9 +1144,21 @@ int main(int argc, char **argv){
 //     Value* va = ((LocalVariableDeclaration*)(get_local_symtab(global_symtab->current_level)->get_entry("x", -1)))->variable_declarator->initialized_value;
 //     cout<<va->primitivetypeIndex<<endl<<va->num_val[0];
     fclose(yyin);
+
+    // Print the symbol table
+    for(int i = 0;i < global_symtab->symbol_tables.size(); i++){
+        for(int j = 0; j < global_symtab->symbol_tables[i].size(); j++){
+            // get the local symbol table
+            LocalSymbolTable* curr_scope = ((LocalSymbolTable*)global_symtab->symbol_tables[i][j]);
+            get_csv_entries(curr_scope);
+        }
+    }
+    print_to_csv();
     generate3AC();
     return 0;
 }
+
+
 
 void yyerror (char const *s) {
   printf("\nerror: %s. Line number %d\n\n", s, yylineno);

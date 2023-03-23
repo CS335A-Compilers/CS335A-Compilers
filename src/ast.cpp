@@ -24,6 +24,7 @@ Node::Node(string lex){
     isTerminal = false;
     node_id++;
     id = node_id;
+    isWritten = false;
     line_no = yylineno;
 }
 
@@ -139,6 +140,7 @@ LocalVariableDeclaration::LocalVariableDeclaration(string lex, Type* t, Variable
     name = variable_decl_id->name;
     modifiers_lists = modif_lists;
     variable_declarator = variable_decl_id;
+    current_level = global_symtab->current_level;
 }
 
 NormalClassDeclaration::NormalClassDeclaration(string lex, ModifierList* list, string identifier)

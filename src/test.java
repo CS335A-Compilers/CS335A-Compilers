@@ -1,16 +1,9 @@
 public class test {
-    int x=4;
-    // test t;
-    // test(int x){
+    int x;
 
-    // }
-    public void main(){
-        // test t2 = new test();
-        // int y = 5;
-        x = 6;
-        // x = 5;
-        // for(x++;x<5;x--){
-
+    public void main(int z) {
+        boolean a;
+        a = 1 == true;
     }
 
 }

@@ -3,7 +3,7 @@
 using namespace std;
 
 enum ModifierType {PUBLIC, PROTECTED, PRIVATE, ABSTRACT, STATIC, SEALED, NONSEALED, STRICTFP, TRANSITIVE, FINAL, VOLATILE, SYNCHRONIZED, TRANSIENT, NATIVE, };
-enum Types {BYTE, SHORT, INT, LONG, FLOAT, DOUBLE, BOOLEAN, VOID, ARRAY,CHAR, STRING, };
+enum Types {CHAR, BYTE, SHORT, INT, LONG, FLOAT, DOUBLE, BOOLEAN, ARRAY, STRING, VOID, };
 // symbol table entry is added whenever one of these declaration is done
 enum DeclarationType {VARIABLE_DECLARATION, CLASS_DECLARATION, METHOD_DECLARATION, };
 
@@ -16,8 +16,10 @@ class Node {
         static int node_id;
         vector<Node*> children;
         bool isTerminal;
+        bool isWritten;
         DeclarationType entry_type;
         int line_no;
+        pair<int, int> current_level;
         long long int id;
         Node(string lex);
         pair<int,int> parent_level;
@@ -127,7 +129,7 @@ class LocalVariableDeclaration : public Node{
         ModifierList* modifiers_lists;
         bool isFieldVariable;
         VariableDeclaratorId* variable_declarator;
-        LocalVariableDeclaration(string lex, Type* t, VariableDeclaratorId* variable_decl_id, ModifierList* modif_lists);
+        LocalVariableDeclaration(string lex, Type *t, VariableDeclaratorId *variable_decl_id, ModifierList *modif_lists);
 };
 
 class MethodDeclaration : public Node {
