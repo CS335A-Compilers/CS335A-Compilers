@@ -324,7 +324,7 @@ Expression* evalARITHMETIC(string lex, string op, Expression* e1, Expression* e2
     if(e1 == NULL || e2 == NULL)
         return NULL;
     // wrong type checking;
-    cout << e1->value->primitivetypeIndex << " " << e2->value->primitivetypeIndex << endl;
+    // cout << e1->value->primitivetypeIndex << " " << e2->value->primitivetypeIndex << endl;
     if (e1->value->primitivetypeIndex > 6 || e2->value->primitivetypeIndex > 6)
     {
         yyerror("Bad operand types for arthimetic operator");
