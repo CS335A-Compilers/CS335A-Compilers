@@ -312,16 +312,16 @@ dims
 
 primitive_type
             :   numeric_type                                                                                                                            {Type* node = new Type("primitive type", $1->primitivetypeIndex); node->addChildren({$1}); $$ = node;}
-            |   BOOLEAN_KEYWORD                                                                                                                         {Type* node = new Type("primitive type", 7); node->addChildren({$1}); $$ = node;}
+            |   BOOLEAN_KEYWORD                                                                                                                         {Type* node = new Type("primitive type", BOOLEAN); node->addChildren({$1}); $$ = node;}
 
 numeric_type
-            :   BYTE_KEYWORD                                                                                                                            {Type* node = new Type("numeric type", 0); node->addChildren({$1}); $$ = node;}
-            |   SHORT_KEYWORD                                                                                                                           {Type* node = new Type("numeric type", 1); node->addChildren({$1}); $$ = node;}
-            |   INT_KEYWORD                                                                                                                             {Type* node = new Type("numeric type", 2); node->addChildren({$1}); $$ = node;}
-            |   LONG_KEYWORD                                                                                                                            {Type* node = new Type("numeric type", 3); node->addChildren({$1}); $$ = node;}
-            |   CHAR_KEYWORD                                                                                                                            {Type* node = new Type("numeric type", 4); node->addChildren({$1}); $$ = node;}
-            |   FLOAT_KEYWORD                                                                                                                           {Type* node = new Type("numeric type", 5); node->addChildren({$1}); $$ = node;}
-            |   DOUBLE_KEYWORD                                                                                                                          {Type* node = new Type("numeric type", 6); node->addChildren({$1}); $$ = node;}
+            :   BYTE_KEYWORD                                                                                                                            {Type* node = new Type("numeric type", BYTE); node->addChildren({$1}); $$ = node;}
+            |   SHORT_KEYWORD                                                                                                                           {Type* node = new Type("numeric type", SHORT); node->addChildren({$1}); $$ = node;}
+            |   INT_KEYWORD                                                                                                                             {Type* node = new Type("numeric type", INT); node->addChildren({$1}); $$ = node;}
+            |   LONG_KEYWORD                                                                                                                            {Type* node = new Type("numeric type", LONG); node->addChildren({$1}); $$ = node;}
+            |   CHAR_KEYWORD                                                                                                                            {Type* node = new Type("numeric type", CHAR); node->addChildren({$1}); $$ = node;}
+            |   FLOAT_KEYWORD                                                                                                                           {Type* node = new Type("numeric type", FLOAT); node->addChildren({$1}); $$ = node;}
+            |   DOUBLE_KEYWORD                                                                                                                          {Type* node = new Type("numeric type", DOUBLE); node->addChildren({$1}); $$ = node;}
 
 array_initializer
             :   OP_CURLY_BRCKT variable_initializer_list_zero_or_more CLOSE_CURLY_BRCKT                                                                 {Node* node = createNode("array initializer"); node->addChildren({$1,$2,$3}); $$ = node;}
@@ -600,7 +600,7 @@ method_declaration
 
 method_header
         :  unann_type method_declarator                                                                                                                 {MethodDeclaration* node = new MethodDeclaration("method_header"); node->name = $2->name; node->formal_parameter_list = $2->formal_parameter_list; node->type = $1;  node->addChildren({$1,$2}); $$ = node;}
-        |  VOID_KEYWORD method_declarator                                                                                                               {Type* t = new Type("result", 8); MethodDeclaration* node = new MethodDeclaration("method_header"); node->name = $2->name; node->formal_parameter_list = $2->formal_parameter_list; node->type = t; node->addChildren({$1,$2}); $$ = node;}
+        |  VOID_KEYWORD method_declarator                                                                                                               {Type* t = new Type("result", VOID); MethodDeclaration* node = new MethodDeclaration("method_header"); node->name = $2->name; node->formal_parameter_list = $2->formal_parameter_list; node->type = t; node->addChildren({$1,$2}); $$ = node;}
 
 method_declarator
         :  IDENTIFIERS OP_BRCKT formal_parameter_list_zero_or_one CLOSE_BRCKT dims_zero_or_one                                                          {MethodDeclaration* node = new MethodDeclaration("method declarator"); node->name = $1->lexeme; node->formal_parameter_list = $3; node->addChildren({$1,$2,$3,$4,$5}); $$ = node;}
@@ -971,12 +971,12 @@ map<string, vector<string>> csv_contents;
 // use the 'fprintf' function to print the lexeme, its token and its count to a CSV file. 
 void print_to_csv() {
     // Loop through the map and write the data to the CSV file
-   for (auto const& [key, val] : csv_contents) {
+   for (auto const& z : csv_contents) {
       // Open the CSV file for writing
-      ofstream file("./output/" + key + ".csv");
+      ofstream file("./output/" + z.first + ".csv");
       // Loop through the vector and write each element to the CSV file
       file << "Name,Type,Syntactic Category,Line no" << "\n";
-      for (auto const& v : val) {
+      for (auto const& v : z.second) {
          file << v << "\n";
       }
    }
@@ -1005,6 +1005,7 @@ void get_csv_entries(LocalSymbolTable* scope){
                 variable->isWritten = true;
                 csv_contents.insert({variable->name, {}});
                 int dt_index = ((MethodDeclaration*)(variable))->type->primitivetypeIndex;
+                cout << "Type : " << dt_index << endl;
                 string type;
                 if (dt_index == -1){
                 }
