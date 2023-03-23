@@ -12,6 +12,9 @@ extern int yylineno;
 extern void yyerror(char const*);
 extern GlobalSymbolTable* global_symtab;
 
+vector<string> data_types = {"byte", "short", "int", "long", "float", "double", "boolean", "void", "array", "char", "string" };
+
+
 int Node::node_id = 0;
 
 Node::Node(string lex){
@@ -21,6 +24,7 @@ Node::Node(string lex){
     isTerminal = false;
     node_id++;
     id = node_id;
+    isWritten = false;
     line_no = yylineno;
 }
 
@@ -41,6 +45,11 @@ IdentifiersList::IdentifiersList(string lex, string single_ident, vector<string>
             identifiers.push_back(idents[i]);
         }
     }
+}
+
+Value::Value(){
+    this->dim1_count = this->dim2_count = this->dim3_count = 0;
+    this->is_byte_val = this->is_char_val = this->is_short_val = false;
 }
 
 FormalParameterList::FormalParameterList(string lex, FormalParameter* single_parameter, vector<FormalParameter*> parameters)
@@ -121,6 +130,7 @@ LocalVariableDeclaration::LocalVariableDeclaration(string lex, Type* t, Variable
     name = variable_decl_id->name;
     modifiers_lists = modif_lists;
     variable_declarator = variable_decl_id;
+    current_level = global_symtab->current_level;
 }
 
 NormalClassDeclaration::NormalClassDeclaration(string lex, ModifierList* list, string identifier)
@@ -139,6 +149,19 @@ Expression::Expression(string lex, Value* val, bool primary, bool literal)
     value = val;
     isPrimary = primary;
     isLiteral = literal;
+    registor_index = -1;
+    
+}
+
+ExpressionList::ExpressionList(string lex, Expression* single_expression, vector<Expression*> expressions)
+    : Node(lex){
+    lists.resize(0);
+    if(single_expression != NULL)
+        lists.push_back(single_expression);
+    for(int i=0;i<expressions.size();i++){
+        if(expressions[i]!=NULL)
+            lists.push_back(expressions[i]);
+    }
 }
 
 /* ####################   Helper funtion related to ast  #################### */
@@ -147,13 +170,12 @@ bool typenameErrorChecking(Node* node, pair<int,int> curr_level){
     IdentifiersList* lists = (IdentifiersList*)node;
     int n = lists->identifiers.size();
     if(n==1){
-        Node* temp = get_local_symtab(curr_level)->get_entry(lists->identifiers[0]);
+        Node* temp = get_local_symtab(curr_level)->get_entry(lists->identifiers[0], -1);
         if(temp != NULL) return true;
-
     }
     else{
-        string class_name = lists->identifiers[0];
-        
+        Node* obj = get_local_symtab(curr_level)->get_entry(lists->identifiers[0], -1);
+        // 
     }
     yyerror("Variable not declared in the scope");
     return false;
@@ -166,8 +188,55 @@ void addVariablesToSymtab(Type* t, VariableDeclaratorList* declarator_list, pair
         locale->isFieldVariable = is_field_variable;
         locale->entry_type = VARIABLE_DECLARATION;
         get_local_symtab(global_symtab->current_level)->add_entry(locale);
+        if(is_field_variable){
+            // NormalClassDeclaration* instantiating_class = (NormalClassDeclaration*)(get_local_symtab(global_symtab->current_level)->level_node);
+            // instantiating_class->field_variables.push_back(locale);
+        }
     }
     return ;
+}
+
+Value* createObject(string class_name, ExpressionList* exp_list, pair<int,int> curr_level){
+    MethodDeclaration* constructor_ptr = (MethodDeclaration*)(get_local_symtab(curr_level)->get_entry(class_name, METHOD_DECLARATION));
+    NormalClassDeclaration* class_ptr = (NormalClassDeclaration*)(get_local_symtab(curr_level)->get_entry(class_name, CLASS_DECLARATION));
+    if(class_ptr == NULL){
+        string err = "use of undeclared class name \"" + class_name + "\"";
+        yyerror(const_cast<char*>(err.c_str()));
+        return NULL;
+    }
+    Value* obj = new Value();
+    obj->primitivetypeIndex = -1;
+    int given_param = exp_list->lists.size();
+    if(constructor_ptr == NULL && given_param>0) {
+        string err = "invalid number of arguments while creating object of class \"" + class_name + "\"\ngiven " + to_string(given_param)  + " expected 0";
+        yyerror(const_cast<char*>(err.c_str()));
+        return NULL;
+    }
+    else if(constructor_ptr == NULL && given_param == 0){
+        cout<<"No constructor present\n";
+        return obj;
+        // call 3ac code-
+    }
+    else if(constructor_ptr != NULL){
+        cout<<"Constructor present\n";
+        vector<FormalParameter*> parameters = constructor_ptr->formal_parameter_list->lists;
+        if(parameters.size() != given_param){
+            string err = "invalid number of arguments while creating object of class \"" + class_name + "\"\ngiven " + to_string(given_param)  + " expected " + to_string(parameters.size());
+            yyerror(const_cast<char*>(err.c_str()));
+            return NULL;
+        }
+        for(int i=0;i<given_param;i++){
+            int given_type = parameters[i]->param_type->primitivetypeIndex, expected_type = exp_list->lists[i]->value->primitivetypeIndex;
+            if(given_type != expected_type) {
+                string err = "type mismatch in arguments list while creating object of class \"" + class_name + "\"\ngiven datatype" + data_types[given_type]  + " expected " + data_types[expected_type];
+                yyerror(const_cast<char*>(err.c_str()));
+                return NULL;
+            }
+        }
+        for(int i=0;i<given_param;i++){
+            // print 3ac code for calling funtion with given parameters;
+        }
+    }
 }
 
 Node* createNode(string str){
