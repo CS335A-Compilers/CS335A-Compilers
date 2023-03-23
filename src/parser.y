@@ -983,6 +983,8 @@ void print_to_csv() {
 
 // Define an array of strings that corresponds to the type values.
 const string typeStrings[] = {"byte", "short", "int", "long", "char", "float", "double", "boolean", "void", "array"};
+vector<string> class_name;
+int class_index = -1;
 
 void get_csv_entries(LocalSymbolTable* scope){
     vector<LocalSymbolTable*> children = scope->children;
@@ -990,9 +992,28 @@ void get_csv_entries(LocalSymbolTable* scope){
     vector<Node*> temp_var = scope->symbol_table_entries;
     for (Node* variable : temp_var){
         if (variable->isWritten ==  false){
-            if(variable->entry_type == METHOD_DECLARATION){
+            // For class csv file
+            if(variable->entry_type == CLASS_DECLARATION){
+                variable->isWritten = true;
                 csv_contents.insert({variable->name, {}});
+                class_name.push_back(variable->name);
+                class_index++;
             }
+
+            if(variable->entry_type == METHOD_DECLARATION){
+                variable->isWritten = true;
+                csv_contents.insert({variable->name, {}});
+                int dt_index = ((MethodDeclaration*)(variable))->type->primitivetypeIndex;
+                string type;
+                if (dt_index == -1){
+                }
+                else{
+                    type = typeStrings[dt_index];
+                }
+                string str = variable->name + "," + type + "," + variable->lexeme + "," + to_string(variable->line_no);
+                csv_contents[class_name[class_index]].push_back(str);
+            }
+            // For method csv file
             if(variable->entry_type == VARIABLE_DECLARATION){
                 int dt_index = ((LocalVariableDeclaration*)(variable))->type->primitivetypeIndex;
                 string type;
@@ -1013,14 +1034,40 @@ void get_csv_entries(LocalSymbolTable* scope){
                         temp = (LocalSymbolTable*)temp->parent;
                     }
                 }
-                if(temp != NULL){
-                    cout<<temp->level_node->name<<"   "<<str;
-                }
-                if(temp!=NULL && temp->level_node != NULL)
+                if(temp!=NULL && temp->level_node != NULL){
+                    variable->isWritten = true;
                     csv_contents[temp->level_node->name].push_back(str);
+                }
             }
-            variable->isWritten = true;
-
+            
+        }
+        if (variable->isWritten ==  false){
+            // For class csv file
+            if(variable->entry_type == VARIABLE_DECLARATION){
+                int dt_index = ((LocalVariableDeclaration*)(variable))->type->primitivetypeIndex;
+                string type;
+                if (dt_index == -1){
+                    type = ((LocalVariableDeclaration*)(variable))->type->class_instantiated_from->name;
+                }
+                else{
+                    type = typeStrings[dt_index];
+                }
+                string str = variable->name + "," + type + "," + variable->lexeme + "," + to_string(variable->line_no);
+                LocalSymbolTable* temp = get_local_symtab(variable->current_level);
+                while(true){
+                    if(temp==NULL) break;
+                    if(temp->level_node != NULL && temp->level_node->entry_type == CLASS_DECLARATION) {
+                        break;
+                    }
+                    else{
+                        temp = (LocalSymbolTable*)temp->parent;
+                    }
+                }
+                if(temp!=NULL && temp->level_node != NULL){
+                    variable->isWritten = true;
+                    csv_contents[temp->level_node->name].push_back(str);
+                }
+            }
         }
     }
     Node* level_node = scope->level_node;

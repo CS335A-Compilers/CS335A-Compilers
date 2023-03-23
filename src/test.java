@@ -4,7 +4,7 @@ public class test {
     // test(int x){
 
     // }
-    public void main(){
+    public void main(int z){
         // test t2 = new test();
         int y = 5;
         // x = y * 6;
