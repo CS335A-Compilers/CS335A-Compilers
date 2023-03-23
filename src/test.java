@@ -1,20 +1,8 @@
 public class test {
     int x;
-    // test t;
-    // test(int x){
 
-    // }
-    public void main(int z){
-        // test t2 = new test();
-        int y = 5;
-        // x = y * 6;
-        // for(x++;x<5;x--){
-
-        // }
-        // if(x){
-
-        // }
-        // x = 5 + 6 + y;
-        // test t4;
+    public void main(int z) {
+        boolean a;
+        a = 1 == true;
     }
 }

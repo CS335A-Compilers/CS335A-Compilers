@@ -201,6 +201,7 @@ OCTAL_EXCAPE                \\{OCTAL_DIGIT}|\\{OCTAL_DIGIT}{OCTAL_DIGIT}|\\[0-3]
 
 {INT_LITERAL}               {char* temp = strdup(yytext); yylval.lex_val = temp; return NUM_LITERALS;}
 {FLOAT_LITERAL}             {char* temp = strdup(yytext); yylval.lex_val = temp; return DOUBLE_LITERALS;}
+{BOOL_LITERAL}              {char* temp = strdup(yytext); yylval.lex_val = temp; return BOOLEAN_LITERALS;}
 {IDENTIFIER}                {char* temp = strdup(yytext); yylval.lex_val = temp; return IDENTIFIERS_TERMINAL;}
 
 {BLANK_SPACE}+              {}
