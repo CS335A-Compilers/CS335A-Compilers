@@ -190,15 +190,15 @@ ExpressionList::ExpressionList(string lex, Expression* single_expression, vector
 
 /* ####################   Helper funtion related to ast  #################### */
 
-bool typenameErrorChecking(Node* node, pair<int,int> curr_level){
+bool typenameErrorChecking(Node* node, pair<int,int> curr_level, int entry_type){
     IdentifiersList* lists = (IdentifiersList*)node;
     int n = lists->identifiers.size();
     if(n==1){
-        Node* temp = get_local_symtab(curr_level)->get_entry(lists->identifiers[0], -1);
+        Node* temp = get_local_symtab(curr_level)->get_entry(lists->identifiers[0], entry_type);
         if(temp != NULL) return true;
     }
     else{
-        Node* obj = get_local_symtab(curr_level)->get_entry(lists->identifiers[0], -1);
+        Node* obj = get_local_symtab(curr_level)->get_entry(lists->identifiers[0], entry_type);
         // ignoring for time being;
     }
     yyerror("Variable not declared in the scope");

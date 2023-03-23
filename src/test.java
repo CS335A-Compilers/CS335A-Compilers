@@ -6,7 +6,7 @@ public class test {
     // }
     public void main(){
         // test t2 = new test();
-        int c = ae;
+        int c = test;
         int b = 5*6;
         // boolean a = true;
         // if(x==5){
