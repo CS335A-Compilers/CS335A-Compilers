@@ -6,7 +6,7 @@
 
 using namespace std;
 
-#include "inc/symtab.h"
+#include "inc/3ac.h"
 
 extern int yylineno;
 extern void yyerror(char const*);
@@ -45,6 +45,16 @@ IdentifiersList::IdentifiersList(string lex, string single_ident, vector<string>
             identifiers.push_back(idents[i]);
         }
     }
+}
+
+string IdentifiersList::createString(){
+    vector<string> identifiers = this->identifiers;
+    string res = "";
+    for(int i=0;i<identifiers.size();i++){
+        if(i+1 < identifiers.size()) res += identifiers[i] + ".";
+        else res+= identifiers[i];
+    }
+    return res;
 }
 
 Value::Value(){
@@ -175,7 +185,7 @@ bool typenameErrorChecking(Node* node, pair<int,int> curr_level){
     }
     else{
         Node* obj = get_local_symtab(curr_level)->get_entry(lists->identifiers[0], -1);
-        // 
+        // ignoring for time being;
     }
     yyerror("Variable not declared in the scope");
     return false;

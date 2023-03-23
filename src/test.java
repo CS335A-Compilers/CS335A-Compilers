@@ -7,6 +7,7 @@ public class test {
     // test(int x){
 
     // }
+<<<<<<<<< Temporary merge branch 1
     public void main() {
         x = 1;
         test t4;
@@ -21,6 +22,13 @@ public class test {
         }
         int qw[][];
         x = qw[1][2];
+=========
+    public void main(int z){
+        // test t2 = new test();
+        int y = 5;
+        // x = y * 6;
+        // for(x++;x<5;x--){
+>>>>>>>>> Temporary merge branch 2
 
     }
 

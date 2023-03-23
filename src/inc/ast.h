@@ -3,7 +3,7 @@
 using namespace std;
 
 enum ModifierType {PUBLIC, PROTECTED, PRIVATE, ABSTRACT, STATIC, SEALED, NONSEALED, STRICTFP, TRANSITIVE, FINAL, VOLATILE, SYNCHRONIZED, TRANSIENT, NATIVE, };
-enum Types {BYTE, SHORT, INT, LONG, FLOAT, DOUBLE, BOOLEAN, VOID, ARRAY,CHAR, STRING, };
+enum Types {CHAR, BYTE, SHORT, INT, LONG, FLOAT, DOUBLE, BOOLEAN, ARRAY, STRING, VOID, };
 // symbol table entry is added whenever one of these declaration is done
 enum DeclarationType {VARIABLE_DECLARATION, CLASS_DECLARATION, METHOD_DECLARATION, };
 
@@ -36,10 +36,14 @@ class Type : public Node{
         Type(string lex, int primitivetype);
 };
 
+class Expression;
+
 class IdentifiersList : public Node {
     public:
         vector<string> identifiers;
+        Expression* exp;
         IdentifiersList(string lex, string single_ident, vector<string> idents);
+        string createString();
 };
 
 class LocalVariableDeclaration;
@@ -67,6 +71,8 @@ class Value : public Node {
         long long int dim3_count;
         // support for object values, maps from field members pointers to their current value;
         map<LocalVariableDeclaration*, Value*> field_members;
+        // use in printing 3ac code;
+        string getValue();
         Value();
 };
 
