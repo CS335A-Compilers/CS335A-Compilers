@@ -21,6 +21,14 @@ void GlobalSymbolTable::increase_level(){
     return ;
 }
 
+pair<int,int> GlobalSymbolTable::get_next_level(){
+    pair<int,int> curr_level = level_stack.top();
+    int new_main_level = curr_level.first + 1;
+    int new_sub_level = (symbol_tables.size() <= new_main_level) ? 0 : symbol_tables[new_main_level].size();
+    pair<int,int> new_level = {new_main_level, new_sub_level};
+    return new_level;
+}
+
 void GlobalSymbolTable::decrease_level(){
     level_stack.pop();
     if(level_stack.empty()){
@@ -76,13 +84,17 @@ void LocalSymbolTable::add_entry(Node* symtab_entry){
     return ;
 }
 
-Node* LocalSymbolTable::get_entry(string name){
+Node* LocalSymbolTable::get_entry(string name, int entry_type){
     // nested scope 
     LocalSymbolTable* temp = this;
     if(name.find('.') == string::npos){
         while(temp != NULL){
-            if(temp->hashed_names.find(name)!=temp->hashed_names.end())
-                return temp->symbol_table_entries[temp->hashed_names[name]];
+            if(temp->hashed_names.find(name)!=temp->hashed_names.end()){
+                Node* res = temp->symbol_table_entries[temp->hashed_names[name]];
+                // cout<<res->name<<endl;
+                if((entry_type == -1) || (entry_type == (int)(res->entry_type))) return res;
+                else temp = (LocalSymbolTable*)(temp->parent);
+            }
             else{
                 temp = (LocalSymbolTable*)(temp->parent);
             }
@@ -90,6 +102,7 @@ Node* LocalSymbolTable::get_entry(string name){
     }
     else{
         // ##################  support for obj1.obj2 pending  ##################
+        // not required now, as per piazaa discussion;
     }
     return NULL;
 }
