@@ -1,5 +1,5 @@
 #include <iostream>
-#include <bits/stdc++.h>
+#include "../bits/stdc++.h"
 
 #include "ast.h"
 
@@ -23,7 +23,8 @@ class LocalSymbolTable : public GlobalSymbolTable{
         vector<Node*> symbol_table_entries;
         map<string, int> hashed_names;
         GlobalSymbolTable* parent;
-        LocalSymbolTable(pair<int,int> level, GlobalSymbolTable* assign_parent);
+        vector<LocalSymbolTable*> children;
+        LocalSymbolTable(pair<int, int> level, GlobalSymbolTable *assign_parent);
         void add_entry(Node* symtab_entry);
         Node* get_entry(string name);
         Node* level_node;
