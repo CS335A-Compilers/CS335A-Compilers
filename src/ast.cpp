@@ -62,6 +62,19 @@ Value::Value(){
     this->is_byte_val = this->is_char_val = this->is_short_val = false;
 }
 
+string Value::getValue(){
+    string res = "";
+    if(primitivetypeIndex <= LONG) res += to_string(num_val[0]);
+    else if(primitivetypeIndex == FLOAT) res += to_string(float_val[0]);
+    else if(primitivetypeIndex == DOUBLE) res += to_string(double_val[0]);
+    else if(primitivetypeIndex == STRING) res += (string_val[0]);
+    else if(primitivetypeIndex == CHAR) res += (string_val[0]);
+    else {
+
+    }
+    return res;
+}
+
 FormalParameterList::FormalParameterList(string lex, FormalParameter* single_parameter, vector<FormalParameter*> parameters)
     : Node(lex) {
     lists.resize(0);
@@ -160,7 +173,8 @@ Expression::Expression(string lex, Value* val, bool primary, bool literal)
     isPrimary = primary;
     isLiteral = literal;
     registor_index = -1;
-    
+    if(primary) primary_exp_val = val->getValue();
+    else primary_exp_val = "";
 }
 
 ExpressionList::ExpressionList(string lex, Expression* single_expression, vector<Expression*> expressions)

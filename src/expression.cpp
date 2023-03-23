@@ -62,6 +62,7 @@ Expression* grammar_1(string lex,Expression* e1,bool isprimary,bool isliteral){
     if (e1 == NULL) return NULL;
     Expression* obj = new Expression(lex, e1->value, isprimary, isliteral);
     obj->registor_index = e1->registor_index;
+    obj->primary_exp_val = e1->primary_exp_val;
     return obj;
 }
 
@@ -671,7 +672,7 @@ Expression* assignValue(IdentifiersList* type_name, string op, Expression* exp){
             // cout<<exp->value->num_val[0]<<" <-new value\n";
             if((name_type <= 3 && exp_type <= 3) || ((name_type >= 4 && exp_type >= 4) && (name_type >= 6 && exp_type >= 6))){
                 if(op == "="){
-                    name->variable_declarator->initialized_value = exp->value;
+                    // name->variable_declarator->initialized_value = exp->value;
                     // addInstruction();
                 }
                 else if(op == "+="){
