@@ -4,6 +4,7 @@
 using namespace std;
 
 extern void yyerror(char const*);
+extern GlobalSymbolTable* global_symtab;
 
 double getValue(Value* val){
     switch (val->primitivetypeIndex){
@@ -630,4 +631,40 @@ Expression* evalEX(string lex,Expression* e1){
 
 }
 
- 
+Expression* assignValue(IdentifiersList* type_name, string op, Expression* exp){
+    LocalVariableDeclaration* name = (LocalVariableDeclaration*)(get_local_symtab(global_symtab->current_level)->get_entry(type_name->createString(), -1));
+    assert(name != NULL);
+    Expression* obj = new Expression("assignment", NULL, false, false);
+    if(name->entry_type == VARIABLE_DECLARATION){
+        if(type_name->identifiers.size() == 1){
+            int name_type = name->type->primitivetypeIndex;
+            int exp_type = exp->value->primitivetypeIndex;
+            // cout<<name->variable_declarator->initialized_value->num_val[0]<<" <-previous value\n";
+            // cout<<exp->value->num_val[0]<<" <-new value\n";
+            if((name_type <= 3 && exp_type <= 3) || ((name_type >= 4 && exp_type >= 4) && (name_type >= 6 && exp_type >= 6))){
+                if(op == "="){
+                    name->variable_declarator->initialized_value = exp->value;
+                    // addInstruction();
+                }
+                else if(op == "+="){
+                    // doing for all operators; 
+                }
+                obj->value = exp->value;
+                return obj;
+            }
+            else{
+                yyerror("invalid data type for assignment");
+                return NULL;
+            }
+        }
+        else{
+            // doing for class and field members
+            
+        }
+    }
+    else{
+        string err = "use of undeclared variable \"" + name->name + "\"";
+        yyerror(const_cast<char*>(err.c_str()));
+        return NULL;
+    }
+}

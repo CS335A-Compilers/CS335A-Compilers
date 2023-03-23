@@ -71,7 +71,7 @@ void LocalSymbolTable::add_entry(Node* symtab_entry){
         if(temp->type->primitivetypeIndex == -1){
             // cout<<"object of class type: "<<temp->type->class_instantiated_from->name<<" declared named : "<<temp->name<<" \n";
         }
-        // cout<<temp->variable_declarator->identifier<<endl;
+        // cout<<temp->variable_declarator->initialized_value->num_val[0];
         // cout<<temp->variable_declarator->num_of_dims<<endl;
         // if(temp->isFieldVariable) cout<<"field member it is\n";
         // throw error if bad modifier list combination done
@@ -85,23 +85,21 @@ void LocalSymbolTable::add_entry(Node* symtab_entry){
 Node* LocalSymbolTable::get_entry(string name, int entry_type){
     // nested scope 
     LocalSymbolTable* temp = this;
-    if(name.find('.') == string::npos){
-        while(temp != NULL){
-            if(temp->hashed_names.find(name)!=temp->hashed_names.end()){
-                Node* res = temp->symbol_table_entries[temp->hashed_names[name]];
-                // cout<<res->name<<endl;
-                if((entry_type == -1) || (entry_type == (int)(res->entry_type))) return res;
-                else temp = (LocalSymbolTable*)(temp->parent);
-            }
-            else{
-                temp = (LocalSymbolTable*)(temp->parent);
-            }
+    int pos = name.find('.');
+    if(pos != string::npos) name = name.substr(0, pos);
+    while(temp != NULL){
+        if(temp->hashed_names.find(name)!=temp->hashed_names.end()){
+            Node* res = temp->symbol_table_entries[temp->hashed_names[name]];
+            // cout<<res->name<<endl;
+            if((entry_type == -1) || (entry_type == (int)(res->entry_type))) return res;
+            else temp = (LocalSymbolTable*)(temp->parent);
+        }
+        else{
+            temp = (LocalSymbolTable*)(temp->parent);
         }
     }
-    else{
-        // ##################  support for obj1.obj2 pending  ##################
-        // not required now, as per piazaa discussion;
-    }
+    // for input of type x it returns x;
+    // for input of type obj.x it returns obj;
     return NULL;
 }
 

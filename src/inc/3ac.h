@@ -5,7 +5,6 @@
 
 #define MAX_REGISTORS 8
 
-
 class ThreeAC {
     public:
         // op stores the operator used between them; 
@@ -28,3 +27,4 @@ void print3AC(ThreeAC* inst);
 int findEmptyRegistor();
 void addInstruction(Expression* e, Expression* e1, Expression* e2, string op, int form);
 void generate3AC();
+void printRegistor(Expression* exp);

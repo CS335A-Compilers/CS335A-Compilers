@@ -40,7 +40,7 @@
 %token<lex_val> goto_keyword_terminal const_keyword_terminal __keyword_terminal abstract_keyword_terminal continue_keyword_terminal for_keyword_terminal new_keyword_terminal  assert_keyword_terminal default_keyword_terminal if_keyword_terminal synchronized_keyword_terminal boolean_keyword_terminal do_keyword_terminal private_keyword_terminal this_keyword_terminal break_keyword_terminal double_keyword_terminal implements_keyword_terminal protected_keyword_terminal throw_keyword_terminal byte_keyword_terminal else_keyword_terminal public_keyword_terminal return_keyword_terminal transient_keyword_terminal extends_keyword_terminal int_keyword_terminal short_keyword_terminal char_keyword_terminal final_keyword_terminal static_keyword_terminal void_keyword_terminal class_keyword_terminal long_keyword_terminal strictfp_keyword_terminal volatile_keyword_terminal float_keyword_terminal native_keyword_terminal super_keyword_terminal while_keyword_terminal record_keyword_terminal
 %token<lex_val> '=' '>' '<' '!' '~' '?' ':' '+' '-' '*' '/' '&' '|' '^' '%' ',' '.' ';' '(' ')' '[' ']' '{' '}' '@'
 %token<lex_val> EQ_OP_TERMINAL GE_OP_TERMINAL LE_OP_TERMINAL NE_OP_TERMINAL AND_OP_TERMINAL OR_OP_TERMINAL INC_OP_TERMINAL DEC_OP_TERMINAL LEFT_OP_TERMINAL RIGHT_OP_TERMINAL BIT_RIGHT_SHFT_OP_TERMINAL ADD_ASSIGN_TERMINAL SUB_ASSIGN_TERMINAL MUL_ASSIGN_TERMINAL DIV_ASSIGN_TERMINAL AND_ASSIGN_TERMINAL OR_ASSIGN_TERMINAL XOR_ASSIGN_TERMINAL MOD_ASSIGN_TERMINAL LEFT_ASSIGN_TERMINAL RIGHT_ASSIGN_TERMINAL BIT_RIGHT_SHFT_ASSIGN_TERMINAL
-%token<lex_val> IDENTIFIERS_TERMINAL NUM_LITERALS DOUBLE_LITERALS STRING_LITERALS CHAR_LITERALS
+%token<lex_val> IDENTIFIERS_TERMINAL NUM_LITERALS DOUBLE_LITERALS STRING_LITERALS CHAR_LITERALS BOOLEAN_LITERALS
 
 %left AND_OP_TERMINAL
 %left OR_OP_TERMINAL
@@ -198,10 +198,10 @@ unary_expression_not_plus_minus
         //     |   switch_expression                                                                                                               {Node* node = createNode("unary expression not plus minus");if(node == NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
 
 postfix_expression
-            :   primary                                                                                                                         {Expression* node = grammar_1("postfix expression",$1, $1->isPrimary,$1->isLiteral);if(node == NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
-            |   type_name                                                                                                                       {Expression* node = grammar_1("postfix expression",(Expression*)$1, true,false);if(node == NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
-            |   post_increment_expression                                                                                                       {Expression* node = grammar_1("postfix expression",$1, $1->isPrimary,$1->isLiteral);if(node == NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
-            |   post_decrement_expression                                                                                                       {Expression* node = grammar_1("postfix expression",$1, $1->isPrimary,$1->isLiteral);if(node == NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
+            :   primary                                                                                                                         {Expression* node = grammar_1("postfix expression",$1, $1->isPrimary,$1->isLiteral); if(node == NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
+            |   type_name                                                                                                                       {Expression* node = new Expression("postfix expression", NULL, true, false); if(node == NULL) YYERROR; if(!typenameErrorChecking(node, global_symtab->current_level)) YYERROR; node->isPrimary = true; node->value = ((LocalVariableDeclaration*)(get_local_symtab(global_symtab->current_level)->get_entry($1->createString(), -1)))->variable_declarator->initialized_value; node->addChildren({$1}); $$ = node;}           
+            |   post_increment_expression                                                                                                       {Expression* node = grammar_1("postfix expression",$1, $1->isPrimary,$1->isLiteral); if(node == NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
+            |   post_decrement_expression                                                                                                       {Expression* node = grammar_1("postfix expression",$1, $1->isPrimary,$1->isLiteral); if(node == NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
 
 post_increment_expression
             :   postfix_expression INC_OP                                                                                                       {Expression* node = evalIC_DC("post increment expression","++",$1);if(node == NULL) YYERROR; node->addChildren({$1,$2}); $$ = node;}           
@@ -271,7 +271,7 @@ comma_expression_zero_or_more
             |   COMMA_OP expression comma_expression_zero_or_more                                                                                       {ExpressionList* node = new ExpressionList("comma expression zero or more", $2, $3->lists); node->addChildren({$1,$2,$3}); $$ = node;}           
 
 assignment
-            :   type_name assignment_operators expression                                                                                               {Expression* node = new Expression("assignment", $3->value, false, false); node->addChildren({$1,$2,$3}); $$ = node;}           
+            :   type_name assignment_operators expression                                                                                               {Expression* node = assignValue($1, $2->children[0]->lexeme, $3); cout<<node->value->num_val[0]; node->addChildren({$1,$2,$3});  $$ = node;}           
         //     |   field_access assignment_operators expression                                                                                            {Node* node = createNode("assignment"); node->addChildren({$1,$2,$3}); $$ = node;}           
         //     |   array_access assignment_operators expression                                                                                            {Node* node = createNode("assignment"); node->addChildren({$1,$2,$3}); $$ = node;}           
 
@@ -312,16 +312,16 @@ dims
 
 primitive_type
             :   numeric_type                                                                                                                            {Type* node = new Type("primitive type", $1->primitivetypeIndex); node->addChildren({$1}); $$ = node;}
-            |   BOOLEAN_KEYWORD                                                                                                                         {Type* node = new Type("primitive type", 7); node->addChildren({$1}); $$ = node;}
+            |   BOOLEAN_KEYWORD                                                                                                                         {Type* node = new Type("primitive type", BOOLEAN); node->addChildren({$1}); $$ = node;}
 
 numeric_type
-            :   BYTE_KEYWORD                                                                                                                            {Type* node = new Type("numeric type", 0); node->addChildren({$1}); $$ = node;}
-            |   SHORT_KEYWORD                                                                                                                           {Type* node = new Type("numeric type", 1); node->addChildren({$1}); $$ = node;}
-            |   INT_KEYWORD                                                                                                                             {Type* node = new Type("numeric type", 2); node->addChildren({$1}); $$ = node;}
-            |   LONG_KEYWORD                                                                                                                            {Type* node = new Type("numeric type", 3); node->addChildren({$1}); $$ = node;}
-            |   CHAR_KEYWORD                                                                                                                            {Type* node = new Type("numeric type", 4); node->addChildren({$1}); $$ = node;}
-            |   FLOAT_KEYWORD                                                                                                                           {Type* node = new Type("numeric type", 5); node->addChildren({$1}); $$ = node;}
-            |   DOUBLE_KEYWORD                                                                                                                          {Type* node = new Type("numeric type", 6); node->addChildren({$1}); $$ = node;}
+            :   BYTE_KEYWORD                                                                                                                            {Type* node = new Type("numeric type", BYTE); node->addChildren({$1}); $$ = node;}
+            |   SHORT_KEYWORD                                                                                                                           {Type* node = new Type("numeric type", SHORT); node->addChildren({$1}); $$ = node;}
+            |   INT_KEYWORD                                                                                                                             {Type* node = new Type("numeric type", INT); node->addChildren({$1}); $$ = node;}
+            |   LONG_KEYWORD                                                                                                                            {Type* node = new Type("numeric type", LONG); node->addChildren({$1}); $$ = node;}
+            |   CHAR_KEYWORD                                                                                                                            {Type* node = new Type("numeric type", CHAR); node->addChildren({$1}); $$ = node;}
+            |   FLOAT_KEYWORD                                                                                                                           {Type* node = new Type("numeric type", FLOAT); node->addChildren({$1}); $$ = node;}
+            |   DOUBLE_KEYWORD                                                                                                                          {Type* node = new Type("numeric type", DOUBLE); node->addChildren({$1}); $$ = node;}
 
 array_initializer
             :   OP_CURLY_BRCKT variable_initializer_list_zero_or_more CLOSE_CURLY_BRCKT                                                                 {Node* node = createNode("array initializer"); node->addChildren({$1,$2,$3}); $$ = node;}
@@ -339,7 +339,7 @@ variable_initializer
         //     |   array_initializer                                                                                                                       {Expression* node = grammar_1("variable initializer", $1, $1->isPrimary, $1->isLiteral); node->addChildren({$1}); $$ = node;}
 
 type_name
-            :   type_name_scoping                                                                                                                             {IdentifiersList* node = new IdentifiersList("type name", "", $1->identifiers); if(!typenameErrorChecking(node, global_symtab->current_level)) YYERROR; $$ = node;}
+            :   type_name_scoping                                                                                                                             {IdentifiersList* node = new IdentifiersList("type name", "", $1->identifiers); if(!typenameErrorChecking(node, global_symtab->current_level)) YYERROR; node->addChildren({$1}); $$ = node;}
 
 type_name_scoping
             :   IDENTIFIERS                                                                                                                             {IdentifiersList* node = new IdentifiersList("type name", $1->lexeme, {}); node->addChildren({$1}); $$ = node;}
@@ -716,9 +716,6 @@ ASSERT_KEYWORD
 IF_KEYWORD
         :       if_keyword_terminal                                                     {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
-// PACKAGE_KEYWORD
-//         :       package_keyword_terminal                                                {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
-
 SYNCHRONIZED_KEYWORD
         :       synchronized_keyword_terminal                                           {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
@@ -740,9 +737,6 @@ BREAK_KEYWORD
 DOUBLE_KEYWORD
         :       double_keyword_terminal                                                 {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
-// IMPLEMENTS_KEYWORD
-//         :       implements_keyword_terminal                                             {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
-
 PROTECTED_KEYWORD
         :       protected_keyword_terminal                                              {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
@@ -755,32 +749,17 @@ BYTE_KEYWORD
 ELSE_KEYWORD
         :       else_keyword_terminal                                                   {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
-// IMPORT_KEYWORD
-//         :       import_keyword_terminal                                                 {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
-
 PUBLIC_KEYWORD
         :       public_keyword_terminal                                                 {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
-// THROWS_KEYWORD
-//         :       throws_keyword_terminal                                                 {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
-
 // CASE_KEYWORD
 //         :       case_keyword_terminal                                                   {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
-
-// ENUM_KEYWORD
-//         :       enum_keyword_terminal                                                   {Node* temp = createNode($1); temp->isTerminal = true;  $$ = temp;}
-
-// INSTANCEOF_KEYWORD
-//         :       instanceof_keyword_terminal                                             {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 RETURN_KEYWORD
         :       return_keyword_terminal                                                 {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 TRANSIENT_KEYWORD
         :       transient_keyword_terminal                                              {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
-
-// CATCH_KEYWORD
-//         :       catch_keyword_terminal                                                  {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 EXTENDS_KEYWORD
         :       extends_keyword_terminal                                                {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
@@ -791,17 +770,11 @@ INT_KEYWORD
 SHORT_KEYWORD
         :       short_keyword_terminal                                                  {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
-// TRY_KEYWORD
-//         :       try_keyword_terminal                                                    {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
-
 CHAR_KEYWORD
         :       char_keyword_terminal                                                   {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 FINAL_KEYWORD
         :       final_keyword_terminal                                                  {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
-
-// INTERFACE_KEYWORD
-//         :       interface_keyword_terminal                                              {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 STATIC_KEYWORD
         :       static_keyword_terminal                                                 {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
@@ -811,9 +784,6 @@ VOID_KEYWORD
 
 CLASS_KEYWORD
         :       class_keyword_terminal                                                  {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
-
-// FINALLY_KEYWORD
-//         :       finally_keyword_terminal                                                {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 LONG_KEYWORD
         :       long_keyword_terminal                                                   {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
@@ -835,57 +805,6 @@ SUPER_KEYWORD
 
 WHILE_KEYWORD
         :       while_keyword_terminal                                                  {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
-
-// EXPORTS_KEYWORD
-//         :       exports_keyword_terminal                                                {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
-
-// OPENS_KEYWORD
-//         :       opens_keyword_terminal                                                  {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
-
-// REQUIRES_KEYWORD
-//         :       requires_keyword_terminal                                               {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
-
-// USES_KEYWORD
-//         :       uses_keyword_terminal                                                   {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
-
-// MODULE_KEYWORD
-//         :       module_keyword_terminal                                                 {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
-
-// PERMITS_KEYWORD
-//         :       permits_keyword_terminal                                                {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
-
-// SEALED_KEYWORD
-//         :       sealed_keyword_terminal                                                 {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
-
-// VAR_KEYWORD
-//         :       var_keyword_terminal                                                    {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
-
-// NONSEALED_KEYWORD
-//         :       nonsealed_keyword_terminal                                              {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
-
-// PROVIDES_KEYWORD
-//         :       provides_keyword_terminal                                               {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
-
-// TO_KEYWORD
-//         :       to_keyword_terminal                                                     {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
-
-// WITH_KEYWORD
-//         :       with_keyword_terminal                                                   {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
-
-// OPEN_KEYWORD
-//         :       open_keyword_terminal                                                   {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
-
-// RECORD_KEYWORD
-//         :       record_keyword_terminal                                                 {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
-
-// TRANSITIVE_KEYWORD
-//         :       transitive_keyword_terminal                                             {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
-
-// YIELD_KEYWORD
-//         :       yield_keyword_terminal                                                  {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
-
-// PTR_OP
-//         :       PTR_OP_TERMINAL                                                         {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 EQ_OP
         :       EQ_OP_TERMINAL                                                          {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
@@ -961,6 +880,7 @@ LITERALS
         |       DOUBLE_LITERALS                                                         {Value* va = new Value(); va->double_val.push_back(strtod($1, NULL)); Expression* temp = new Expression($1, va, true, true);  temp->isTerminal = true; $$ = temp;}
         |       STRING_LITERALS                                                         {Value* va = new Value(); va->string_val.push_back($1); Expression* temp = new Expression($1, va, true, true);  temp->isTerminal = true; $$ = temp;}
         |       CHAR_LITERALS                                                           {Value* va = new Value(); va->string_val.push_back($1); Expression* temp = new Expression($1, va, true, true); temp->value->is_char_val = true; temp->isTerminal = true; $$ = temp;}
+        |       BOOLEAN_LITERALS                                                        {Value* va = new Value(); va->boolean_val.push_back(stricmp($1,"true")==0); Expression* temp = new Expression($1, va, true, true); temp->value->is_char_val = false; temp->isTerminal = true; $$ = temp;}
 
 %%
 
@@ -1094,6 +1014,8 @@ int main(int argc, char **argv){
     LocalSymbolTable* locale = new LocalSymbolTable({0,0}, NULL);
     global_symtab->symbol_tables[0][0] = locale;
     yyparse();
+//     Value* va = ((LocalVariableDeclaration*)(get_local_symtab(global_symtab->current_level)->get_entry("x", -1)))->variable_declarator->initialized_value;
+//     cout<<va->primitivetypeIndex<<endl<<va->num_val[0];
     fclose(yyin);
     generate3AC();
     return 0;
