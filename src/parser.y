@@ -40,7 +40,7 @@
 %token<lex_val> goto_keyword_terminal const_keyword_terminal __keyword_terminal abstract_keyword_terminal continue_keyword_terminal for_keyword_terminal new_keyword_terminal  assert_keyword_terminal default_keyword_terminal if_keyword_terminal synchronized_keyword_terminal boolean_keyword_terminal do_keyword_terminal private_keyword_terminal this_keyword_terminal break_keyword_terminal double_keyword_terminal implements_keyword_terminal protected_keyword_terminal throw_keyword_terminal byte_keyword_terminal else_keyword_terminal public_keyword_terminal return_keyword_terminal transient_keyword_terminal extends_keyword_terminal int_keyword_terminal short_keyword_terminal char_keyword_terminal final_keyword_terminal static_keyword_terminal void_keyword_terminal class_keyword_terminal long_keyword_terminal strictfp_keyword_terminal volatile_keyword_terminal float_keyword_terminal native_keyword_terminal super_keyword_terminal while_keyword_terminal record_keyword_terminal
 %token<lex_val> '=' '>' '<' '!' '~' '?' ':' '+' '-' '*' '/' '&' '|' '^' '%' ',' '.' ';' '(' ')' '[' ']' '{' '}' '@'
 %token<lex_val> EQ_OP_TERMINAL GE_OP_TERMINAL LE_OP_TERMINAL NE_OP_TERMINAL AND_OP_TERMINAL OR_OP_TERMINAL INC_OP_TERMINAL DEC_OP_TERMINAL LEFT_OP_TERMINAL RIGHT_OP_TERMINAL BIT_RIGHT_SHFT_OP_TERMINAL ADD_ASSIGN_TERMINAL SUB_ASSIGN_TERMINAL MUL_ASSIGN_TERMINAL DIV_ASSIGN_TERMINAL AND_ASSIGN_TERMINAL OR_ASSIGN_TERMINAL XOR_ASSIGN_TERMINAL MOD_ASSIGN_TERMINAL LEFT_ASSIGN_TERMINAL RIGHT_ASSIGN_TERMINAL BIT_RIGHT_SHFT_ASSIGN_TERMINAL
-%token<lex_val> IDENTIFIERS_TERMINAL NUM_LITERALS DOUBLE_LITERALS STRING_LITERALS CHAR_LITERALS
+%token<lex_val> IDENTIFIERS_TERMINAL NUM_LITERALS DOUBLE_LITERALS STRING_LITERALS CHAR_LITERALS BOOLEAN_LITERALS
 
 %left AND_OP_TERMINAL
 %left OR_OP_TERMINAL
@@ -126,7 +126,7 @@ assignment_expression
 
 condtional_expression
             :   conditional_or_expression                                                                                                       {Expression* node = grammar_1("condtional expression",$1, $1->isPrimary, $1->isLiteral);if(node == NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
-            |   conditional_or_expression QN_OP expression COLON_OP condtional_expression                                                       {Expression* node = cond_qn_co("condtional expression",$1,$3,$5); node->addChildren({$1,$2,$3,$4,$5});if(node == NULL) YYERROR; $$ = node;}           
+            |   conditional_or_expression QN_OP expression COLON_OP condtional_expression                                                       {printf("1\n"); Expression* node = cond_qn_co("condtional expression",$1,$3,$5); if(node == NULL) YYERROR; node->addChildren({$1,$2,$3,$4,$5}); $$ = node;}           
 
 conditional_or_expression
             :   conditional_and_expression                                                                                                      {Expression* node = grammar_1("condtional or expression",$1,$1->isPrimary, $1->isLiteral);if(node == NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
@@ -957,16 +957,17 @@ IDENTIFIERS
         :       IDENTIFIERS_TERMINAL                                                    {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 LITERALS
-        :       NUM_LITERALS                                                            {Value* va = new Value(); va->num_val.push_back(strtol($1, NULL, 10)); Expression* temp = new Expression($1, va, true, true);  temp->isTerminal = true; $$ = temp;}
-        |       DOUBLE_LITERALS                                                         {Value* va = new Value(); va->double_val.push_back(strtod($1, NULL)); Expression* temp = new Expression($1, va, true, true);  temp->isTerminal = true; $$ = temp;}
-        |       STRING_LITERALS                                                         {Value* va = new Value(); va->string_val.push_back($1); Expression* temp = new Expression($1, va, true, true);  temp->isTerminal = true; $$ = temp;}
-        |       CHAR_LITERALS                                                           {Value* va = new Value(); va->string_val.push_back($1); Expression* temp = new Expression($1, va, true, true); temp->value->is_char_val = true; temp->isTerminal = true; $$ = temp;}
+        :       NUM_LITERALS                                                            {Value* va = new Value(); va->primitivetypeIndex = LONG; va->num_val.push_back(strtol($1, NULL, 10)); Expression* temp = new Expression($1, va, true, true);  temp->isTerminal = true; $$ = temp;}
+        |       DOUBLE_LITERALS                                                         {Value* va = new Value(); va->primitivetypeIndex = DOUBLE; va->double_val.push_back(strtod($1, NULL)); Expression* temp = new Expression($1, va, true, true);  temp->isTerminal = true; $$ = temp;}
+        |       STRING_LITERALS                                                         {Value* va = new Value(); va->primitivetypeIndex = STRING; va->string_val.push_back($1); Expression* temp = new Expression($1, va, true, true);  temp->isTerminal = true; $$ = temp;}
+        |       CHAR_LITERALS                                                           {Value* va = new Value(); va->primitivetypeIndex = CHAR; va->string_val.push_back($1); Expression* temp = new Expression($1, va, true, true); temp->isTerminal = true; $$ = temp;}
+        |       BOOLEAN_LITERALS                                                        {Value* va = new Value(); va->primitivetypeIndex = BOOLEAN; va->boolean_val.push_back(strcmp($1,"true")==0); Expression* temp = new Expression($1, va, true, true); temp->value->is_char_val = false; temp->isTerminal = true; $$ = temp;}
 
 %%
 
 string filename;
 map<string, vector<string>> csv_contents;
-
+/*temp->value->is_char_val = true;*/
 // use the 'fprintf' function to print the lexeme, its token and its count to a CSV file. 
 void print_to_csv() {
     // Loop through the map and write the data to the CSV file
@@ -982,7 +983,7 @@ void print_to_csv() {
 }
 
 // Define an array of strings that corresponds to the type values.
-const string typeStrings[] = {"byte", "short", "int", "long", "char", "float", "double", "boolean", "void", "array"};
+const string typeStrings[] = {"char", "byte", "short", "int", "long", "float", "double", "boolean", "array", "string", "void"};
 vector<string> class_name;
 int class_index = -1;
 
