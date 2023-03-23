@@ -294,7 +294,7 @@ Expression* evalRELATIONAL(string lex,Expression* e1,string op,Expression* e2){
     Value* va= new Value();
     va->boolean_val.push_back(val);
     Expression* obj=new Expression(lex,va,false,false);
-    addInstruction(obj, e1,e2,op, 0);
+    // addInstruction(obj, e1,e2,op, 0);
     return obj;
 }
 
@@ -316,7 +316,7 @@ Expression* evalSHIFT(string lex,Expression* e1,string op,Expression* e2){
     va->primitivetypeIndex = 3;
     va->num_val.push_back(val);
     Expression* obj=new Expression(lex,va,false,false);
-    addInstruction(obj, e1,e2,op, 0);
+    // addInstruction(obj, e1,e2,op, 0);
     return obj;   
 }
 
@@ -577,7 +577,7 @@ Expression* evalARITHMETIC(string lex,string op,Expression* e1,Expression* e2){
     }
     
     Expression* obj=new Expression(lex,va,false,false);
-    addInstruction(obj, e1, e2, op, 0);
+    // addInstruction(obj, e1, e2, op, 0);
     return obj;
 }
 
@@ -610,7 +610,7 @@ Expression* evalUNARY(string lex,string op,Expression* e1){
     Value* va= new Value();
     va->boolean_val.push_back(val);
     Expression* obj=new Expression(lex,va,false,false);
-    addInstruction(obj, e1, NULL, op, 0);
+    // addInstruction(obj, e1, NULL, op, 0);
     return obj; 
 }
 
@@ -618,20 +618,20 @@ Expression* evalUNARY(string lex,string op,Expression* e1){
 Expression* evalIC_DC(string lex,string op,Expression* e1){
     if(e1==NULL)
         return NULL;
-    if(e1->value->primitivetypeIndex >5){
-        yyerror("Error: bad operand types for increment or decrement operator");
+    if(e1->value->primitivetypeIndex > DOUBLE){
+        yyerror("bad operand types for increment or decrement operator");
         return NULL;
     }
-    int val;
-    if(op=="++")
-        val=e1->value->num_val[0]+1;
-    else if(op=="--")
-        val=e1->value->float_val[0]-1;
+    // int val;
+    // if(op=="++")
+    //     val=e1->value->num_val[0]+1;
+    // else if(op=="--")
+    //     val=e1->value->float_val[0]-1;
     Value* va= new Value();
-    va->boolean_val.push_back(val);
+    // va->boolean_val.push_back(val);
     Expression* obj=new Expression(lex,va,false,false);
     // assuming for post increment; change afterwards
-    addInstruction(obj, e1, NULL, op, 0);
+    // addInstruction(obj, e1, NULL, op, 0);
     return obj;
 }
 
@@ -681,7 +681,7 @@ Expression* assignValue(IdentifiersList* type_name, string op, Expression* exp){
             // cout<<exp->value->num_val[0]<<" <-new value\n";
             if((name_type <= 3 && exp_type <= 3) || ((name_type >= 4 && exp_type >= 4) && (name_type >= 6 && exp_type >= 6))){
                 if(op == "="){
-                    name->variable_declarator->initialized_value = exp->value;
+                    // name->variable_declarator->initialized_value = exp->value;
                     // addInstruction();
                 }
                 else if(op == "+="){

@@ -890,12 +890,12 @@ map<string, vector<string>> csv_contents;
 // use the 'fprintf' function to print the lexeme, its token and its count to a CSV file. 
 void print_to_csv() {
     // Loop through the map and write the data to the CSV file
-   for (auto const& [key, val] : csv_contents) {
+   for (auto z : csv_contents) {
       // Open the CSV file for writing
-      ofstream file("./output/" + key + ".csv");
+      ofstream file("./output/" + z.first + ".csv");
       // Loop through the vector and write each element to the CSV file
       file << "Name,Type,Syntactic Category,Line no" << "\n";
-      for (auto const& v : val) {
+      for (auto const& v : z.second) {
          file << v << "\n";
       }
    }
@@ -1146,15 +1146,15 @@ int main(int argc, char **argv){
     fclose(yyin);
 
     // Print the symbol table
-    for(int i = 0;i < global_symtab->symbol_tables.size(); i++){
-        for(int j = 0; j < global_symtab->symbol_tables[i].size(); j++){
-            // get the local symbol table
-            LocalSymbolTable* curr_scope = ((LocalSymbolTable*)global_symtab->symbol_tables[i][j]);
-            get_csv_entries(curr_scope);
-        }
-    }
-    print_to_csv();
-    generate3AC();
+//     for(int i = 0;i < global_symtab->symbol_tables.size(); i++){
+//         for(int j = 0; j < global_symtab->symbol_tables[i].size(); j++){
+//             // get the local symbol table
+//             LocalSymbolTable* curr_scope = ((LocalSymbolTable*)global_symtab->symbol_tables[i][j]);
+//             get_csv_entries(curr_scope);
+//         }
+//     }
+//     print_to_csv();
+//     generate3AC();
     return 0;
 }
 
