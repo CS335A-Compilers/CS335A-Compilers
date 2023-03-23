@@ -94,7 +94,7 @@ primary
         //     |   array_creation_expression                                                                                                       {Expression* node = grammar_1("primary",$1, $1->isPrimary, $1->isLiteral); node->addChildren({$1}); $$ = node;}
 
 primary_no_new_array
-            :   LITERALS                                                                                                                        {Expression* node = grammar_1("primary no new array", $1, $1->isPrimary, $1->isLiteral); node->addChildren({$1}); $$ = node;}
+            :   LITERALS                                                                                                                        {cout<<"literal: "<<$1->value->boolean_val[0]<<endl; Expression* node = grammar_1("primary no new array", $1, $1->isPrimary, $1->isLiteral); node->addChildren({$1}); $$ = node;}
         //     |   THIS_KEYWORD                                                                                                                    {Expression* node = grammar_1("primary no new array",$1, $1->isPrimary, $1->isLiteral); node->addChildren({$1}); $$ = node;}
         //     |   type_name DOT_OP THIS_KEYWORD                                                                                                   {Node* node = createNode("primary no new array"); node->addChildren({$1,$2,$3}); $$ = node;}
         //     |   class_literal                                                                                                                   {Node* node = createNode("primary no new array"); node->addChildren({$1}); $$ = node;}
@@ -335,7 +335,7 @@ variable_initializer_list
             |   variable_initializer COMMA_OP variable_initializer_list                                                                                 {ExpressionList* node = new ExpressionList("variable initializer list", $1, $3->lists); node->addChildren({$1,$2,$3}); $$ = node;}
 
 variable_initializer
-            :   expression                                                                                                                              {Expression* node = grammar_1("variable initializer", $1, $1->isPrimary, $1->isLiteral); node->addChildren({$1}); $$ = node;}
+            :   expression                                                                                                                              {Expression* node = grammar_1("variable initializer", $1, $1->isPrimary, $1->isLiteral); cout<<$1->value->boolean_val[0]<<endl; node->addChildren({$1}); $$ = node;}
         //     |   array_initializer                                                                                                                    {Expression* node = grammar_1("variable initializer", $1, $1->isPrimary, $1->isLiteral); node->addChildren({$1}); $$ = node;}
 
 type_name
@@ -876,11 +876,11 @@ IDENTIFIERS
         :       IDENTIFIERS_TERMINAL                                                    {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 LITERALS
-        :       NUM_LITERALS                                                            {Value* va = new Value(); va->num_val.push_back(strtol($1, NULL, 10));      Expression* temp = new Expression($1, va, true, true); temp->isTerminal = true; $$ = temp;}
-        |       DOUBLE_LITERALS                                                         {Value* va = new Value(); va->double_val.push_back(strtod($1, NULL));       Expression* temp = new Expression($1, va, true, true); temp->isTerminal = true; $$ = temp;}
-        |       STRING_LITERALS                                                         {Value* va = new Value(); va->string_val.push_back($1);                     Expression* temp = new Expression($1, va, true, true); temp->isTerminal = true; $$ = temp;}
-        |       CHAR_LITERALS                                                           {Value* va = new Value(); va->string_val.push_back($1);                     Expression* temp = new Expression($1, va, true, true); temp->isTerminal = true; temp->value->is_char_val = true;  $$ = temp;}
-        |       BOOLEAN_LITERALS                                                        {Value* va = new Value(); va->boolean_val.push_back(strcmp($1,"true")==0);  Expression* temp = new Expression($1, va, true, true); temp->isTerminal = true; temp->value->is_char_val = false; $$ = temp;}
+        :       NUM_LITERALS                                                            {Value* va = new Value(); va->primitivetypeIndex = LONG;    va->num_val.push_back(strtol($1, NULL, 10));      Expression* temp = new Expression($1, va, true, true); temp->isTerminal = true; $$ = temp;}
+        |       DOUBLE_LITERALS                                                         {Value* va = new Value(); va->primitivetypeIndex = DOUBLE;  va->double_val.push_back(strtod($1, NULL));       Expression* temp = new Expression($1, va, true, true); temp->isTerminal = true; $$ = temp;}
+        |       STRING_LITERALS                                                         {Value* va = new Value(); va->primitivetypeIndex = STRING;  va->string_val.push_back($1);                     Expression* temp = new Expression($1, va, true, true); temp->isTerminal = true; $$ = temp;}
+        |       CHAR_LITERALS                                                           {Value* va = new Value(); va->primitivetypeIndex = CHAR;    va->string_val.push_back($1);                     Expression* temp = new Expression($1, va, true, true); temp->isTerminal = true; temp->value->is_char_val = true;  $$ = temp;}
+        |       BOOLEAN_LITERALS                                                        {Value* va = new Value(); va->primitivetypeIndex = BOOLEAN; va->boolean_val.push_back(strcmp($1, "true")==0); Expression* temp = new Expression($1, va, true, true); temp->isTerminal = true; temp->value->is_char_val = false; $$ = temp;}
 
 %%
 
