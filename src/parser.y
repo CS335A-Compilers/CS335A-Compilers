@@ -600,7 +600,7 @@ method_declaration
 
 method_header
         :  unann_type method_declarator                                                                                                                 {MethodDeclaration* node = new MethodDeclaration("method_header"); node->name = $2->name; node->formal_parameter_list = $2->formal_parameter_list; node->type = $1;  node->addChildren({$1,$2}); $$ = node;}
-        |  VOID_KEYWORD method_declarator                                                                                                               {Type* t = new Type("result", 8); MethodDeclaration* node = new MethodDeclaration("method_header"); node->name = $2->name; node->formal_parameter_list = $2->formal_parameter_list; node->type = t; node->addChildren({$1,$2}); $$ = node;}
+        |  VOID_KEYWORD method_declarator                                                                                                               {Type* t = new Type("result", VOID); MethodDeclaration* node = new MethodDeclaration("method_header"); node->name = $2->name; node->formal_parameter_list = $2->formal_parameter_list; node->type = t; node->addChildren({$1,$2}); $$ = node;}
 
 method_declarator
         :  IDENTIFIERS OP_BRCKT formal_parameter_list_zero_or_one CLOSE_BRCKT dims_zero_or_one                                                          {MethodDeclaration* node = new MethodDeclaration("method declarator"); node->name = $1->lexeme; node->formal_parameter_list = $3; node->addChildren({$1,$2,$3,$4,$5}); $$ = node;}
@@ -890,12 +890,12 @@ map<string, vector<string>> csv_contents;
 // use the 'fprintf' function to print the lexeme, its token and its count to a CSV file. 
 void print_to_csv() {
     // Loop through the map and write the data to the CSV file
-   for (auto const& [key, val] : csv_contents) {
+   for (auto const& z : csv_contents) {
       // Open the CSV file for writing
-      ofstream file("./output/" + key + ".csv");
+      ofstream file("./output/" + z.first + ".csv");
       // Loop through the vector and write each element to the CSV file
       file << "Name,Type,Syntactic Category,Line no" << "\n";
-      for (auto const& v : val) {
+      for (auto const& v : z.second) {
          file << v << "\n";
       }
    }
@@ -924,6 +924,7 @@ void get_csv_entries(LocalSymbolTable* scope){
                 variable->isWritten = true;
                 csv_contents.insert({variable->name, {}});
                 int dt_index = ((MethodDeclaration*)(variable))->type->primitivetypeIndex;
+                cout << "Type : " << dt_index << endl;
                 string type;
                 if (dt_index == -1){
                 }
