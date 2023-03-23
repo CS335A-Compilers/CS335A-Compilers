@@ -73,3 +73,8 @@ void generate3AC(){
     }
     return ;
 }
+
+void printRegistor(Expression* exp){
+    if(exp->registor_index != -1) cout<<"t"<<exp->registor_index;
+    else cout<<exp->name;
+}

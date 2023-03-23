@@ -5,4 +5,5 @@ public class test {
         boolean a;
         a = 1 == true;
     }
+
 }
