@@ -13,7 +13,8 @@ void GlobalSymbolTable::increase_level(){
     level_stack.push(new_level);
     // creating sybmol table entry for new_level;
     GlobalSymbolTable* parent_symbtab = symbol_tables[curr_level.first][curr_level.second];
-    LocalSymbolTable* symbtab = new LocalSymbolTable(new_level, parent_symbtab);
+    LocalSymbolTable *symbtab = new LocalSymbolTable(new_level, parent_symbtab);
+    ((LocalSymbolTable *)parent_symbtab)->children.push_back(symbtab);
     if(symbol_tables.size() <= new_main_level) symbol_tables.push_back({symbtab});
     else symbol_tables[new_main_level].push_back(symbtab);
     current_level = level_stack.top();
@@ -61,6 +62,7 @@ void LocalSymbolTable::add_entry(Node* symtab_entry){
     }
     else if(symtab_entry->entry_type == METHOD_DECLARATION){
         MethodDeclaration* temp = (MethodDeclaration*)(symtab_entry);
+        // cout<<"method entry added: "<<(symtab_entry->name)<<" at level: "<<global_symtab->current_level.first<<" "<<global_symtab->current_level.second<<endl;
         // cout<<temp->formal_parameter_list->lists[0]->variable_declarator_id->num_of_dims;
         if(temp->isConstructor){
             // throw error if bad modifier list combination done

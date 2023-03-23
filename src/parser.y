@@ -546,7 +546,7 @@ class_declaration
         :  normal_class_declaration                                                                                                                     {Node* node = createNode("class declaration"); node->addChildren({$1}); $$ = node;}
 
 normal_class_declaration
-        :  normal_class_declaration_statement class_body                                                                                                {Node* node = createNode("normal_class_declaration"); ((LocalSymbolTable*)((global_symtab->symbol_tables)[$2->parent_level.first][$2->parent_level.second]))->level_node = (Node*)($1); node->addChildren({$1,$2}); $$ = node;}
+        :  normal_class_declaration_statement class_body                                                                                                   {Node* node = createNode("normal_class_declaration"); ((LocalSymbolTable*)((global_symtab->symbol_tables)[$2->parent_level.first][$2->parent_level.second]))->level_node = (Node*)($1); node->addChildren({$1,$2}); $$ = node;}
 
 normal_class_declaration_statement
         :  modifiers_zero_or_more CLASS_KEYWORD IDENTIFIERS class_extends_zero_or_one                                                                   {NormalClassDeclaration* node = new NormalClassDeclaration("normal class declaration statement", $1, $3->lexeme); node->line_no = $2->line_no; node->entry_type = CLASS_DECLARATION; node->addChildren({$1,$2,$3,$4}); get_local_symtab(global_symtab->current_level)->add_entry(node); $$ = node;}
@@ -595,7 +595,7 @@ unann_type
         |  type_name                                                                                                                                    {Type* node = new Type("unann type", -1); node->class_instantiated_from = get_local_symtab(global_symtab->current_level)->get_entry($1->identifiers[0], -1); node->addChildren({$1}); $$ = node;}
 
 method_declaration
-        :  modifiers_zero_or_more method_header block                                                                                                   {MethodDeclaration* node = new MethodDeclaration("method_declaration"); node->name = $2->name; node->formal_parameter_list = $2->formal_parameter_list; node->type = $2->type; node->modifiers = $2->modifiers; node->addChildren({$1,$2,$3}); node->entry_type = METHOD_DECLARATION; get_local_symtab(global_symtab->current_level)->add_entry(node); ((LocalSymbolTable*)((global_symtab->symbol_tables)[$3->parent_level.first][$3->parent_level.second]))->level_node = (Node*)(node); $$ = node;}
+        :  modifiers_zero_or_more method_header block                                                                                                   {MethodDeclaration* node = new MethodDeclaration("method_declaration"); node->line_no = $1->line_no; node->name = $2->name; node->formal_parameter_list = $2->formal_parameter_list; node->type = $2->type; node->modifiers = $2->modifiers; node->addChildren({$1,$2,$3}); node->entry_type = METHOD_DECLARATION; get_local_symtab(global_symtab->current_level)->add_entry(node); ((LocalSymbolTable*)((global_symtab->symbol_tables)[$3->parent_level.first][$3->parent_level.second]))->level_node = (Node*)(node); $$ = node;}
         |  modifiers_zero_or_more method_header SEMICOLON_OP                                                                                            {MethodDeclaration* node = new MethodDeclaration("method_declaration"); node->name = $2->name; node->formal_parameter_list = $2->formal_parameter_list; node->type = $2->type; node->modifiers = $2->modifiers; node->addChildren({$1,$2,$3}); node->entry_type = METHOD_DECLARATION; get_local_symtab(global_symtab->current_level)->add_entry(node); $$ = node;}
 
 method_header
@@ -964,6 +964,76 @@ LITERALS
 
 %%
 
+string filename;
+map<string, vector<string>> csv_contents;
+
+// use the 'fprintf' function to print the lexeme, its token and its count to a CSV file. 
+void print_to_csv() {
+    // Loop through the map and write the data to the CSV file
+   for (auto const& [key, val] : csv_contents) {
+      // Open the CSV file for writing
+      ofstream file("./output/" + key + ".csv");
+      // Loop through the vector and write each element to the CSV file
+      file << "Name,Type,Syntactic Category,Line no" << "\n";
+      for (auto const& v : val) {
+         file << v << "\n";
+      }
+   }
+}
+
+// Define an array of strings that corresponds to the type values.
+const string typeStrings[] = {"byte", "short", "int", "long", "char", "float", "double", "boolean", "void", "array"};
+
+void get_csv_entries(LocalSymbolTable* scope){
+    vector<LocalSymbolTable*> children = scope->children;
+    // get the symbol table entries
+    vector<Node*> temp_var = scope->symbol_table_entries;
+    for (Node* variable : temp_var){
+        if (variable->isWritten ==  false){
+            if(variable->entry_type == METHOD_DECLARATION){
+                csv_contents.insert({variable->name, {}});
+            }
+            if(variable->entry_type == VARIABLE_DECLARATION){
+                int dt_index = ((LocalVariableDeclaration*)(variable))->type->primitivetypeIndex;
+                string type;
+                if (dt_index == -1){
+                    type = ((LocalVariableDeclaration*)(variable))->type->class_instantiated_from->name;
+                }
+                else{
+                    type = typeStrings[dt_index];
+                }
+                string str = variable->name + "," + type + "," + variable->lexeme + "," + to_string(variable->line_no);
+                LocalSymbolTable* temp = get_local_symtab(variable->current_level);
+                while(true){
+                    if(temp==NULL) break;
+                    if(temp->level_node != NULL && temp->level_node->entry_type == METHOD_DECLARATION) {
+                        break;
+                    }
+                    else{
+                        temp = (LocalSymbolTable*)temp->parent;
+                    }
+                }
+                if(temp != NULL){
+                    cout<<temp->level_node->name<<"   "<<str;
+                }
+                if(temp!=NULL && temp->level_node != NULL)
+                    csv_contents[temp->level_node->name].push_back(str);
+            }
+            variable->isWritten = true;
+
+        }
+    }
+    Node* level_node = scope->level_node;
+    if (level_node == NULL){
+        return;
+    }
+    if (level_node->entry_type == METHOD_DECLARATION){
+        for (LocalSymbolTable* child : children){
+            get_csv_entries(child);
+        } 
+    }
+}
+
 int main(int argc, char **argv){
     if (argc != 3){
         if(argc == 4 && strcmp(argv[3], "--verbose") == 0) {
@@ -1105,9 +1175,21 @@ int main(int argc, char **argv){
     global_symtab->symbol_tables[0][0] = locale;
     yyparse();
     fclose(yyin);
+
+    // Print the symbol table
+    for(int i = 0;i < global_symtab->symbol_tables.size(); i++){
+        for(int j = 0; j < global_symtab->symbol_tables[i].size(); j++){
+            // get the local symbol table
+            LocalSymbolTable* curr_scope = ((LocalSymbolTable*)global_symtab->symbol_tables[i][j]);
+            get_csv_entries(curr_scope);
+        }
+    }
+    print_to_csv();
     generate3AC();
     return 0;
 }
+
+
 
 void yyerror (char const *s) {
   printf("\nerror: %s. Line number %d\n\n", s, yylineno);

@@ -1,4 +1,4 @@
-#include <bits/stdc++.h>
+#include "../bits/stdc++.h"
 
 using namespace std;
 
@@ -16,8 +16,10 @@ class Node {
         static int node_id;
         vector<Node*> children;
         bool isTerminal;
+        bool isWritten;
         DeclarationType entry_type;
         int line_no;
+        pair<int, int> current_level;
         long long int id;
         Node(string lex);
         pair<int,int> parent_level;
@@ -121,7 +123,7 @@ class LocalVariableDeclaration : public Node{
         ModifierList* modifiers_lists;
         bool isFieldVariable;
         VariableDeclaratorId* variable_declarator;
-        LocalVariableDeclaration(string lex, Type* t, VariableDeclaratorId* variable_decl_id, ModifierList* modif_lists);
+        LocalVariableDeclaration(string lex, Type *t, VariableDeclaratorId *variable_decl_id, ModifierList *modif_lists);
 };
 
 class MethodDeclaration : public Node {
