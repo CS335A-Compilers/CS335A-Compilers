@@ -1147,20 +1147,20 @@ int main(int argc, char **argv){
     fclose(yyin);
 
     // Print the symbol table
-//     for(int i = 0;i < global_symtab->symbol_tables.size(); i++){
-//         for(int j = 0; j < global_symtab->symbol_tables[i].size(); j++){
-//             // get the local symbol table
-//             LocalSymbolTable* curr_scope = ((LocalSymbolTable*)global_symtab->symbol_tables[i][j]);
-//             get_csv_entries(curr_scope);
-//         }
-//     }
-//     print_to_csv();
-//     generate3AC();
+    for(int i = 0;i < global_symtab->symbol_tables.size(); i++){
+        for(int j = 0; j < global_symtab->symbol_tables[i].size(); j++){
+            // get the local symbol table
+            LocalSymbolTable* curr_scope = ((LocalSymbolTable*)global_symtab->symbol_tables[i][j]);
+            get_csv_entries(curr_scope);
+        }
+    }
+    print_to_csv();
+    // generate3AC();
     return 0;
 }
 
 
 
 void yyerror (char const *s) {
-  printf("\nerror: %s. Line number %d\n\n", s, yylineno);
+  printf("\nError: %s. Line number %d\n\n", s, yylineno);
 }
