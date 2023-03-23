@@ -3,6 +3,7 @@
 
 using namespace std;
 
+extern void yyerror(char const*);
 extern GlobalSymbolTable* global_symtab;
 
 void GlobalSymbolTable::increase_level(){
@@ -71,7 +72,7 @@ void LocalSymbolTable::add_entry(Node* symtab_entry){
         if(temp->type->primitivetypeIndex == -1){
             // cout<<"object of class type: "<<temp->type->class_instantiated_from->name<<" declared named : "<<temp->name<<" \n";
         }
-        // cout<<temp->variable_declarator->initialized_value->num_val[0];
+        // cout<<"initialized value: "<<temp->variable_declarator->initialized_value->num_val[0];
         // cout<<temp->variable_declarator->num_of_dims<<endl;
         // if(temp->isFieldVariable) cout<<"field member it is\n";
         // throw error if bad modifier list combination done
@@ -87,6 +88,7 @@ Node* LocalSymbolTable::get_entry(string name, int entry_type){
     LocalSymbolTable* temp = this;
     int pos = name.find('.');
     if(pos != string::npos) name = name.substr(0, pos);
+    cout<<"get entry: "<<name<<endl;
     while(temp != NULL){
         if(temp->hashed_names.find(name)!=temp->hashed_names.end()){
             Node* res = temp->symbol_table_entries[temp->hashed_names[name]];
@@ -100,6 +102,7 @@ Node* LocalSymbolTable::get_entry(string name, int entry_type){
     }
     // for input of type x it returns x;
     // for input of type obj.x it returns obj;
+    yyerror("why tf mf");
     return NULL;
 }
 

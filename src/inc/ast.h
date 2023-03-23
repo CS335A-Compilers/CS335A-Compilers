@@ -163,6 +163,8 @@ class Expression : public Node {
         bool isLiteral;
         // temp registor where expression is stored;
         int registor_index;
+        // primary_exp_val have variable name or object name or literal value stored as string to use in 3ac generation;
+        string primary_exp_val;
         Expression(string lex, Value* val, bool primary, bool literal);
 };
 

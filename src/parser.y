@@ -173,7 +173,7 @@ additive_expression
 
 multiplicative_expression
             :   unary_expression                                                                                                                {Expression* node = grammar_1("multiplicative expression",$1,$1->isPrimary,$1->isLiteral);if(node == NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
-            |   multiplicative_expression STAR_OP unary_expression                                                                              {Expression* node = evalARITHMETIC("multiplicative expression","*",$1,$3);if(node == NULL) YYERROR; node->addChildren({$1,$2,$3}); $$ = node;}           
+            |   multiplicative_expression STAR_OP unary_expression                                                                              {cout<<"first: "<<$1->value->num_val[0]<<" second: "<<$3->value->num_val[0]<<endl; Expression* node = evalARITHMETIC("multiplicative expression","*",$1,$3);if(node == NULL) YYERROR; node->addChildren({$1,$2,$3}); $$ = node;}           
             |   multiplicative_expression PCNT_OP unary_expression                                                                              {Expression* node = evalARITHMETIC("multiplicative expression","%",$1,$3);if(node == NULL) YYERROR; node->addChildren({$1,$2,$3}); $$ = node;}           
             |   multiplicative_expression DIV_OP unary_expression                                                                               {Expression* node = evalARITHMETIC("multiplicative expression","/",$1,$3);if(node == NULL) YYERROR; node->addChildren({$1,$2,$3}); $$ = node;}           
 
@@ -199,7 +199,7 @@ unary_expression_not_plus_minus
 
 postfix_expression
             :   primary                                                                                                                         {Expression* node = grammar_1("postfix expression",$1, $1->isPrimary,$1->isLiteral); if(node == NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
-            |   type_name                                                                                                                       {Expression* node = new Expression("postfix expression", NULL, true, false); if(node == NULL) YYERROR; if(!typenameErrorChecking(node, global_symtab->current_level)) YYERROR; node->isPrimary = true; node->value = ((LocalVariableDeclaration*)(get_local_symtab(global_symtab->current_level)->get_entry($1->createString(), -1)))->variable_declarator->initialized_value; node->addChildren({$1}); $$ = node;}           
+            |   type_name                                                                                                                       {Value* va = ((LocalVariableDeclaration*)(get_local_symtab(global_symtab->current_level)->get_entry($1->createString(), -1)))->variable_declarator->initialized_value; Expression* node = new Expression("postfix expression", va, true, false); if(node == NULL) YYERROR; node->isPrimary = true; node->addChildren({$1}); $$ = node;}           
             |   post_increment_expression                                                                                                       {Expression* node = grammar_1("postfix expression",$1, $1->isPrimary,$1->isLiteral); if(node == NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
             |   post_decrement_expression                                                                                                       {Expression* node = grammar_1("postfix expression",$1, $1->isPrimary,$1->isLiteral); if(node == NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
 
@@ -271,7 +271,7 @@ comma_expression_zero_or_more
             |   COMMA_OP expression comma_expression_zero_or_more                                                                                       {ExpressionList* node = new ExpressionList("comma expression zero or more", $2, $3->lists); node->addChildren({$1,$2,$3}); $$ = node;}           
 
 assignment
-            :   type_name assignment_operators expression                                                                                               {Expression* node = assignValue($1, $2->children[0]->lexeme, $3); cout<<node->value->num_val[0]; node->addChildren({$1,$2,$3});  $$ = node;}           
+            :   type_name assignment_operators expression                                                                                               {Expression* node = assignValue($1, $2->children[0]->lexeme, $3); node->addChildren({$1,$2,$3});  $$ = node;}           
         //     |   field_access assignment_operators expression                                                                                            {Node* node = createNode("assignment"); node->addChildren({$1,$2,$3}); $$ = node;}           
         //     |   array_access assignment_operators expression                                                                                            {Node* node = createNode("assignment"); node->addChildren({$1,$2,$3}); $$ = node;}           
 
@@ -336,14 +336,14 @@ variable_initializer_list
 
 variable_initializer
             :   expression                                                                                                                              {Expression* node = grammar_1("variable initializer", $1, $1->isPrimary, $1->isLiteral); node->addChildren({$1}); $$ = node;}
-        //     |   array_initializer                                                                                                                       {Expression* node = grammar_1("variable initializer", $1, $1->isPrimary, $1->isLiteral); node->addChildren({$1}); $$ = node;}
+        //     |   array_initializer                                                                                                                    {Expression* node = grammar_1("variable initializer", $1, $1->isPrimary, $1->isLiteral); node->addChildren({$1}); $$ = node;}
 
 type_name
-            :   type_name_scoping                                                                                                                             {IdentifiersList* node = new IdentifiersList("type name", "", $1->identifiers); if(!typenameErrorChecking(node, global_symtab->current_level)) YYERROR; node->addChildren({$1}); $$ = node;}
+            :   type_name_scoping                                                                                                                       {IdentifiersList* node = new IdentifiersList("type name", "", $1->identifiers); if(!typenameErrorChecking(node, global_symtab->current_level)) YYERROR; node->addChildren({$1}); $$ = node;}
 
 type_name_scoping
             :   IDENTIFIERS                                                                                                                             {IdentifiersList* node = new IdentifiersList("type name", $1->lexeme, {}); node->addChildren({$1}); $$ = node;}
-            |   type_name_scoping DOT_OP IDENTIFIERS                                                                                                            {IdentifiersList* node = new IdentifiersList("type name", $3->lexeme, $1->identifiers); node->addChildren({$1,$2,$3}); $$ = node;}
+            |   type_name_scoping DOT_OP IDENTIFIERS                                                                                                    {IdentifiersList* node = new IdentifiersList("type name", $3->lexeme, $1->identifiers); node->addChildren({$1,$2,$3}); $$ = node;}
 
 // ########   MODIFIERS   ########  
 
@@ -876,11 +876,11 @@ IDENTIFIERS
         :       IDENTIFIERS_TERMINAL                                                    {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 LITERALS
-        :       NUM_LITERALS                                                            {Value* va = new Value(); va->num_val.push_back(strtol($1, NULL, 10)); Expression* temp = new Expression($1, va, true, true);  temp->isTerminal = true; $$ = temp;}
-        |       DOUBLE_LITERALS                                                         {Value* va = new Value(); va->double_val.push_back(strtod($1, NULL)); Expression* temp = new Expression($1, va, true, true);  temp->isTerminal = true; $$ = temp;}
-        |       STRING_LITERALS                                                         {Value* va = new Value(); va->string_val.push_back($1); Expression* temp = new Expression($1, va, true, true);  temp->isTerminal = true; $$ = temp;}
-        |       CHAR_LITERALS                                                           {Value* va = new Value(); va->string_val.push_back($1); Expression* temp = new Expression($1, va, true, true); temp->value->is_char_val = true; temp->isTerminal = true; $$ = temp;}
-        |       BOOLEAN_LITERALS                                                        {Value* va = new Value(); va->boolean_val.push_back(stricmp($1,"true")==0); Expression* temp = new Expression($1, va, true, true); temp->value->is_char_val = false; temp->isTerminal = true; $$ = temp;}
+        :       NUM_LITERALS                                                            {Value* va = new Value(); va->num_val.push_back(strtol($1, NULL, 10));      Expression* temp = new Expression($1, va, true, true); temp->isTerminal = true; $$ = temp;}
+        |       DOUBLE_LITERALS                                                         {Value* va = new Value(); va->double_val.push_back(strtod($1, NULL));       Expression* temp = new Expression($1, va, true, true); temp->isTerminal = true; $$ = temp;}
+        |       STRING_LITERALS                                                         {Value* va = new Value(); va->string_val.push_back($1);                     Expression* temp = new Expression($1, va, true, true); temp->isTerminal = true; $$ = temp;}
+        |       CHAR_LITERALS                                                           {Value* va = new Value(); va->string_val.push_back($1);                     Expression* temp = new Expression($1, va, true, true); temp->isTerminal = true; temp->value->is_char_val = true;  $$ = temp;}
+        |       BOOLEAN_LITERALS                                                        {Value* va = new Value(); va->boolean_val.push_back(strcmp($1,"true")==0);  Expression* temp = new Expression($1, va, true, true); temp->isTerminal = true; temp->value->is_char_val = false; $$ = temp;}
 
 %%
 
