@@ -1,30 +1,22 @@
-import java.lang.methodinvocation.example;    
-import java.lang.example;  
-  
-public class Methodinvocationexample  {  
-  
-    private static void process(int a) {  
-        System.out.println("Number of games = " + a);  
-    }  
-  
-    public static void secondary(String args) throws invocation,  
-            error, Access {  
-        Car m = newexample.function("Farari",int.class);  
-        Farari f = m.invoke("Hello");
-        Methodinvocationexample.process();  
-        System.out.println(f);  
-    }  
-}
-public class main {
-    public static void main(String[] args) {
-        
-        Method printer = (String k) -> System.out.println(k);
-        
-        // invoking the "print" method using the lambda expression
-        printer.print("Hello, world!");
-    }
-}
 
-interface Method {
-    void print(String k);
-}  
+class increement_decrement {
+    
+    int k,a;
+    double d,g;
+    public void main(){
+       
+        k=7;
+        g=2.33-1;
+        a=8*1;
+        d=5+6.556d;
+        k++;
+        g--;
+        --a;
+        d++;
+        for(int j=1;j<a;j=j+2)
+        {
+            g--;
+        }
+        g=g-1;
+    }
+  }
