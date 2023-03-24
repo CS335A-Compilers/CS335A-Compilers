@@ -5,6 +5,7 @@ using namespace std;
 
 extern void yyerror(char const*);
 extern GlobalSymbolTable* global_symtab;
+extern vector<bool> temporary_registors_in_use;
 
 // Define an array of strings that corresponds to the type values.
 vector<string> typeStrings = {"char", "byte", "short", "int", "long", "float", "double", "boolean", "array", "string", "void"};
@@ -87,10 +88,11 @@ Expression* cond_qn_co(string lex, Expression* e1, Expression* e2, Expression* e
         string error = "Type mismatch: cannot convert from " + data_type1 + " to " + data_type2;
         yyerror(error.c_str());
         return NULL;
-    }//throw error
+    }
     Value* va = new Value();
     va->primitivetypeIndex = max(e2->value->primitivetypeIndex, e3->value->primitivetypeIndex);
     Expression *obj = new Expression(lex, va, false, false);
+    obj->code.push_back(addInstruction(obj, NULL, NULL, "", 0));
     return obj;
 }
 

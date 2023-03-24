@@ -12,6 +12,7 @@ extern int yylineno;
 extern void yyerror(char const*);
 extern GlobalSymbolTable* global_symtab;
 extern vector<ThreeAC*> threeAC_list;
+extern bool firstFun; 
 extern vector<bool> temporary_registors_in_use;
 extern vector<string> typeStrings;
 extern int curr_address;
@@ -257,6 +258,7 @@ bool addVariablesToSymtab(Type* t, VariableDeclaratorList* declarator_list, pair
         locale->isFieldVariable = is_field_variable;
         locale->entry_type = VARIABLE_DECLARATION;
         locale->name = declarator_list->lists[i]->identifier;
+        // locale->variable_declarator->initialized_value->lexeme
         get_local_symtab(global_symtab->current_level)->add_entry(locale);
         if(is_field_variable){
             // NormalClassDeclaration* instantiating_class = (NormalClassDeclaration*)(get_local_symtab(global_symtab->current_level)->level_node);
@@ -394,12 +396,20 @@ int create3ACCode(Node* root, bool print){
     int res = 0;
     if(root == NULL) return res;
     if(root->entry_type == METHOD_DECLARATION){
-        cout<<endl<<root->name<<":"<<endl;
+        if(firstFun) {
+            cout<<"\n\n"<<root->name<<":"<<endl;
+            firstFun = false;
+        }
+        else {
+            cout<<"    EndFun\n\n";
+            cout<<root->name<<":\n";
+        }
     }
     if(root->entry_type == VARIABLE_DECLARATION){
         if(print){
             cout<<curr_address<<":    ";
             cout<<root->name<<" = add_to_symtab()\n";
+            // ((LocalVariableDeclaration*)root)->variable_declarator->initialized_value->string_val();
             curr_address++;
         }
         res++;
@@ -498,6 +508,29 @@ int create3ACCode(Node* root, bool print){
             curr_address++;
         }
         res++;
+    }
+    else if(root->entry_type == TERNARY_EXPRESSION){
+        // conditional_or_expression QN_OP expression COLON_OP condtional_expression
+        Expression* temp = (Expression*)root->children[0];
+        res+=create3ACCode(temp, print);
+        res+=create3ACCode(root->children[2], true);
+        int gotoL1 = create3ACCode(root->children[2], false) + curr_address;
+        string str = to_string(curr_address) + ":    if t"+ to_string(temp->registor_index) + " == false goto " + to_string(gotoL1+2);
+        if(print) {
+            cout<<str<<endl;
+            curr_address++;
+        }
+        res++;
+        res+=create3ACCode(root->children[2], print);
+        int gotoL2 = create3ACCode(root->children[4], false) + curr_address;
+        string str2 = to_string(curr_address) + ":    goto " + to_string(gotoL2+1);
+        if(print){
+            cout<<str2<<endl;
+            curr_address++;
+        }
+        res++;
+        res+=create3ACCode(root->children[4], print);
+        // (Expression*)root->registor_index = 
     }
     else{
         for(int i=0;i<root->children.size();i++){

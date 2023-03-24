@@ -9,13 +9,16 @@ class test {
         // test t2;
         // double y = fivepointfive();
         // y = 2*3;
+        int x;
+        x = 5>6 ? 5 : 0;
         // char x;
+        // x = 'p';
         // int a[][] = new int[5][];
         // int y;
         // y = ++x;
         // int y, z = 5;
-        boolean x;
-        x = true || false;
+        // boolean x;
+        // x = true || false;
         // x = 'a';
         // int y = x;
         // for(int i=0;i<5 && i>6;i++){
