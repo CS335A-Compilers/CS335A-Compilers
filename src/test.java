@@ -1,17 +1,22 @@
 class test {
-    
     int x = 0;
+
+    // }
+
+    // double fivepointfive(){return 5.5;}
+    
     public void main(){
         // test t2 = new test();
-        int y = 5.5;
+        int y = 5;
+        y = x*6 + x*2 + x*3;
         // y = 5.5;
         // if(x == 5){
-        //     y *= 6;
+        //     // y = 6;
         // }
-        // int c = test;
+        // // int c = test;
         // int b = x*6;
         // test t = new test();
-        // t.s = 5;
+        // // t.s = 5;
         // char x = 5;
         // boolean a = true;
         // b = 6;
