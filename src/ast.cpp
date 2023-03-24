@@ -148,6 +148,7 @@ VariableDeclaratorId::VariableDeclaratorId(string lex, string ident, int num, Va
     name = ident;
     num_of_dims = num;
     initialized_value = value;
+    
 }
 
 VariableDeclaratorList::VariableDeclaratorList(string lex, VariableDeclaratorId* single_variable, vector<VariableDeclaratorId*> variables)
@@ -258,7 +259,7 @@ bool addVariablesToSymtab(Type* t, VariableDeclaratorList* declarator_list, pair
         locale->isFieldVariable = is_field_variable;
         locale->entry_type = VARIABLE_DECLARATION;
         locale->name = declarator_list->lists[i]->identifier;
-        // locale->variable_declarator->initialized_value->lexeme
+        // cout<<"please : "<<locale->variable_declarator->lex_val<<endl;
         get_local_symtab(global_symtab->current_level)->add_entry(locale);
         if(is_field_variable){
             // NormalClassDeclaration* instantiating_class = (NormalClassDeclaration*)(get_local_symtab(global_symtab->current_level)->level_node);
@@ -397,19 +398,20 @@ int create3ACCode(Node* root, bool print){
     if(root == NULL) return res;
     if(root->entry_type == METHOD_DECLARATION){
         if(firstFun) {
-            cout<<"\n\n"<<root->name<<":"<<endl;
+            cout<<"\n"<<root->name<<":"<<endl;
             firstFun = false;
         }
         else {
-            cout<<"    EndFun\n\n";
+            cout<<"EndFun\n\n";
             cout<<root->name<<":\n";
         }
     }
     if(root->entry_type == VARIABLE_DECLARATION){
         if(print){
             cout<<curr_address<<":    ";
-            cout<<root->name<<" = add_to_symtab()\n";
-            // ((LocalVariableDeclaration*)root)->variable_declarator->initialized_value->string_val();
+            cout<<root->name<<" = add_to_symtab(";
+            string temp = ((VariableDeclaratorId*)root)->lex_val;
+            cout<<temp<<")\n";
             curr_address++;
         }
         res++;

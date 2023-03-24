@@ -93,6 +93,7 @@ class VariableDeclaratorId : public Node {
         string identifier;
         int num_of_dims;
         Value* initialized_value;
+        string lex_val;
         VariableDeclaratorId(string lex, string identifier, int num, Value* initialized_value);
 };
 
