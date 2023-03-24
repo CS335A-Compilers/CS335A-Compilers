@@ -39,7 +39,7 @@
 
 class test {
     int x = 0;
-    public void main() {
+    public private void main() {
         int y = 5;
         y = x * 6 + x * 2 + x * 3;
         double y1 = 5.5;
