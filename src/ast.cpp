@@ -11,9 +11,7 @@ using namespace std;
 extern int yylineno;
 extern void yyerror(char const*);
 extern GlobalSymbolTable* global_symtab;
-
-vector<string> data_types = {"byte", "short", "int", "long", "float", "double", "boolean", "void", "array", "char", "string" };
-
+extern vector<string> typeStrings;
 
 int Node::node_id = 0;
 
@@ -44,6 +42,15 @@ IdentifiersList::IdentifiersList(string lex, string single_ident, vector<string>
         if(idents[i]!="") {
             identifiers.push_back(idents[i]);
         }
+    }
+}
+
+void IdentifiersList::addIdentifiers(string lists){
+    stringstream ss(lists);
+    while (ss.good()) {
+        string substr;
+        getline(ss, substr, '.');
+        identifiers.push_back(substr);
     }
 }
 
@@ -173,8 +180,9 @@ Expression::Expression(string lex, Value* val, bool primary, bool literal)
     isPrimary = primary;
     isLiteral = literal;
     registor_index = -1;
-    if(primary) primary_exp_val = val->getValue();
-    else primary_exp_val = "";
+    primary_exp_val = "";
+    if(literal && !primary) primary_exp_val = val->getValue();
+    else if(!literal && primary) primary_exp_val = this->name;
 }
 
 ExpressionList::ExpressionList(string lex, Expression* single_expression, vector<Expression*> expressions)
@@ -196,18 +204,45 @@ bool typenameErrorChecking(Node* node, pair<int,int> curr_level, int entry_type)
     if(n==1){
         Node* temp = get_local_symtab(curr_level)->get_entry(lists->identifiers[0], entry_type);
         if(temp != NULL) return true;
+        else{
+            string err = "use of undeclared variable \"" + lists->identifiers[0] + "\"";
+            yyerror(const_cast<char*>(err.c_str()));
+            return false;
+        }
     }
     else{
-        Node* obj = get_local_symtab(curr_level)->get_entry(lists->identifiers[0], entry_type);
-        // ignoring for time being;
+        for(int i=0;i<n-1;i++){
+            LocalVariableDeclaration* obj = (LocalVariableDeclaration*)(get_local_symtab(curr_level)->get_entry(lists->identifiers[i], 0));
+            if(obj == NULL) {
+                yyerror("Variable not declared in the scope");
+                return false;
+            }
+            if(obj->type->primitivetypeIndex != -1) {
+                string err = "primitive data type \"" + typeStrings[obj->type->primitivetypeIndex] + "\" does not have field named \"" + lists->identifiers[i+1] + "\"";
+                yyerror(const_cast<char*>(err.c_str()));
+                return false;
+            }
+            // check if the identifiers[i+1] field variable is present in the obj identifiers[0];
+        }
+        return true;
+
     }
     yyerror("Variable not declared in the scope");
     return false;
-    
 }
 
-void addVariablesToSymtab(Type* t, VariableDeclaratorList* declarator_list, pair<int,int> curr_level, ModifierList* modif_lists, bool is_field_variable){
+bool addVariablesToSymtab(Type* t, VariableDeclaratorList* declarator_list, pair<int,int> curr_level, ModifierList* modif_lists, bool is_field_variable){
     for(int i=0;i<declarator_list->lists.size();i++){
+        if(declarator_list->lists[i]->initialized_value != NULL){
+            int exp_type = t->primitivetypeIndex;
+            int given_type = declarator_list->lists[i]->initialized_value->primitivetypeIndex;
+            if(!((given_type <= LONG && exp_type <= LONG) || (given_type == FLOAT && exp_type == FLOAT || given_type == DOUBLE && exp_type == DOUBLE) || (given_type == exp_type) || (given_type <= LONG && exp_type == FLOAT && exp_type == DOUBLE))){
+                string err = "invalid datatypes, cannot convert from \"" + typeStrings[given_type] + "\" to \"" + typeStrings[exp_type] + "\"";
+                yyerror(const_cast<char*>(err.c_str()));
+                return false;
+            }
+            // type casting 3ac generate
+        }
         LocalVariableDeclaration* locale = new LocalVariableDeclaration("local_variable_declaration", t, declarator_list->lists[i], modif_lists);
         locale->isFieldVariable = is_field_variable;
         locale->entry_type = VARIABLE_DECLARATION;
@@ -217,7 +252,7 @@ void addVariablesToSymtab(Type* t, VariableDeclaratorList* declarator_list, pair
             // instantiating_class->field_variables.push_back(locale);
         }
     }
-    return ;
+    return true;
 }
 
 Value* createObject(string class_name, ExpressionList* exp_list, pair<int,int> curr_level){
@@ -230,6 +265,7 @@ Value* createObject(string class_name, ExpressionList* exp_list, pair<int,int> c
     }
     Value* obj = new Value();
     obj->primitivetypeIndex = -1;
+    obj->class_type = class_ptr;
     int given_param = exp_list->lists.size();
     if(constructor_ptr == NULL && given_param>0) {
         string err = "invalid number of arguments while creating object of class \"" + class_name + "\"\ngiven " + to_string(given_param)  + " expected 0";
@@ -252,14 +288,16 @@ Value* createObject(string class_name, ExpressionList* exp_list, pair<int,int> c
         for(int i=0;i<given_param;i++){
             int given_type = parameters[i]->param_type->primitivetypeIndex, expected_type = exp_list->lists[i]->value->primitivetypeIndex;
             if(given_type != expected_type) {
-                string err = "type mismatch in arguments list while creating object of class \"" + class_name + "\"\ngiven datatype" + data_types[given_type]  + " expected " + data_types[expected_type];
+                string err = "type mismatch in arguments list while creating object of class \"" + class_name + "\"\ngiven datatype" + typeStrings[given_type]  + " expected " + typeStrings[expected_type];
                 yyerror(const_cast<char*>(err.c_str()));
                 return NULL;
             }
         }
         for(int i=0;i<given_param;i++){
             // print 3ac code for calling funtion with given parameters;
+            
         }
+        return obj;
     }
 }
 

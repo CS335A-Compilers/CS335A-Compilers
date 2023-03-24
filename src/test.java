@@ -4,11 +4,20 @@ public class test {
     // }
     public void main(){
         // test t2 = new test();
+        int y = 5.5;
+        // y = 5.5;
+        // if(x == 5){
+        //     y *= 6;
+        // }
         // int c = test;
-        int b = 5*6;
+        // int b = x*6;
+        // test t = new test();
+        // t.s = 5;
+        // char x = 5;
         // boolean a = true;
-        // if(x==5){
-        //     System.out.println(b);
+        // b = 6;
+        // if(b==5){
+
         // }
         // int y = 5;
         // x = 6;
