@@ -1,34 +1,19 @@
-
-class test {
-    int x = 0;
-
-    // }
-
-    // double fivepointfive(){return 5.5;}
-    
-    public void main(){
-        // test t2 = new test();
-        int y = 5;
-        y = x*6 + x*2 + x*3;
-        // y = 5.5;
-        // if(x == 5){
-        //     // y = 6;
-        // }
-        // // int c = test;
-        // int b = x*6;
-        // test t = new test();
-        // // t.s = 5;
-        // char x = 5;
-        // boolean a = true;
-        // b = 6;
-        // if(b==5){
-
-        // }
-        // int y = 5;
-        // x = 6;
-        // x = 5;
-        // for(x++;x<5;x--){}
-
+public class best_class {
+    public void main() {
         
-  
+        byte b = 8;        
+        short s = -327-b; 
+        int i = 2147483647*1; 
+        long l = -9223372036854775808L; 
+        boolean f = 3.4028235E38f<776; 
+        boolean b=45>8;
+        double d = 1.5848-b; 
+        // char c = 'Z';
+        boolean bool = false;
+        
+        
+        
+       
     }
+    
+}
