@@ -26,7 +26,7 @@ class LocalSymbolTable : public GlobalSymbolTable{
         GlobalSymbolTable* parent;
         vector<LocalSymbolTable*> children;
         LocalSymbolTable(pair<int, int> level, GlobalSymbolTable *assign_parent);
-        void add_entry(Node* symtab_entry);
+        bool add_entry(Node* symtab_entry);
         Node* get_entry(string name, int entry_type);
         Node* level_node;
 };
