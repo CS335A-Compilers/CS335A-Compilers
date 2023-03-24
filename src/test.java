@@ -1,14 +1,19 @@
 
-class arithmetic {
+class test {
     
-    
+    int x = 0;
     public void main(){
        
-        int k=+7;
-        double g=-2.3;
-        int a=-8;
-        // float f=6+7.1;
-        double d=+6.556d;
+        boolean y ;
+        y=6<7;
+        int x=5==7?5:9;
+        double a=false? 9.6d:2.3;
+        //int k=4>5?2:5;
+        //char s=true?'a':'b'; Segmentation fault (core dumped)
+        double f=true ? 5.6f:6; //error when float f=true ? 5.6f:6;
+        boolean b;
+        b=true?true:false;
+        
   
     }
   }
