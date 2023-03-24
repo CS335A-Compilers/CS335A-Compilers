@@ -572,7 +572,9 @@ Expression* evalARITHMETIC(string lex, string op, Expression* e1, Expression* e2
     
     va->primitivetypeIndex = max(e2->value->primitivetypeIndex, e1->value->primitivetypeIndex);
     Expression* obj=new Expression(lex,va,false,false);
-    // addInstruction(obj, e1, e2, op, 0);
+    int ind = addInstruction(obj, e1, e2, op, 0);
+    if(ind >=0) obj->code.push_back(ind);
+    else return NULL;
     return obj;
 }
 
@@ -659,57 +661,35 @@ Expression* evalEX(string lex, Expression* e1){
 
 }
 
-Expression* assignValue(IdentifiersList* type_name, string op, Expression* exp){
-    LocalVariableDeclaration* name = (LocalVariableDeclaration*)(get_local_symtab(global_symtab->current_level)->get_entry(type_name->createString(), -1));
+Expression* assignValue(Expression* type_name, string op, Expression* exp){
+    LocalVariableDeclaration* name = (LocalVariableDeclaration*)(get_local_symtab(global_symtab->current_level)->get_entry(type_name->primary_exp_val, -1));
     if(name == NULL){
         yyerror("use of undeclared variable");
         return NULL;
     }
     Expression* obj = new Expression("assignment", NULL, false, false);
     if(name->entry_type == VARIABLE_DECLARATION){
-        if(type_name->identifiers.size() == 1){
             int name_type = name->type->primitivetypeIndex;
             int exp_type = exp->value->primitivetypeIndex;
-            cout<<name_type<<exp_type<<endl;
-            if((name_type <= LONG && exp_type <= LONG) || (name_type == FLOAT && exp_type == FLOAT || name_type == DOUBLE && exp_type == DOUBLE) || (name_type == exp_type) || (name_type <= LONG && exp_type == FLOAT && exp_type == DOUBLE)) {
-                if(op == "="){
-                    // name->variable_declarator->initialized_value = exp->value;
-                    // addInstruction();
-                }
-
-                // else if(op == "+="){
-
-                //     // doing for all operators; 
-                // }
-                // else if(op == "-="){
-
-                // }
-                // else if(op == "*="){
-
-                // }
-                // else if(op == "/="){
-
-                // }
-                // else if(op == "|="){
-
-                // }
-                // else if(op == "&="){
-
-                // }
-                
-                // obj->value = exp->value;
-                return obj;
+            if((name_type <= LONG && exp_type <= LONG) || (name_type == FLOAT && exp_type == FLOAT || name_type == DOUBLE && exp_type == DOUBLE) || (name_type == exp_type) || (exp_type <= LONG && (name_type == FLOAT || name_type == DOUBLE))) {
+            if(op == "="){
+                // name->variable_declarator->initialized_value = exp->value;
+                int ind = addInstruction(type_name, exp, NULL, "", 0);
+                if(ind >= 0) obj->code.push_back(ind);
+                else return NULL;
             }
             else{
-                string err = "invalid types for assignment, cannot convert from \"" + typeStrings[name_type] + "\" to " + typeStrings[exp_type] + "\"";
-                yyerror(const_cast<char*>(err.c_str()));
-                return NULL;
+
             }
+            // obj->value = exp->value;
+            return obj;
         }
         else{
-            // doing for class and field members
-            
+            string err = "invalid types for assignment, cannot convert from \"" + typeStrings[exp_type] + "\" to " + typeStrings[name_type] + "\"";
+            yyerror(const_cast<char*>(err.c_str()));
+            return NULL;
         }
+        
     }
     else{
         string err = "type mismatch, cannot assign value to \"" + name->name + "\"";
