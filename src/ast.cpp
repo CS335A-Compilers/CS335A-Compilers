@@ -12,7 +12,9 @@ extern int yylineno;
 extern void yyerror(char const*);
 extern GlobalSymbolTable* global_symtab;
 extern vector<ThreeAC*> threeAC_list;
+extern vector<bool> temporary_registors_in_use;
 extern vector<string> typeStrings;
+extern int curr_address;
 
 vector<string> entryTypeStrings = {"variable", "class", "method"};
 
@@ -254,6 +256,7 @@ bool addVariablesToSymtab(Type* t, VariableDeclaratorList* declarator_list, pair
         LocalVariableDeclaration* locale = new LocalVariableDeclaration("local_variable_declaration", t, declarator_list->lists[i], modif_lists);
         locale->isFieldVariable = is_field_variable;
         locale->entry_type = VARIABLE_DECLARATION;
+        locale->name = declarator_list->lists[i]->identifier;
         get_local_symtab(global_symtab->current_level)->add_entry(locale);
         if(is_field_variable){
             // NormalClassDeclaration* instantiating_class = (NormalClassDeclaration*)(get_local_symtab(global_symtab->current_level)->level_node);
@@ -378,25 +381,128 @@ void createAST(Node* root, char* output_file){
     return ;
 }
 
-void create3ACCode(Node* root){
-    if(root == NULL) return ;
-    if(root->entry_type == METHOD_DECLARATION){
-        cout<<root->name<<":"<<endl;
+string createTAC(VariableDeclaratorList* list){
+    string res = "";
+    for(int i=0;i<list->lists.size();i++){
+        res+=list->lists[i]->identifier;
+        if(i+1 < list->lists.size()) res+=", ";
     }
-    for(int i=0;i<root->children.size();i++){
-        create3ACCode(root->children[i]);
+    return res;
+}
+
+int create3ACCode(Node* root, bool print){
+    int res = 0;
+    if(root == NULL) return res;
+    if(root->entry_type == METHOD_DECLARATION){
+        cout<<endl<<root->name<<":"<<endl;
     }
     if(root->entry_type == VARIABLE_DECLARATION){
-        // cout<<"here?\n";
-        // cout<<root->name<<" = get_value("<<root->name<<")\n";
+        if(print){
+            cout<<curr_address<<":    ";
+            cout<<root->name<<" = add_to_symtab()\n";
+            curr_address++;
+        }
+        res++;
     }
     else if(root->entry_type == EXPRESSIONS){
-        Expression* temp = (Expression*)root;
-        vector<int> codes = temp->code;
+        vector<int> codes = root->code;
+        for(int i=0;i<root->children.size();i++){
+            res+=create3ACCode(root->children[i], print);
+        }
         for(int i=0;i<codes.size();i++){
-            cout<<"    ";
-            print3AC(threeAC_list[codes[i]]);
+            res++;
+            if(print) {
+                cout<<curr_address<<":    ";
+                print3AC(threeAC_list[codes[i]]);
+                curr_address++;
+            }
         }
     }
-    return ;
+    else if(root->entry_type == METHOD_INVOCATION){
+
+    }
+    else if(root->entry_type == IF_THEN_STATEMENT){
+        // IF_KEYWORD OP_BRCKT expression CLOSE_BRCKT statement
+        Expression* temp = (Expression*)root->children[2];
+        res+=create3ACCode(temp, print);
+        int gotoL1 = create3ACCode(root->children[4], false) + curr_address;
+        string str = to_string(curr_address) + ":    if t"+ to_string(temp->registor_index) + " == false goto " + to_string(gotoL1+1);
+        if(print) {
+            cout<<str<<endl;
+            curr_address++;
+        }
+        res++;
+        res+=create3ACCode(root->children[4], print);
+    }
+    else if(root->entry_type == IF_THEN_ELSE_STATEMENT){
+        // IF_KEYWORD  OP_BRCKT expression CLOSE_BRCKT statement_no_short_if ELSE_KEYWORD statement
+        Expression* temp = (Expression*)root->children[2];
+        res+=create3ACCode(temp, print);
+        int gotoL1 = create3ACCode(root->children[4], false) + curr_address;
+        string str = to_string(curr_address) + ":    if t"+ to_string(temp->registor_index) + " == false goto " + to_string(gotoL1+2);
+        if(print) {
+            cout<<str<<endl;
+            curr_address++;
+        }
+        res++;
+        res+=create3ACCode(root->children[4], print);
+        int gotoL2 = create3ACCode(root->children[6], false) + curr_address;
+        string str2 = to_string(curr_address) + ":    goto " + to_string(gotoL2+1);
+        if(print){
+            cout<<str2<<endl;
+            curr_address++;
+        }
+        res++;
+        res+=create3ACCode(root->children[6], print);
+    }
+    else if(root->entry_type == WHILE_STATEMENT){
+        // WHILE_KEYWORD OP_BRCKT expression CLOSE_BRCKT statement
+        Expression* temp = (Expression*)root->children[2];
+        int loop_posn = curr_address;
+        res+=create3ACCode(temp, print);
+        int gotoL1 = create3ACCode(root->children[4], false) + curr_address;
+        string str = to_string(curr_address) + ":    if t"+ to_string(temp->registor_index) + " == false goto " + to_string(gotoL1+2);
+        if(print) {
+            cout<<str<<endl;
+            curr_address++;
+        }
+        res++;
+        res+=create3ACCode(root->children[4], print);
+        string str2 = to_string(curr_address) + ":    goto " + to_string(loop_posn);
+        if(print) {
+            cout<<str2<<endl;
+            curr_address++;
+        }
+        res++;
+    }
+    else if(root->entry_type == FOR_STATEMENT){
+        // FOR_KEYWORD OP_BRCKT for_init_zero_or_one SEMICOLON_OP expression_zero_or_one SEMICOLON_OP for_update_zero_or_one CLOSE_BRCKT statement
+        res+=create3ACCode(root->children[2], print);
+        Expression* temp = (Expression*)root->children[4];
+        int loop_posn = curr_address;
+        res+=create3ACCode(root->children[4], print);
+        int gotoL1 = create3ACCode(root->children[8], false) + curr_address + create3ACCode(root->children[6], false);
+        // if(temp->registor_index != -1){
+            string str = to_string(curr_address) + ":    if t"+ to_string(temp->registor_index) + " == false goto " + to_string(gotoL1+2);
+            if(print) {
+                cout<<str<<endl;
+                curr_address++;
+            }
+            res++;
+        // }
+        res+=create3ACCode(root->children[8], print);
+        res+=create3ACCode(root->children[6], print);
+        string str2 = to_string(curr_address) + ":    goto " + to_string(loop_posn);
+        if(print) {
+            cout<<str2<<endl;
+            curr_address++;
+        }
+        res++;
+    }
+    else{
+        for(int i=0;i<root->children.size();i++){
+            res+=create3ACCode(root->children[i], print);
+        }
+    }
+    return res;
 }

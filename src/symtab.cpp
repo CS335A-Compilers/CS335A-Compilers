@@ -53,7 +53,7 @@ LocalSymbolTable::LocalSymbolTable(pair<int,int> level, GlobalSymbolTable* assig
 }
 
 // Define an array of strings that corresponds to the modifier types.
-const string modifierStrings[] = {"public", "protected", "private", "abstract", "static", "sealed", "nonsealed", "strictfp", "transitive", "final", "volatile", "synchronized", "transient", "native"};
+const string modifierStrings[] = {"public", "protected", "private", "abstract", "static", "sealed", "nonsealed", "strictfp", "transitive", "final", "volatile", "transient", "native"};
 
 // Modifier list - PUBLIC (0), STATIC (4), FINAL (9), PRIVATE (2)
 void LocalSymbolTable::add_entry(Node* symtab_entry){
@@ -70,8 +70,7 @@ void LocalSymbolTable::add_entry(Node* symtab_entry){
             counts[element->modifier_type]++;
         }
         string error;
-        for (Modifier *element : modifiers)
-        {
+        for (Modifier *element : modifiers){
             if (element->modifier_type != 0 && element->modifier_type != 9){
                 error = "Modifier " + modifierStrings[element->modifier_type] + " not allowed in class declaration";
                 yyerror(error.c_str());

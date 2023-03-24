@@ -83,8 +83,8 @@ Expression* cond_qn_co(string lex, Expression* e1, Expression* e2, Expression* e
     if (type2 != -1){
         data_type2 = typeStrings[type2];
     }
-    string error = "Type mismatch: cannot convert from " + data_type1 + " to " + data_type2;
-    if (e1->value->boolean_val.size() == 0 || (e2->value->primitivetypeIndex != e3->value->primitivetypeIndex && (e2->value->primitivetypeIndex > 6 || e3->value->primitivetypeIndex > 6))){
+    if (e1->value->primitivetypeIndex != BOOLEAN || (e2->value->primitivetypeIndex != e3->value->primitivetypeIndex && (e2->value->primitivetypeIndex > 6 || e3->value->primitivetypeIndex > 6))){
+        string error = "Type mismatch: cannot convert from " + data_type1 + " to " + data_type2;
         yyerror(error.c_str());
         return NULL;
     }//throw error
@@ -97,7 +97,7 @@ Expression* cond_qn_co(string lex, Expression* e1, Expression* e2, Expression* e
 Expression* evalOR_AND(string lex, Expression* e1, string op, Expression* e2){
     if (e1 == NULL || e2 == NULL)
         return NULL;
-    if (e1->value->boolean_val.size() == 0 || e2->value->boolean_val.size() == 0){
+    if (e1->value->primitivetypeIndex != BOOLEAN || e2->value->primitivetypeIndex != BOOLEAN){
         int type1 = e1->value->primitivetypeIndex;
         int type2 = e2->value->primitivetypeIndex;
         string data_type1, data_type2;
@@ -109,7 +109,6 @@ Expression* evalOR_AND(string lex, Expression* e1, string op, Expression* e2){
         }
         string error = "The operator " + op + " is undefined for the argument types " + data_type1 + ", " + data_type2;
         yyerror(error.c_str());
-
         return NULL;
     }
     // bool val;
@@ -119,8 +118,9 @@ Expression* evalOR_AND(string lex, Expression* e1, string op, Expression* e2){
     //     val = e1->value->boolean_val[0] && e2->value->boolean_val[0];
 
     Value* va = new Value();
-    va->primitivetypeIndex = 7;
+    va->primitivetypeIndex = BOOLEAN;
     Expression *obj = new Expression(lex, va, false, false);
+    obj->code.push_back(addInstruction(obj, e1, e2, op, 0));
     // addInstruction(obj, e1, e2, op, 0);
     return obj;  
 }
@@ -143,11 +143,11 @@ Expression* evalBITWISE(string lex, Expression* e1, string op, Expression* e2){
     // va->num_val.push_back(val);
     va->primitivetypeIndex = max(e2->value->primitivetypeIndex, e1->value->primitivetypeIndex);
     Expression* obj=new Expression(lex,va,false,false);
-    // addInstruction(obj, e1, e2, op, 0);
+    obj->code.push_back(addInstruction(obj, e1, e2, op, 0));
     return obj; 
 }
 
-//done for prmitive data type only , not for reference data type like array,string,char and object
+//done for prmitive data type only, not for reference data type like array,string,char and object
 Expression* evalEQ(string lex,Expression* e1,string op,Expression* e2){
     if(e1==NULL||e2==NULL)
         return NULL;
@@ -159,103 +159,10 @@ Expression* evalEQ(string lex,Expression* e1,string op,Expression* e2){
     }
     bool val;
     Value* va = new Value();
-    // if(op=="=="){
-    //     if(e1->value->num_val.size()!=0 && e2->value->num_val.size()!=0){
-    //         val=e1->value->num_val[0] == e2->value->num_val[0];
-    //         va= new Value();
-    //     }
-    //     else if(e1->value->boolean_val.size()!=0 && e2->value->boolean_val.size()!=0){
-    //         val=e1->value->boolean_val[0] == e2->value->boolean_val[0];
-    //         va= new Value();
-    //     } 
-    //     else if(e1->value->num_val.size()!=0 && e2->value->float_val.size()!=0){
-    //         val=e1->value->num_val[0] == e2->value->float_val[0];
-    //         va= new Value();
-    //     }
-    //     else if(e1->value->float_val.size()!=0 && e2->value->num_val.size()!=0){
-    //         val=e1->value->float_val[0] == e2->value->num_val[0];
-    //         va= new Value();
-    //     }  
-    //     else if(e1->value->float_val.size()!=0 && e2->value->float_val.size()!=0){
-    //         val=e1->value->float_val[0] == e2->value->float_val[0];
-    //         va= new Value();
-    //     }
-    //     else if(e1->value->double_val.size()!=0 && e2->value->double_val.size()!=0){
-    //         val=e1->value->double_val[0] == e2->value->double_val[0];
-    //         va= new Value();
-    //     }
-    //     else if(e1->value->double_val.size()!=0 && e2->value->num_val.size()!=0){
-    //         val=e1->value->double_val[0] == e2->value->num_val[0];
-    //         va= new Value();
-    //     }  
-    //     else if(e1->value->num_val.size()!=0 && e2->value->double_val.size()!=0){
-    //         val=e1->value->num_val[0] == e2->value->double_val[0];
-    //         va= new Value();
-    //     }
-    //     else if(e1->value->double_val.size()!=0 && e2->value->float_val.size()!=0){
-    //         val=e1->value->double_val[0] == e2->value->float_val[0];
-    //         va= new Value();
-    //     }  
-    //     else if(e1->value->float_val.size()!=0 && e2->value->double_val.size()!=0){
-    //         val=e1->value->float_val[0] == e2->value->double_val[0];
-    //         va= new Value();
-    //     }
-    //     else if(e1->value->string_val.size()!=0 && e2->value->string_val.size()!=0){
-    //         val=e1->value->string_val[0] == e2->value->string_val[0];
-    //         va= new Value();
-    //     }
-    // }
-    // else if(op=="!=")
-    // {
-    //     if(e1->value->num_val.size()!=0 && e2->value->num_val.size()!=0){
-    //         val=e1->value->num_val[0] != e2->value->num_val[0];
-    //         va= new Value();
-    //     }
-    //     else if(e1->value->boolean_val.size()!=0 && e2->value->boolean_val.size()!=0){
-    //         val=e1->value->boolean_val[0] != e2->value->boolean_val[0];
-    //         va= new Value();
-    //     }  
-    //     else if(e1->value->float_val.size()!=0 && e2->value->float_val.size()!=0){
-    //         val=e1->value->float_val[0] != e2->value->float_val[0];
-    //         va= new Value();
-    //     }
-    //     else if(e1->value->double_val.size()!=0 && e2->value->double_val.size()!=0){
-    //         val=e1->value->double_val[0] != e2->value->double_val[0];
-    //         va= new Value();
-    //     }
-    //     else if(e1->value->num_val.size()!=0 && e2->value->float_val.size()!=0){
-    //         val=e1->value->num_val[0] != e2->value->float_val[0];
-    //         va= new Value();
-    //     }
-    //     else if(e1->value->float_val.size()!=0 && e2->value->num_val.size()!=0){
-    //         val=e1->value->float_val[0] != e2->value->num_val[0];
-    //         va= new Value();
-    //     } 
-    //     else if(e1->value->double_val.size()!=0 && e2->value->num_val.size()!=0){
-    //         val=e1->value->double_val[0] != e2->value->num_val[0];
-    //         va= new Value();
-    //     }  
-    //     else if(e1->value->num_val.size()!=0 && e2->value->double_val.size()!=0){
-    //         val=e1->value->num_val[0] != e2->value->double_val[0];
-    //         va= new Value();
-    //     }
-    //     else if(e1->value->double_val.size()!=0 && e2->value->float_val.size()!=0){
-    //         val=e1->value->double_val[0] != e2->value->float_val[0];
-    //         va= new Value();
-    //     }  
-    //     else if(e1->value->float_val.size()!=0 && e2->value->double_val.size()!=0){
-    //         val=e1->value->float_val[0] != e2->value->double_val[0];
-    //         va= new Value();
-    //     }
-    //     else if(e1->value->string_val.size()!=0 && e2->value->string_val.size()!=0){
-    //         val=e1->value->string_val[0] != e2->value->string_val[0];
-    //         va= new Value();
-    //     }
-    // }
     // va->boolean_val.push_back(val);oi
     va->primitivetypeIndex = 7;
     Expression *obj = new Expression(lex, va, false, false);
-    // addInstruction(obj, e1,e2,op, 0);
+    obj->code.push_back(addInstruction(obj, e1, e2, op, 0));
     return obj;
 }
 
@@ -293,7 +200,7 @@ Expression* evalRELATIONAL(string lex, Expression* e1, string op, Expression* e2
     Value* va= new Value();
     va->primitivetypeIndex = 7;
     Expression* obj=new Expression(lex,va,false,false);
-    // addInstruction(obj, e1,e2,op, 0);
+    obj->code.push_back(addInstruction(obj, e1, e2, op, 0));
     return obj;
 }
 
@@ -315,7 +222,7 @@ Expression* evalSHIFT(string lex, Expression* e1, string op, Expression* e2){
     Value* va= new Value();
     va->primitivetypeIndex = 4;
     Expression* obj=new Expression(lex, va, false, false);
-    // addInstruction(obj, e1,e2,op, 0);
+    obj->code.push_back(addInstruction(obj, e1, e2, op, 0));
     return obj;   
 }
 
@@ -328,251 +235,10 @@ Expression* evalARITHMETIC(string lex, string op, Expression* e1, Expression* e2
         return NULL;
     }
     Value* va = new Value();
-    // if(op=="-"){
-    //     if(e1->value->num_val.size()!=0 && e2->value->num_val.size()!=0){
-    //         long long int val=e1->value->num_val[0] - e2->value->num_val[0];
-    //         va= new Value();
-    //         va->num_val.push_back(val);
-    //     } 
-    //     else if(e1->value->float_val.size()!=0 && e2->value->float_val.size()!=0){
-    //         float val=e1->value->float_val[0] - e2->value->float_val[0];
-    //         va= new Value();
-    //         va->float_val.push_back(val);
-    //     }
-    //     else if(e1->value->double_val.size()!=0 && e2->value->double_val.size()!=0){
-    //         double val=e1->value->double_val[0] - e2->value->double_val[0];
-    //         va= new Value();
-    //         va->double_val.push_back(val);
-    //     }
-    //     else if(e1->value->num_val.size()!=0 && e2->value->double_val.size()!=0){
-    //         double  val=(double)e1->value->num_val[0] - e2->value->double_val[0];
-    //         va= new Value();
-    //         va->double_val.push_back(val);
-    //     }
-    //     else if(e1->value->double_val.size()!=0 && e2->value->num_val.size()!=0){
-    //        double val=e1->value->double_val[0] - (double)e2->value->num_val[0];
-    //         va= new Value();
-    //         va->double_val.push_back(val);
-    //     }
-    //     else if(e1->value->num_val.size()!=0 && e2->value->float_val.size()!=0){
-    //         float val=(float)e1->value->num_val[0] - e2->value->float_val[0];
-    //         va= new Value();
-    //         va->float_val.push_back(val);
-    //     }
-    //     else if(e1->value->float_val.size()!=0 && e2->value->num_val.size()!=0){
-    //         float val=e1->value->float_val[0] - (float)e2->value->num_val[0];
-    //         va= new Value();
-    //         va->float_val.push_back(val);
-    //     }
-    //     else if(e1->value->float_val.size()!=0 && e2->value->double_val.size()!=0){
-    //         double val=(float)e1->value->float_val[0] - e2->value->double_val[0];
-    //         va= new Value();
-    //         va->double_val.push_back(val);
-    //     }
-    //     else if(e1->value->double_val.size()!=0 && e2->value->float_val.size()!=0){
-    //         double val=e1->value->double_val[0] - (double)e2->value->float_val[0];
-    //         va= new Value();
-    //         va->double_val.push_back(val);
-    //     }
-    // }
-       
-    // else if(op=="+"){
-    //     if(e1->value->num_val.size()!=0 && e2->value->num_val.size()!=0){
-    //         long long int val=e1->value->num_val[0] + e2->value->num_val[0];
-    //         va= new Value();
-    //         va->num_val.push_back(val);
-    //     }
-    //     else if(e1->value->float_val.size()!=0 && e2->value->float_val.size()!=0){
-    //         float val=e1->value->float_val[0] + e2->value->float_val[0];
-    //         va= new Value();
-    //         va->float_val.push_back(val);
-    //     }
-    //     else if(e1->value->double_val.size()!=0 && e2->value->double_val.size()!=0){
-    //         double val=e1->value->double_val[0] + e2->value->double_val[0];
-    //         va= new Value();
-    //         va->double_val.push_back(val);
-    //     }
-    //     else if(e1->value->num_val.size()!=0 && e2->value->double_val.size()!=0){
-    //         double val=(double)e1->value->num_val[0] + e2->value->double_val[0];
-    //         va= new Value();
-    //         va->double_val.push_back(val);
-    //     }
-    //     else if(e1->value->double_val.size()!=0 && e2->value->num_val.size()!=0){
-    //         double val=e1->value->double_val[0] + (double)e2->value->num_val[0];
-    //         va= new Value();
-    //         va->double_val.push_back(val);
-    //     }
-    //     else if(e1->value->num_val.size()!=0 && e2->value->float_val.size()!=0){
-    //         float val=(float)e1->value->num_val[0] + e2->value->float_val[0];
-    //         va= new Value();
-    //         va->float_val.push_back(val);
-    //     }
-    //     else if(e1->value->float_val.size()!=0 && e2->value->num_val.size()!=0){
-    //         float val=e1->value->float_val[0] + (float)e2->value->num_val[0];
-    //         va= new Value();
-    //         va->float_val.push_back(val);
-    //     }
-    //     else if(e1->value->float_val.size()!=0 && e2->value->double_val.size()!=0){
-    //         double val=(double)e1->value->float_val[0] + e2->value->double_val[0];
-    //         va= new Value();
-    //         va->double_val.push_back(val);
-    //     }
-    //     else if(e1->value->double_val.size()!=0 && e2->value->float_val.size()!=0){
-    //         double val=e1->value->double_val[0] + e2->value->float_val[0];
-    //         va= new Value();
-    //         va->double_val.push_back(val);
-    //     }
-    // }
-    // else if(op=="*"){
-    //     if(e1->value->num_val.size()!=0 && e2->value->num_val.size()!=0){
-    //         long long int val=e1->value->num_val[0] * e2->value->num_val[0];
-    //         va= new Value();
-    //         va->num_val.push_back(val);
-    //     }
-    //     else if(e1->value->float_val.size()!=0 && e2->value->float_val.size()!=0){
-    //         float val=e1->value->float_val[0] * e2->value->float_val[0];
-    //         va= new Value();
-    //         va->float_val.push_back(val);
-    //     }
-    //     else if(e1->value->double_val.size()!=0 && e2->value->double_val.size()!=0){
-    //         double val=e1->value->double_val[0] * e2->value->double_val[0];
-    //         va= new Value();
-    //         va->double_val.push_back(val);
-    //     }
-    //     else if(e1->value->num_val.size()!=0 && e2->value->double_val.size()!=0){
-    //         double val=(double)e1->value->num_val[0] * e2->value->double_val[0];
-    //         va= new Value();
-    //         va->double_val.push_back(val);
-    //     }
-    //     else if(e1->value->double_val.size()!=0 && e2->value->num_val.size()!=0){
-    //         double val=e1->value->double_val[0] * (double)e2->value->num_val[0];
-    //         va= new Value();
-    //         va->double_val.push_back(val);
-    //     }
-    //     else if(e1->value->num_val.size()!=0 && e2->value->float_val.size()!=0){
-    //         float val=(float)e1->value->num_val[0] * e2->value->float_val[0];
-    //         va= new Value();
-    //         va->float_val.push_back(val);
-    //     }
-    //     else if(e1->value->float_val.size()!=0 && e2->value->num_val.size()!=0){
-    //         float val=e1->value->float_val[0] * (float)e2->value->num_val[0];
-    //         va= new Value();
-    //         va->float_val.push_back(val);
-    //     }
-    //     else if(e1->value->float_val.size()!=0 && e2->value->double_val.size()!=0){
-    //         double val=(double)e1->value->float_val[0] * e2->value->double_val[0];
-    //         va= new Value();
-    //         va->double_val.push_back(val);
-    //     }
-    //     else if(e1->value->double_val.size()!=0 && e2->value->float_val.size()!=0){
-    //         double val=e1->value->double_val[0] * (double)e2->value->float_val[0];
-    //         va= new Value();
-    //         va->double_val.push_back(val);
-    //     }
-    // }
-    // else if(op=="%")
-    // {
-    //     if(e1->value->num_val.size()!=0 && e2->value->num_val.size()!=0){
-    //         long long int val=e1->value->num_val[0] % e2->value->num_val[0];
-    //         va= new Value();
-    //         va->num_val.push_back(val);
-    //     } 
-    //     else if(e1->value->float_val.size()!=0 && e2->value->float_val.size()!=0){
-    //         float val=doubleMod(e1->value->float_val[0] , e2->value->float_val[0]);
-    //         va= new Value();
-    //         va->float_val.push_back(val);
-    //     }
-    //     else if(e1->value->double_val.size()!=0 && e2->value->double_val.size()!=0){
-    //         double val=doubleMod(e1->value->double_val[0],e2->value->double_val[0]);
-    //         va= new Value();
-    //         va->double_val.push_back(val);
-    //     }
-    //     else if(e1->value->num_val.size()!=0 && e2->value->double_val.size()!=0){
-    //         double val=doubleMod((double)e1->value->num_val[0] , e2->value->double_val[0]);
-    //         va= new Value();
-    //         va->double_val.push_back(val);
-    //     }
-    //     else if(e1->value->double_val.size()!=0 && e2->value->num_val.size()!=0){
-    //         double val=doubleMod(e1->value->double_val[0] ,(double) e2->value->num_val[0]);
-    //         va= new Value();
-    //         va->double_val.push_back(val);
-    //     }
-    //     else if(e1->value->num_val.size()!=0 && e2->value->float_val.size()!=0){
-    //         float val=doubleMod(e1->value->num_val[0] , e2->value->float_val[0]);
-    //         va= new Value();
-    //         va->float_val.push_back(val);
-    //     }
-    //     else if(e1->value->float_val.size()!=0 && e2->value->num_val.size()!=0){
-    //         float val=doubleMod(e1->value->float_val[0] , e2->value->num_val[0]);
-    //         va= new Value();
-    //         va->float_val.push_back(val);
-    //     }
-    //     else if(e1->value->float_val.size()!=0 && e2->value->double_val.size()!=0){
-    //         double val=doubleMod((double)e1->value->float_val[0] , e2->value->double_val[0]);
-    //         va= new Value();
-    //         va->double_val.push_back(val);
-    //     }
-    //     else if(e1->value->double_val.size()!=0 && e2->value->float_val.size()!=0){
-    //         double val=doubleMod(e1->value->double_val[0] , (double)e2->value->float_val[0]);
-    //         va= new Value();
-    //         va->double_val.push_back(val);
-    //     }
-    // }
-       
-    // else if(op=="/"){
-    //         if(e1->value->num_val.size()!=0 && e2->value->num_val.size()!=0){
-    //         long long int val=e1->value->num_val[0] / e2->value->num_val[0];
-    //         va= new Value();
-    //         va->num_val.push_back(val);
-    //     }
-     
-    //     else if(e1->value->float_val.size()!=0 && e2->value->float_val.size()!=0){
-    //         float val=e1->value->float_val[0] / e2->value->float_val[0];
-    //         va= new Value();
-    //         va->float_val.push_back(val);
-    //     }
-    //     else if(e1->value->double_val.size()!=0 && e2->value->double_val.size()!=0){
-    //         double val=e1->value->double_val[0] / e2->value->double_val[0];
-    //         va= new Value();
-    //         va->double_val.push_back(val);
-    //     }
-    //     else if(e1->value->num_val.size()!=0 && e2->value->double_val.size()!=0){
-    //         double val=(double)e1->value->num_val[0] / e2->value->double_val[0];
-    //         va= new Value();
-    //         va->double_val.push_back(val);
-    //     }
-    //     else if(e1->value->double_val.size()!=0 && e2->value->num_val.size()!=0){
-    //         double val=e1->value->double_val[0] / (double)e2->value->num_val[0];
-    //         va= new Value();
-    //         va->double_val.push_back(val);
-    //     }
-    //     else if(e1->value->num_val.size()!=0 && e2->value->float_val.size()!=0){
-    //         float val=(float)e1->value->num_val[0] / e2->value->float_val[0];
-    //         va= new Value();
-    //         va->float_val.push_back(val);
-    //     }
-    //     else if(e1->value->float_val.size()!=0 && e2->value->num_val.size()!=0){
-    //         float val=e1->value->float_val[0] / (float)e2->value->num_val[0];
-    //         va= new Value();
-    //         va->float_val.push_back(val);
-    //     }
-    //     else if(e1->value->float_val.size()!=0 && e2->value->double_val.size()!=0){
-    //         double val=(double)e1->value->float_val[0] / e2->value->double_val[0];
-    //         va= new Value();
-    //         va->double_val.push_back(val);
-    //     }
-    //     else if(e1->value->double_val.size()!=0 && e2->value->float_val.size()!=0){
-    //         double val=e1->value->double_val[0] / (double)e2->value->float_val[0];
-    //         va= new Value();
-    //         va->double_val.push_back(val);
-    //     }
-    // }
     
     va->primitivetypeIndex = max(e2->value->primitivetypeIndex, e1->value->primitivetypeIndex);
     Expression* obj=new Expression(lex,va,false,false);
-    int ind = addInstruction(obj, e1, e2, op, 0);
-    if(ind >=0) obj->code.push_back(ind);
-    else return NULL;
+    obj->code.push_back(addInstruction(obj, e1, e2, op, 0));
     return obj;
 }
 
@@ -606,12 +272,12 @@ Expression* evalUNARY(string lex, string op, Expression* e1){
     Value* va= new Value();
     va->primitivetypeIndex = e1->value->primitivetypeIndex;
     Expression* obj=new Expression(lex, va, false, false);
-    // addInstruction(obj, e1, NULL, op, 0);
+    obj->code.push_back(addInstruction(obj, NULL, e1, op, 0));
     return obj; 
 }
 
 // make different function for preincrement and postincrement;
-Expression* evalIC_DC(string lex, string op, Expression* e1){
+Expression* evalIC_DC(string lex, string op, Expression* e1, bool preOperation){
     if(e1 == NULL)
         return NULL;
     if(e1->value->primitivetypeIndex > 6){
@@ -627,7 +293,25 @@ Expression* evalIC_DC(string lex, string op, Expression* e1){
     va->primitivetypeIndex = e1->value->primitivetypeIndex;
     Expression* obj = new Expression(lex, va, false, false);
     // assuming for post increment; change afterwards
-    // addInstruction(obj, e1, NULL, op, 0);
+    Expression* temp = new Expression("increment_expression", NULL, false, false);
+    Expression* temp1 = new Expression("increment_expression", NULL, false, false);
+    Value* val = new Value();
+    val->primitivetypeIndex = INT;
+    Expression* one = new Expression("one value", val, true, true);
+    one->primary_exp_val = "1";
+    string new_op = op.substr(0,1);
+    if(preOperation){
+        obj->code.push_back(addInstruction(temp1, e1, one, new_op, 0));
+        obj->code.push_back(addInstruction(e1, temp1, NULL, "", 0));
+        obj->registor_index = temp1->registor_index;
+    }
+    else{
+        obj->code.push_back(addInstruction(temp, e1, NULL, "", 0));
+        obj->code.push_back(addInstruction(temp1, e1, one, new_op, 0));
+        obj->code.push_back(addInstruction(e1, temp1, NULL, "", 0));
+        obj->registor_index = temp->registor_index;
+    }
+    // obj->code.push_back(addInstruction(obj, NULL, e1, op, 0));
     return obj;
 }
 
@@ -641,6 +325,7 @@ Expression* evalTL(string lex, Expression* e1){
     Value* va= new Value();
     va->primitivetypeIndex = e1->value->primitivetypeIndex;
     Expression* obj=new Expression(lex, va, false, false);
+    obj->code.push_back(addInstruction(obj, NULL, e1, "~", 0));
     return obj; 
 
 }
@@ -655,6 +340,7 @@ Expression* evalEX(string lex, Expression* e1){
     Value* va = new Value();
     va->primitivetypeIndex = 7;
     Expression* obj = new Expression(lex, va, false, false);
+    obj->code.push_back(addInstruction(obj, NULL, e1, "!", 0));
     return obj; 
 
 }
@@ -672,12 +358,14 @@ Expression* assignValue(Expression* type_name, string op, Expression* exp){
             if((name_type <= LONG && exp_type <= LONG) || (name_type == FLOAT && exp_type == FLOAT || name_type == DOUBLE && exp_type == DOUBLE) || (name_type == exp_type) || (exp_type <= LONG && (name_type == FLOAT || name_type == DOUBLE))) {
             if(op == "="){
                 // name->variable_declarator->initialized_value = exp->value;
-                int ind = addInstruction(type_name, exp, NULL, "", 0);
-                if(ind >= 0) obj->code.push_back(ind);
-                else return NULL;
+                obj->code.push_back(addInstruction(type_name, exp, NULL, "", 0));
             }
             else{
-
+                int pos = op.find('=');
+                string fin_op = op.substr(0, pos);
+                Expression* temp = new Expression("typename", NULL, false, false);
+                obj->code.push_back(addInstruction(temp, type_name, exp, fin_op, 0));
+                obj->code.push_back(addInstruction(type_name, temp, NULL, "", 0));
             }
             // obj->value = exp->value;
             return obj;
