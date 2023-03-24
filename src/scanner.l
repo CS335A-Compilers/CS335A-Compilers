@@ -90,7 +90,6 @@ OCTAL_EXCAPE                \\{OCTAL_DIGIT}|\\{OCTAL_DIGIT}{OCTAL_DIGIT}|\\[0-3]
 "assert"                {char* temp = strdup(yytext); yylval.lex_val = temp; return(assert_keyword_terminal);}
 "default"               {char* temp = strdup(yytext); yylval.lex_val = temp; return(default_keyword_terminal);}
 "if"                    {char* temp = strdup(yytext); yylval.lex_val = temp; return(if_keyword_terminal);}
-"synchronized"          {char* temp = strdup(yytext); yylval.lex_val = temp; return(synchronized_keyword_terminal);}
 "boolean"               {char* temp = strdup(yytext); yylval.lex_val = temp; return(boolean_keyword_terminal);}
 "do"                    {char* temp = strdup(yytext); yylval.lex_val = temp; return(do_keyword_terminal);}
 "goto"                  {char* temp = strdup(yytext); yylval.lex_val = temp; return(goto_keyword_terminal);}
@@ -244,6 +243,7 @@ OCTAL_EXCAPE                \\{OCTAL_DIGIT}|\\{OCTAL_DIGIT}{OCTAL_DIGIT}|\\[0-3]
 "::"                    {char* temp = strdup(yytext); yylval.lex_val = temp; return(DOUBLE_COLON_TERMINAL);}
 "finally"               {char* temp = strdup(yytext); yylval.lex_val = temp; return(finally_keyword_terminal);}
 "try"                   {char* temp = strdup(yytext); yylval.lex_val = temp; return(try_keyword_terminal);}
+"synchronized"          {char* temp = strdup(yytext); yylval.lex_val = temp; return(synchronized_keyword_terminal);}
 "<>"                    {char* temp = strdup(yytext); yylval.lex_val = temp; return(DIAMOND_TERMINAL);}
 "..."                   {char* temp = strdup(yytext); yylval.lex_val = temp; return(ELLIPSIS_TERMINAL);}
 
