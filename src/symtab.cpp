@@ -163,9 +163,7 @@ void LocalSymbolTable::add_entry(Node* symtab_entry){
         else {
             for (Modifier *element : modifiers)
             {
-                cout << "2 ";
                 if (element->modifier_type != 9){
-                    cout << "1 ";
                     error = "Modifier " + modifierStrings[element->modifier_type] + " not allowed in field variable declaration";
                     yyerror(error.c_str());
                     break;

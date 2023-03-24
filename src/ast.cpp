@@ -18,6 +18,7 @@ extern int curr_address;
 
 vector<string> entryTypeStrings = {"variable", "class", "method"};
 
+
 int Node::node_id = 0;
 
 Node::Node(string lex){
@@ -391,6 +392,7 @@ string createTAC(VariableDeclaratorList* list){
 }
 
 int create3ACCode(Node* root, bool print){
+
     int res = 0;
     if(root == NULL) return res;
     if(root->entry_type == METHOD_DECLARATION){
@@ -504,5 +506,6 @@ int create3ACCode(Node* root, bool print){
             res+=create3ACCode(root->children[i], print);
         }
     }
+
     return res;
 }
