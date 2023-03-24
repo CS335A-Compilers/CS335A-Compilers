@@ -26,7 +26,7 @@ class test {
         // int y = 5;
         // x = 6;
         // x = 5;
-        // for(x++;x<5;x--){
+        // for(x++;x<5;x--){}
 
     }
 }

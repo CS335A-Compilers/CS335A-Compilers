@@ -399,8 +399,7 @@ local_variable_declaration_statement
         :   local_variable_declaration SEMICOLON_OP                                                                                                     {Node* node = createNode("local variable declaration statemen"); node->addChildren({$1,$2}); $$ = node;}
 
 local_variable_declaration
-        :   unann_type variable_declarator_list                                                                                                         {Node* node = createNode("local variable declaration"); node->addChildren({$1,$2}); if(!addVariablesToSymtab($1, $2, global_symtab->current_level, NULL, false)) YYERROR; $$->entry_type = VARIABLE_DECLARATION; $$ = node;}
-        // |   FINAL_KEYWORD unann_type variable_declarator_list                                                                                           {Node* node = createNode("local variable declaration"); node->addChildren({$1,$2,$3}); $$ = node;}
+        :   modifiers_zero_or_more unann_type variable_declarator_list                                                                                  {Node* node = createNode("local variable declaration"); node->addChildren({$1,$2,$3}); if(!addVariablesToSymtab($2, $3, global_symtab->current_level, $1, false)) YYERROR; $$->entry_type = VARIABLE_DECLARATION; $$ = node;}
 
 statement
         :   statement_without_trailing_substatement                                                                                                     {Node* node = createNode("statement"); node->addChildren({$1}); $$ = node;}
@@ -598,8 +597,8 @@ unann_type
         |  type_name                                                                                                                                    {Type* node = new Type("unann type", -1); Node* temp = get_local_symtab(global_symtab->current_level)->get_entry($1->identifiers[0], 1); if(temp==NULL) YYERROR; node->class_instantiated_from = (NormalClassDeclaration*)(temp); node->addChildren({$1}); $$ = node;}
 
 method_declaration
-        :  modifiers_zero_or_more method_header block                                                                                                   {MethodDeclaration* node = new MethodDeclaration("method_declaration"); node->line_no = $1->line_no; node->name = $2->name; node->formal_parameter_list = $2->formal_parameter_list; node->type = $2->type; node->modifiers = $2->modifiers; node->addChildren({$1,$2,$3}); node->entry_type = METHOD_DECLARATION; get_local_symtab(global_symtab->current_level)->add_entry(node); ((LocalSymbolTable*)((global_symtab->symbol_tables)[$3->parent_level.first][$3->parent_level.second]))->level_node = (Node*)(node); $$ = node;}
-        |  modifiers_zero_or_more method_header SEMICOLON_OP                                                                                            {MethodDeclaration* node = new MethodDeclaration("method_declaration"); node->name = $2->name; node->formal_parameter_list = $2->formal_parameter_list; node->type = $2->type; node->modifiers = $2->modifiers; node->addChildren({$1,$2,$3}); node->entry_type = METHOD_DECLARATION; get_local_symtab(global_symtab->current_level)->add_entry(node); $$ = node;}
+        :  modifiers_zero_or_more method_header block                                                                                                   {MethodDeclaration* node = new MethodDeclaration("method_declaration"); node->line_no = $1->line_no; node->name = $2->name; node->formal_parameter_list = $2->formal_parameter_list; node->type = $2->type; node->modifiers = $1; node->addChildren({$1,$2,$3}); node->entry_type = METHOD_DECLARATION; get_local_symtab(global_symtab->current_level)->add_entry(node); ((LocalSymbolTable*)((global_symtab->symbol_tables)[$3->parent_level.first][$3->parent_level.second]))->level_node = (Node*)(node); $$ = node;}
+        |  modifiers_zero_or_more method_header SEMICOLON_OP                                                                                            {MethodDeclaration* node = new MethodDeclaration("method_declaration"); node->name = $2->name; node->formal_parameter_list = $2->formal_parameter_list; node->type = $2->type; node->modifiers = $1; node->addChildren({$1,$2,$3}); node->entry_type = METHOD_DECLARATION; get_local_symtab(global_symtab->current_level)->add_entry(node); $$ = node;}
 
 method_header
         :  unann_type method_declarator                                                                                                                 {MethodDeclaration* node = new MethodDeclaration("method_header"); node->name = $2->name; node->formal_parameter_list = $2->formal_parameter_list; node->type = $1;  node->addChildren({$1,$2}); $$ = node;}
@@ -927,7 +926,6 @@ void get_csv_entries(LocalSymbolTable* scope){
                 variable->isWritten = true;
                 csv_contents.insert({variable->name, {}});
                 int dt_index = ((MethodDeclaration*)(variable))->type->primitivetypeIndex;
-                cout << "Type : " << dt_index << endl;
                 string type;
                 if (dt_index == -1){
                 }
@@ -1150,18 +1148,20 @@ int main(int argc, char **argv){
     fclose(yyin);
 
 //     Print the symbol table
-//     for(int i = 0;i < global_symtab->symbol_tables.size(); i++){
-//         for(int j = 0; j < global_symtab->symbol_tables[i].size(); j++){
-//             // get the local symbol table
-//             LocalSymbolTable* curr_scope = ((LocalSymbolTable*)global_symtab->symbol_tables[i][j]);
-//             get_csv_entries(curr_scope);
-//         }
-//     }
-//     print_to_csv();
+    for(int i = 0;i < global_symtab->symbol_tables.size(); i++){
+        for(int j = 0; j < global_symtab->symbol_tables[i].size(); j++){
+            // get the local symbol table
+            LocalSymbolTable* curr_scope = ((LocalSymbolTable*)global_symtab->symbol_tables[i][j]);
+            get_csv_entries(curr_scope);
+        }
+    }
+    print_to_csv();
 //     generate3AC();
     return 0;
 }
 
-void yyerror(char const *s) {
-  printf("\nerror: %s. Line number %d\n\n", s, yylineno);
+
+
+void yyerror (char const *s) {
+  printf("\nError: %s. Line number %d\n\n", s, yylineno);
 }
