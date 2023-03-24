@@ -324,259 +324,255 @@ Expression* evalARITHMETIC(string lex,string op,Expression* e1,Expression* e2){
     if(e1==NULL||e2==NULL)
         return NULL;
     // wrong type checking;
-    cout << "I m hre\n";
-    cout << e1->value->num_val.size() << " " << e1->value->float_val.size() << " " << e1->value->double_val.size() << endl;
-    cout << e2->value->num_val.size() << " " << e2->value->float_val.size() << " " << e2->value->double_val.size() << endl;
     if ((e1->value->num_val.size() == 0 && e1->value->float_val.size() == 0 && e1->value->double_val.size() == 0) || (e2->value->double_val.size() == 0 && e2->value->num_val.size() == 0 && e2->value->float_val.size() == 0))
     {
         // cout<<e1->value->num_val[0]<<endl<<e2->value->num_val[0]<<endl;
-        cout << "inside\n";
         yyerror("bad operand types for arthimetic operator");
         return NULL;
     }
-    Value* va;
-    if(op=="-"){
-        if(e1->value->num_val.size()!=0 && e2->value->num_val.size()!=0){
-            long long int val=e1->value->num_val[0] - e2->value->num_val[0];
-            va= new Value();
-            va->num_val.push_back(val);
-        } 
-        else if(e1->value->float_val.size()!=0 && e2->value->float_val.size()!=0){
-            float val=e1->value->float_val[0] - e2->value->float_val[0];
-            va= new Value();
-            va->float_val.push_back(val);
-        }
-        else if(e1->value->double_val.size()!=0 && e2->value->double_val.size()!=0){
-            double val=e1->value->double_val[0] - e2->value->double_val[0];
-            va= new Value();
-            va->double_val.push_back(val);
-        }
-        else if(e1->value->num_val.size()!=0 && e2->value->double_val.size()!=0){
-            double  val=(double)e1->value->num_val[0] - e2->value->double_val[0];
-            va= new Value();
-            va->double_val.push_back(val);
-        }
-        else if(e1->value->double_val.size()!=0 && e2->value->num_val.size()!=0){
-           double val=e1->value->double_val[0] - (double)e2->value->num_val[0];
-            va= new Value();
-            va->double_val.push_back(val);
-        }
-        else if(e1->value->num_val.size()!=0 && e2->value->float_val.size()!=0){
-            float val=(float)e1->value->num_val[0] - e2->value->float_val[0];
-            va= new Value();
-            va->float_val.push_back(val);
-        }
-        else if(e1->value->float_val.size()!=0 && e2->value->num_val.size()!=0){
-            float val=e1->value->float_val[0] - (float)e2->value->num_val[0];
-            va= new Value();
-            va->float_val.push_back(val);
-        }
-        else if(e1->value->float_val.size()!=0 && e2->value->double_val.size()!=0){
-            double val=(float)e1->value->float_val[0] - e2->value->double_val[0];
-            va= new Value();
-            va->double_val.push_back(val);
-        }
-        else if(e1->value->double_val.size()!=0 && e2->value->float_val.size()!=0){
-            double val=e1->value->double_val[0] - (double)e2->value->float_val[0];
-            va= new Value();
-            va->double_val.push_back(val);
-        }
-    }
+    Value* va=new Value();
+    // if(op=="-"){
+    //     if(e1->value->num_val.size()!=0 && e2->value->num_val.size()!=0){
+    //         long long int val=e1->value->num_val[0] - e2->value->num_val[0];
+    //         va= new Value();
+    //         va->num_val.push_back(val);
+    //     } 
+    //     else if(e1->value->float_val.size()!=0 && e2->value->float_val.size()!=0){
+    //         float val=e1->value->float_val[0] - e2->value->float_val[0];
+    //         va= new Value();
+    //         va->float_val.push_back(val);
+    //     }
+    //     else if(e1->value->double_val.size()!=0 && e2->value->double_val.size()!=0){
+    //         double val=e1->value->double_val[0] - e2->value->double_val[0];
+    //         va= new Value();
+    //         va->double_val.push_back(val);
+    //     }
+    //     else if(e1->value->num_val.size()!=0 && e2->value->double_val.size()!=0){
+    //         double  val=(double)e1->value->num_val[0] - e2->value->double_val[0];
+    //         va= new Value();
+    //         va->double_val.push_back(val);
+    //     }
+    //     else if(e1->value->double_val.size()!=0 && e2->value->num_val.size()!=0){
+    //        double val=e1->value->double_val[0] - (double)e2->value->num_val[0];
+    //         va= new Value();
+    //         va->double_val.push_back(val);
+    //     }
+    //     else if(e1->value->num_val.size()!=0 && e2->value->float_val.size()!=0){
+    //         float val=(float)e1->value->num_val[0] - e2->value->float_val[0];
+    //         va= new Value();
+    //         va->float_val.push_back(val);
+    //     }
+    //     else if(e1->value->float_val.size()!=0 && e2->value->num_val.size()!=0){
+    //         float val=e1->value->float_val[0] - (float)e2->value->num_val[0];
+    //         va= new Value();
+    //         va->float_val.push_back(val);
+    //     }
+    //     else if(e1->value->float_val.size()!=0 && e2->value->double_val.size()!=0){
+    //         double val=(float)e1->value->float_val[0] - e2->value->double_val[0];
+    //         va= new Value();
+    //         va->double_val.push_back(val);
+    //     }
+    //     else if(e1->value->double_val.size()!=0 && e2->value->float_val.size()!=0){
+    //         double val=e1->value->double_val[0] - (double)e2->value->float_val[0];
+    //         va= new Value();
+    //         va->double_val.push_back(val);
+    //     }
+    // }
        
-    else if(op=="+"){
-        if(e1->value->num_val.size()!=0 && e2->value->num_val.size()!=0){
-            long long int val=e1->value->num_val[0] + e2->value->num_val[0];
-            va= new Value();
-            va->num_val.push_back(val);
-        }
-        else if(e1->value->float_val.size()!=0 && e2->value->float_val.size()!=0){
-            float val=e1->value->float_val[0] + e2->value->float_val[0];
-            va= new Value();
-            va->float_val.push_back(val);
-        }
-        else if(e1->value->double_val.size()!=0 && e2->value->double_val.size()!=0){
-            double val=e1->value->double_val[0] + e2->value->double_val[0];
-            va= new Value();
-            va->double_val.push_back(val);
-        }
-        else if(e1->value->num_val.size()!=0 && e2->value->double_val.size()!=0){
-            double val=(double)e1->value->num_val[0] + e2->value->double_val[0];
-            va= new Value();
-            va->double_val.push_back(val);
-        }
-        else if(e1->value->double_val.size()!=0 && e2->value->num_val.size()!=0){
-            double val=e1->value->double_val[0] + (double)e2->value->num_val[0];
-            va= new Value();
-            va->double_val.push_back(val);
-        }
-        else if(e1->value->num_val.size()!=0 && e2->value->float_val.size()!=0){
-            float val=(float)e1->value->num_val[0] + e2->value->float_val[0];
-            va= new Value();
-            va->float_val.push_back(val);
-        }
-        else if(e1->value->float_val.size()!=0 && e2->value->num_val.size()!=0){
-            float val=e1->value->float_val[0] + (float)e2->value->num_val[0];
-            va= new Value();
-            va->float_val.push_back(val);
-        }
-        else if(e1->value->float_val.size()!=0 && e2->value->double_val.size()!=0){
-            double val=(double)e1->value->float_val[0] + e2->value->double_val[0];
-            va= new Value();
-            va->double_val.push_back(val);
-        }
-        else if(e1->value->double_val.size()!=0 && e2->value->float_val.size()!=0){
-            double val=e1->value->double_val[0] + e2->value->float_val[0];
-            va= new Value();
-            va->double_val.push_back(val);
-        }
-    }
-    else if(op=="*"){
-        if(e1->value->num_val.size()!=0 && e2->value->num_val.size()!=0){
-            long long int val=e1->value->num_val[0] * e2->value->num_val[0];
-            va= new Value();
-            va->num_val.push_back(val);
-        }
-        else if(e1->value->float_val.size()!=0 && e2->value->float_val.size()!=0){
-            float val=e1->value->float_val[0] * e2->value->float_val[0];
-            va= new Value();
-            va->float_val.push_back(val);
-        }
-        else if(e1->value->double_val.size()!=0 && e2->value->double_val.size()!=0){
-            double val=e1->value->double_val[0] * e2->value->double_val[0];
-            va= new Value();
-            va->double_val.push_back(val);
-        }
-        else if(e1->value->num_val.size()!=0 && e2->value->double_val.size()!=0){
-            double val=(double)e1->value->num_val[0] * e2->value->double_val[0];
-            va= new Value();
-            va->double_val.push_back(val);
-        }
-        else if(e1->value->double_val.size()!=0 && e2->value->num_val.size()!=0){
-            double val=e1->value->double_val[0] * (double)e2->value->num_val[0];
-            va= new Value();
-            va->double_val.push_back(val);
-        }
-        else if(e1->value->num_val.size()!=0 && e2->value->float_val.size()!=0){
-            float val=(float)e1->value->num_val[0] * e2->value->float_val[0];
-            va= new Value();
-            va->float_val.push_back(val);
-        }
-        else if(e1->value->float_val.size()!=0 && e2->value->num_val.size()!=0){
-            float val=e1->value->float_val[0] * (float)e2->value->num_val[0];
-            va= new Value();
-            va->float_val.push_back(val);
-        }
-        else if(e1->value->float_val.size()!=0 && e2->value->double_val.size()!=0){
-            double val=(double)e1->value->float_val[0] * e2->value->double_val[0];
-            va= new Value();
-            va->double_val.push_back(val);
-        }
-        else if(e1->value->double_val.size()!=0 && e2->value->float_val.size()!=0){
-            double val=e1->value->double_val[0] * (double)e2->value->float_val[0];
-            va= new Value();
-            va->double_val.push_back(val);
-        }
-    }
-    else if(op=="%")
-    {
-        if(e1->value->num_val.size()!=0 && e2->value->num_val.size()!=0){
-            long long int val=e1->value->num_val[0] % e2->value->num_val[0];
-            va= new Value();
-            va->num_val.push_back(val);
-        } 
-        else if(e1->value->float_val.size()!=0 && e2->value->float_val.size()!=0){
-            float val=doubleMod(e1->value->float_val[0] , e2->value->float_val[0]);
-            va= new Value();
-            va->float_val.push_back(val);
-        }
-        else if(e1->value->double_val.size()!=0 && e2->value->double_val.size()!=0){
-            double val=doubleMod(e1->value->double_val[0],e2->value->double_val[0]);
-            va= new Value();
-            va->double_val.push_back(val);
-        }
-        else if(e1->value->num_val.size()!=0 && e2->value->double_val.size()!=0){
-            double val=doubleMod((double)e1->value->num_val[0] , e2->value->double_val[0]);
-            va= new Value();
-            va->double_val.push_back(val);
-        }
-        else if(e1->value->double_val.size()!=0 && e2->value->num_val.size()!=0){
-            double val=doubleMod(e1->value->double_val[0] ,(double) e2->value->num_val[0]);
-            va= new Value();
-            va->double_val.push_back(val);
-        }
-        else if(e1->value->num_val.size()!=0 && e2->value->float_val.size()!=0){
-            float val=doubleMod(e1->value->num_val[0] , e2->value->float_val[0]);
-            va= new Value();
-            va->float_val.push_back(val);
-        }
-        else if(e1->value->float_val.size()!=0 && e2->value->num_val.size()!=0){
-            float val=doubleMod(e1->value->float_val[0] , e2->value->num_val[0]);
-            va= new Value();
-            va->float_val.push_back(val);
-        }
-        else if(e1->value->float_val.size()!=0 && e2->value->double_val.size()!=0){
-            double val=doubleMod((double)e1->value->float_val[0] , e2->value->double_val[0]);
-            va= new Value();
-            va->double_val.push_back(val);
-        }
-        else if(e1->value->double_val.size()!=0 && e2->value->float_val.size()!=0){
-            double val=doubleMod(e1->value->double_val[0] , (double)e2->value->float_val[0]);
-            va= new Value();
-            va->double_val.push_back(val);
-        }
-    }
+    // else if(op=="+"){
+    //     if(e1->value->num_val.size()!=0 && e2->value->num_val.size()!=0){
+    //         long long int val=e1->value->num_val[0] + e2->value->num_val[0];
+    //         va= new Value();
+    //         va->num_val.push_back(val);
+    //     }
+    //     else if(e1->value->float_val.size()!=0 && e2->value->float_val.size()!=0){
+    //         float val=e1->value->float_val[0] + e2->value->float_val[0];
+    //         va= new Value();
+    //         va->float_val.push_back(val);
+    //     }
+    //     else if(e1->value->double_val.size()!=0 && e2->value->double_val.size()!=0){
+    //         double val=e1->value->double_val[0] + e2->value->double_val[0];
+    //         va= new Value();
+    //         va->double_val.push_back(val);
+    //     }
+    //     else if(e1->value->num_val.size()!=0 && e2->value->double_val.size()!=0){
+    //         double val=(double)e1->value->num_val[0] + e2->value->double_val[0];
+    //         va= new Value();
+    //         va->double_val.push_back(val);
+    //     }
+    //     else if(e1->value->double_val.size()!=0 && e2->value->num_val.size()!=0){
+    //         double val=e1->value->double_val[0] + (double)e2->value->num_val[0];
+    //         va= new Value();
+    //         va->double_val.push_back(val);
+    //     }
+    //     else if(e1->value->num_val.size()!=0 && e2->value->float_val.size()!=0){
+    //         float val=(float)e1->value->num_val[0] + e2->value->float_val[0];
+    //         va= new Value();
+    //         va->float_val.push_back(val);
+    //     }
+    //     else if(e1->value->float_val.size()!=0 && e2->value->num_val.size()!=0){
+    //         float val=e1->value->float_val[0] + (float)e2->value->num_val[0];
+    //         va= new Value();
+    //         va->float_val.push_back(val);
+    //     }
+    //     else if(e1->value->float_val.size()!=0 && e2->value->double_val.size()!=0){
+    //         double val=(double)e1->value->float_val[0] + e2->value->double_val[0];
+    //         va= new Value();
+    //         va->double_val.push_back(val);
+    //     }
+    //     else if(e1->value->double_val.size()!=0 && e2->value->float_val.size()!=0){
+    //         double val=e1->value->double_val[0] + e2->value->float_val[0];
+    //         va= new Value();
+    //         va->double_val.push_back(val);
+    //     }
+    // }
+    // else if(op=="*"){
+    //     if(e1->value->num_val.size()!=0 && e2->value->num_val.size()!=0){
+    //         long long int val=e1->value->num_val[0] * e2->value->num_val[0];
+    //         va= new Value();
+    //         va->num_val.push_back(val);
+    //     }
+    //     else if(e1->value->float_val.size()!=0 && e2->value->float_val.size()!=0){
+    //         float val=e1->value->float_val[0] * e2->value->float_val[0];
+    //         va= new Value();
+    //         va->float_val.push_back(val);
+    //     }
+    //     else if(e1->value->double_val.size()!=0 && e2->value->double_val.size()!=0){
+    //         double val=e1->value->double_val[0] * e2->value->double_val[0];
+    //         va= new Value();
+    //         va->double_val.push_back(val);
+    //     }
+    //     else if(e1->value->num_val.size()!=0 && e2->value->double_val.size()!=0){
+    //         double val=(double)e1->value->num_val[0] * e2->value->double_val[0];
+    //         va= new Value();
+    //         va->double_val.push_back(val);
+    //     }
+    //     else if(e1->value->double_val.size()!=0 && e2->value->num_val.size()!=0){
+    //         double val=e1->value->double_val[0] * (double)e2->value->num_val[0];
+    //         va= new Value();
+    //         va->double_val.push_back(val);
+    //     }
+    //     else if(e1->value->num_val.size()!=0 && e2->value->float_val.size()!=0){
+    //         float val=(float)e1->value->num_val[0] * e2->value->float_val[0];
+    //         va= new Value();
+    //         va->float_val.push_back(val);
+    //     }
+    //     else if(e1->value->float_val.size()!=0 && e2->value->num_val.size()!=0){
+    //         float val=e1->value->float_val[0] * (float)e2->value->num_val[0];
+    //         va= new Value();
+    //         va->float_val.push_back(val);
+    //     }
+    //     else if(e1->value->float_val.size()!=0 && e2->value->double_val.size()!=0){
+    //         double val=(double)e1->value->float_val[0] * e2->value->double_val[0];
+    //         va= new Value();
+    //         va->double_val.push_back(val);
+    //     }
+    //     else if(e1->value->double_val.size()!=0 && e2->value->float_val.size()!=0){
+    //         double val=e1->value->double_val[0] * (double)e2->value->float_val[0];
+    //         va= new Value();
+    //         va->double_val.push_back(val);
+    //     }
+    // }
+    // else if(op=="%")
+    // {
+    //     if(e1->value->num_val.size()!=0 && e2->value->num_val.size()!=0){
+    //         long long int val=e1->value->num_val[0] % e2->value->num_val[0];
+    //         va= new Value();
+    //         va->num_val.push_back(val);
+    //     } 
+    //     else if(e1->value->float_val.size()!=0 && e2->value->float_val.size()!=0){
+    //         float val=doubleMod(e1->value->float_val[0] , e2->value->float_val[0]);
+    //         va= new Value();
+    //         va->float_val.push_back(val);
+    //     }
+    //     else if(e1->value->double_val.size()!=0 && e2->value->double_val.size()!=0){
+    //         double val=doubleMod(e1->value->double_val[0],e2->value->double_val[0]);
+    //         va= new Value();
+    //         va->double_val.push_back(val);
+    //     }
+    //     else if(e1->value->num_val.size()!=0 && e2->value->double_val.size()!=0){
+    //         double val=doubleMod((double)e1->value->num_val[0] , e2->value->double_val[0]);
+    //         va= new Value();
+    //         va->double_val.push_back(val);
+    //     }
+    //     else if(e1->value->double_val.size()!=0 && e2->value->num_val.size()!=0){
+    //         double val=doubleMod(e1->value->double_val[0] ,(double) e2->value->num_val[0]);
+    //         va= new Value();
+    //         va->double_val.push_back(val);
+    //     }
+    //     else if(e1->value->num_val.size()!=0 && e2->value->float_val.size()!=0){
+    //         float val=doubleMod(e1->value->num_val[0] , e2->value->float_val[0]);
+    //         va= new Value();
+    //         va->float_val.push_back(val);
+    //     }
+    //     else if(e1->value->float_val.size()!=0 && e2->value->num_val.size()!=0){
+    //         float val=doubleMod(e1->value->float_val[0] , e2->value->num_val[0]);
+    //         va= new Value();
+    //         va->float_val.push_back(val);
+    //     }
+    //     else if(e1->value->float_val.size()!=0 && e2->value->double_val.size()!=0){
+    //         double val=doubleMod((double)e1->value->float_val[0] , e2->value->double_val[0]);
+    //         va= new Value();
+    //         va->double_val.push_back(val);
+    //     }
+    //     else if(e1->value->double_val.size()!=0 && e2->value->float_val.size()!=0){
+    //         double val=doubleMod(e1->value->double_val[0] , (double)e2->value->float_val[0]);
+    //         va= new Value();
+    //         va->double_val.push_back(val);
+    //     }
+    // }
        
-    else if(op=="/"){
-            if(e1->value->num_val.size()!=0 && e2->value->num_val.size()!=0){
-            long long int val=e1->value->num_val[0] / e2->value->num_val[0];
-            va= new Value();
-            va->num_val.push_back(val);
-        }
+    // else if(op=="/"){
+    //         if(e1->value->num_val.size()!=0 && e2->value->num_val.size()!=0){
+    //         long long int val=e1->value->num_val[0] / e2->value->num_val[0];
+    //         va= new Value();
+    //         va->num_val.push_back(val);
+    //     }
      
-        else if(e1->value->float_val.size()!=0 && e2->value->float_val.size()!=0){
-            float val=e1->value->float_val[0] / e2->value->float_val[0];
-            va= new Value();
-            va->float_val.push_back(val);
-        }
-        else if(e1->value->double_val.size()!=0 && e2->value->double_val.size()!=0){
-            double val=e1->value->double_val[0] / e2->value->double_val[0];
-            va= new Value();
-            va->double_val.push_back(val);
-        }
-        else if(e1->value->num_val.size()!=0 && e2->value->double_val.size()!=0){
-            double val=(double)e1->value->num_val[0] / e2->value->double_val[0];
-            va= new Value();
-            va->double_val.push_back(val);
-        }
-        else if(e1->value->double_val.size()!=0 && e2->value->num_val.size()!=0){
-            double val=e1->value->double_val[0] / (double)e2->value->num_val[0];
-            va= new Value();
-            va->double_val.push_back(val);
-        }
-        else if(e1->value->num_val.size()!=0 && e2->value->float_val.size()!=0){
-            float val=(float)e1->value->num_val[0] / e2->value->float_val[0];
-            va= new Value();
-            va->float_val.push_back(val);
-        }
-        else if(e1->value->float_val.size()!=0 && e2->value->num_val.size()!=0){
-            float val=e1->value->float_val[0] / (float)e2->value->num_val[0];
-            va= new Value();
-            va->float_val.push_back(val);
-        }
-        else if(e1->value->float_val.size()!=0 && e2->value->double_val.size()!=0){
-            double val=(double)e1->value->float_val[0] / e2->value->double_val[0];
-            va= new Value();
-            va->double_val.push_back(val);
-        }
-        else if(e1->value->double_val.size()!=0 && e2->value->float_val.size()!=0){
-            double val=e1->value->double_val[0] / (double)e2->value->float_val[0];
-            va= new Value();
-            va->double_val.push_back(val);
-        }
-    }
+    //     else if(e1->value->float_val.size()!=0 && e2->value->float_val.size()!=0){
+    //         float val=e1->value->float_val[0] / e2->value->float_val[0];
+    //         va= new Value();
+    //         va->float_val.push_back(val);
+    //     }
+    //     else if(e1->value->double_val.size()!=0 && e2->value->double_val.size()!=0){
+    //         double val=e1->value->double_val[0] / e2->value->double_val[0];
+    //         va= new Value();
+    //         va->double_val.push_back(val);
+    //     }
+    //     else if(e1->value->num_val.size()!=0 && e2->value->double_val.size()!=0){
+    //         double val=(double)e1->value->num_val[0] / e2->value->double_val[0];
+    //         va= new Value();
+    //         va->double_val.push_back(val);
+    //     }
+    //     else if(e1->value->double_val.size()!=0 && e2->value->num_val.size()!=0){
+    //         double val=e1->value->double_val[0] / (double)e2->value->num_val[0];
+    //         va= new Value();
+    //         va->double_val.push_back(val);
+    //     }
+    //     else if(e1->value->num_val.size()!=0 && e2->value->float_val.size()!=0){
+    //         float val=(float)e1->value->num_val[0] / e2->value->float_val[0];
+    //         va= new Value();
+    //         va->float_val.push_back(val);
+    //     }
+    //     else if(e1->value->float_val.size()!=0 && e2->value->num_val.size()!=0){
+    //         float val=e1->value->float_val[0] / (float)e2->value->num_val[0];
+    //         va= new Value();
+    //         va->float_val.push_back(val);
+    //     }
+    //     else if(e1->value->float_val.size()!=0 && e2->value->double_val.size()!=0){
+    //         double val=(double)e1->value->float_val[0] / e2->value->double_val[0];
+    //         va= new Value();
+    //         va->double_val.push_back(val);
+    //     }
+    //     else if(e1->value->double_val.size()!=0 && e2->value->float_val.size()!=0){
+    //         double val=e1->value->double_val[0] / (double)e2->value->float_val[0];
+    //         va= new Value();
+    //         va->double_val.push_back(val);
+    //     }
+    // }
     
     Expression* obj=new Expression(lex,va,false,false);
-    addInstruction(obj, e1, e2, op, 0);
+    // addInstruction(obj, e1, e2, op, 0);
     return obj;
 }
 
@@ -588,28 +584,29 @@ Expression* evalUNARY(string lex,string op,Expression* e1){
         yyerror("Error: bad operand types for unary operator");
         return NULL;
     }
-    int val;
-    if(op=="+"){   
-        if(e1->value->primitivetypeIndex <4)
-            val=e1->value->num_val[0];
-        else if(e1->value->primitivetypeIndex ==4)
-            val=e1->value->float_val[0];
-        else if(e1->value->primitivetypeIndex ==5)
-            val=e1->value->double_val[0];
-    }
-    
-    else if(op=="-"){
-        if(e1->value->primitivetypeIndex <4)
-            val=-e1->value->num_val[0];
-        else if(e1->value->primitivetypeIndex ==4)
-            val=-e1->value->float_val[0];
-        else if(e1->value->primitivetypeIndex ==5)
-            val=-e1->value->double_val[0];
-    }
     Value* va= new Value();
-    va->boolean_val.push_back(val);
+    // if(op=="+"){   
+    //     if(e1->value->primitivetypeIndex <4)
+    //         val=e1->value->num_val[0];
+    //     else if(e1->value->primitivetypeIndex ==4)
+    //         val=e1->value->float_val[0];
+    //     else if(e1->value->primitivetypeIndex ==5)
+    //         val=e1->value->double_val[0];
+    // }
+    
+    // else if(op=="-"){
+    //     if(e1->value->primitivetypeIndex <4)
+    //         val=-e1->value->num_val[0];
+    //     else if(e1->value->primitivetypeIndex ==4)
+    //         val=-e1->value->float_val[0];
+    //     else if(e1->value->primitivetypeIndex ==5)
+    //         val=-e1->value->double_val[0];
+    // }
+    // Value* va= new Value();
+    // va->boolean_val.push_back(val);
+
     Expression* obj=new Expression(lex,va,false,false);
-    addInstruction(obj, e1, NULL, op, 0);
+    // addInstruction(obj, e1, NULL, op, 0);
     return obj; 
 }
 
