@@ -1,0 +1,5 @@
+Name,Type,Syntactic Category,Line no
+b,boolean,local_variable_declaration,7
+k,boolean,local_variable_declaration,8
+l,boolean,local_variable_declaration,9
+m,boolean,local_variable_declaration,10
