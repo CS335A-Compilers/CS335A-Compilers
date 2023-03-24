@@ -84,7 +84,6 @@ Expression* cond_qn_co(string lex, Expression* e1, Expression* e2, Expression* e
         data_type2 = typeStrings[type2];
     }
     string error = "Type mismatch: cannot convert from " + data_type1 + " to " + data_type2;
-    cout << e1->value->boolean_val.size() << endl;
     if (e1->value->boolean_val.size() == 0 || (e2->value->primitivetypeIndex == 10 || e3->value->primitivetypeIndex == 10))
     {
         yyerror(error.c_str());
