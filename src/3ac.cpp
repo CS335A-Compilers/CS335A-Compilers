@@ -43,6 +43,8 @@ void print3AC(ThreeAC* inst){
         cout<<"param "<<inst->op<<endl;
     else if(inst->form == 4)
         cout<<"call "<<inst->op<<endl;
+    else if(inst->form == 5)
+        cout<<inst->op<<" "<<inst->t<<endl;
     else 
         yyerror("something went wrong with the compiler!!!\n");
     return ;

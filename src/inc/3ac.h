@@ -22,6 +22,7 @@ class ThreeAC {
         // 2 represent condition jumps with r1/t1 consisting the expression to be trued, r2 represent the goto address;
         // 3 represent adding params to funtion, op consisting the param name
         // 4 represent method call, op consisting of name of the call, t1 represent the address of the method definition
+        // 5 represent statements like return x; t contains the val of expression, op contains the keywords (like return);
         int address;
         int form;
         ThreeAC(string operand, string t, int r, int r1, int r2, string t1, string t2, int form);
