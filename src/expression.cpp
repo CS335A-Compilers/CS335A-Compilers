@@ -7,7 +7,7 @@ extern void yyerror(char const*);
 extern GlobalSymbolTable* global_symtab;
 
 // Define an array of strings that corresponds to the type values.
-const string typeStrings[] = {"char", "byte", "short", "int", "long", "float", "double", "boolean", "array", "string", "void"};
+vector<string> typeStrings = {"char", "byte", "short", "int", "long", "float", "double", "boolean", "array", "string", "void"};
 
 double getValue(Value* val){
     switch (val->primitivetypeIndex){
@@ -68,7 +68,6 @@ Expression* grammar_1(string lex,Expression* e1,bool isprimary,bool isliteral){
 
 // Segmentation fault on character eg : a = (false) ? 'k' : 6;
 Expression* cond_qn_co(string lex, Expression* e1, Expression* e2, Expression* e3){
-    cout << "i am here\n";
     if (e1 == NULL || e2 == NULL)
         return NULL;
     /*
@@ -324,9 +323,7 @@ Expression* evalARITHMETIC(string lex, string op, Expression* e1, Expression* e2
     if(e1 == NULL || e2 == NULL)
         return NULL;
     // wrong type checking;
-    // cout << e1->value->primitivetypeIndex << " " << e2->value->primitivetypeIndex << endl;
-    if (e1->value->primitivetypeIndex > 6 || e2->value->primitivetypeIndex > 6)
-    {
+    if (e1->value->primitivetypeIndex > 6 || e2->value->primitivetypeIndex > 6){
         yyerror("Bad operand types for arthimetic operator");
         return NULL;
     }
@@ -662,27 +659,48 @@ Expression* evalEX(string lex, Expression* e1){
 
 Expression* assignValue(IdentifiersList* type_name, string op, Expression* exp){
     LocalVariableDeclaration* name = (LocalVariableDeclaration*)(get_local_symtab(global_symtab->current_level)->get_entry(type_name->createString(), -1));
-    assert(name != NULL);
+    if(name == NULL){
+        yyerror("use of undeclared variable");
+        return NULL;
+    }
     Expression* obj = new Expression("assignment", NULL, false, false);
     if(name->entry_type == VARIABLE_DECLARATION){
         if(type_name->identifiers.size() == 1){
             int name_type = name->type->primitivetypeIndex;
             int exp_type = exp->value->primitivetypeIndex;
-            // cout<<name->variable_declarator->initialized_value->num_val[0]<<" <-previous value\n";
-            // cout<<exp->value->num_val[0]<<" <-new value\n";
-            if((name_type <= 3 && exp_type <= 3) || ((name_type >= 4 && exp_type >= 4) && (name_type >= 6 && exp_type >= 6))){
+            cout<<name_type<<exp_type<<endl;
+            if((name_type <= LONG && exp_type <= LONG) || (name_type == FLOAT && exp_type == FLOAT || name_type == DOUBLE && exp_type == DOUBLE) || (name_type == exp_type) || (name_type <= LONG && exp_type == FLOAT && exp_type == DOUBLE)) {
                 if(op == "="){
                     // name->variable_declarator->initialized_value = exp->value;
                     // addInstruction();
                 }
-                else if(op == "+="){
-                    // doing for all operators; 
-                }
-                obj->value = exp->value;
+
+                // else if(op == "+="){
+
+                //     // doing for all operators; 
+                // }
+                // else if(op == "-="){
+
+                // }
+                // else if(op == "*="){
+
+                // }
+                // else if(op == "/="){
+
+                // }
+                // else if(op == "|="){
+
+                // }
+                // else if(op == "&="){
+
+                // }
+                
+                // obj->value = exp->value;
                 return obj;
             }
             else{
-                yyerror("invalid data type for assignment");
+                string err = "invalid types for assignment, cannot convert from \"" + typeStrings[name_type] + "\" to " + typeStrings[exp_type] + "\"";
+                yyerror(const_cast<char*>(err.c_str()));
                 return NULL;
             }
         }
@@ -692,7 +710,7 @@ Expression* assignValue(IdentifiersList* type_name, string op, Expression* exp){
         }
     }
     else{
-        string err = "use of undeclared variable \"" + name->name + "\"";
+        string err = "type mismatch, cannot assign value to \"" + name->name + "\"";
         yyerror(const_cast<char*>(err.c_str()));
         return NULL;
     }
