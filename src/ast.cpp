@@ -248,7 +248,7 @@ bool addVariablesToSymtab(Type* t, VariableDeclaratorList* declarator_list, pair
         if(declarator_list->lists[i]->initialized_value != NULL){
             int exp_type = t->primitivetypeIndex;
             int given_type = declarator_list->lists[i]->initialized_value->primitivetypeIndex;
-            if(!((given_type <= LONG && exp_type <= LONG) || (given_type == FLOAT && exp_type == FLOAT || given_type == DOUBLE && exp_type == DOUBLE) || (given_type == exp_type) || (given_type <= LONG && (exp_type == FLOAT || exp_type == DOUBLE)))){
+            if(!((given_type <= LONG && exp_type <= LONG) || (given_type == exp_type) || (given_type <= DOUBLE && (exp_type == FLOAT || exp_type == DOUBLE)))){
                 string err = "invalid datatypes, cannot convert from \"" + typeStrings[given_type] + "\" to \"" + typeStrings[exp_type] + "\"";
                 yyerror(const_cast<char*>(err.c_str()));
                 return false;

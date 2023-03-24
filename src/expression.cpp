@@ -84,8 +84,8 @@ Expression* cond_qn_co(string lex, Expression* e1, Expression* e2, Expression* e
     if (type2 != -1){
         data_type2 = typeStrings[type2];
     }
-    if (e1->value->primitivetypeIndex != BOOLEAN || (e2->value->primitivetypeIndex != e3->value->primitivetypeIndex && (e2->value->primitivetypeIndex > 6 || e3->value->primitivetypeIndex > 6))){
-        string error = "Type mismatch: cannot convert from " + data_type1 + " to " + data_type2;
+    string error = "Type mismatch: cannot convert from " + data_type1 + " to " + data_type2;
+    if (e1->value->boolean_val.size() == 0 || (e2->value->primitivetypeIndex == 10 || e3->value->primitivetypeIndex == 10)){
         yyerror(error.c_str());
         return NULL;
     }
