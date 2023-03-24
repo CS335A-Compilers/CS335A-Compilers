@@ -11,7 +11,10 @@ using namespace std;
 extern int yylineno;
 extern void yyerror(char const*);
 extern GlobalSymbolTable* global_symtab;
+extern vector<ThreeAC*> threeAC_list;
 extern vector<string> typeStrings;
+
+vector<string> entryTypeStrings = {"variable", "class", "method"};
 
 int Node::node_id = 0;
 
@@ -22,6 +25,7 @@ Node::Node(string lex){
     isTerminal = false;
     node_id++;
     id = node_id;
+    entry_type = -1;
     isWritten = false;
     line_no = yylineno;
 }
@@ -181,8 +185,7 @@ Expression::Expression(string lex, Value* val, bool primary, bool literal)
     isLiteral = literal;
     registor_index = -1;
     primary_exp_val = "";
-    if(literal && !primary) primary_exp_val = val->getValue();
-    else if(!literal && primary) primary_exp_val = this->name;
+    entry_type = EXPRESSIONS;
 }
 
 ExpressionList::ExpressionList(string lex, Expression* single_expression, vector<Expression*> expressions)
@@ -205,7 +208,8 @@ bool typenameErrorChecking(Node* node, pair<int,int> curr_level, int entry_type)
         Node* temp = get_local_symtab(curr_level)->get_entry(lists->identifiers[0], entry_type);
         if(temp != NULL) return true;
         else{
-            string err = "use of undeclared variable \"" + lists->identifiers[0] + "\"";
+            string entry = (entry_type == -1) ? entryTypeStrings[0] : entryTypeStrings[entry_type];
+            string err = "use of undeclared " + entry + " \"" + lists->identifiers[0] + "\"";
             yyerror(const_cast<char*>(err.c_str()));
             return false;
         }
@@ -214,7 +218,9 @@ bool typenameErrorChecking(Node* node, pair<int,int> curr_level, int entry_type)
         for(int i=0;i<n-1;i++){
             LocalVariableDeclaration* obj = (LocalVariableDeclaration*)(get_local_symtab(curr_level)->get_entry(lists->identifiers[i], 0));
             if(obj == NULL) {
-                yyerror("Variable not declared in the scope");
+                string entry = (entry_type == -1) ? entryTypeStrings[0] : entryTypeStrings[entry_type];
+                string err = "use of undeclared " + entry + " \"" + lists->identifiers[0] + "\"";
+                yyerror(const_cast<char*>(err.c_str()));
                 return false;
             }
             if(obj->type->primitivetypeIndex != -1) {
@@ -224,10 +230,12 @@ bool typenameErrorChecking(Node* node, pair<int,int> curr_level, int entry_type)
             }
             // check if the identifiers[i+1] field variable is present in the obj identifiers[0];
         }
+        // find if the final entry is valid or not
         return true;
-
     }
-    yyerror("Variable not declared in the scope");
+    string entry = (entry_type == -1) ? entryTypeStrings[0] : entryTypeStrings[entry_type];
+    string err = "use of undeclared " + entry + " \"" + lists->identifiers[0] + "\"";
+    yyerror(const_cast<char*>(err.c_str()));
     return false;
 }
 
@@ -236,7 +244,7 @@ bool addVariablesToSymtab(Type* t, VariableDeclaratorList* declarator_list, pair
         if(declarator_list->lists[i]->initialized_value != NULL){
             int exp_type = t->primitivetypeIndex;
             int given_type = declarator_list->lists[i]->initialized_value->primitivetypeIndex;
-            if(!((given_type <= LONG && exp_type <= LONG) || (given_type == FLOAT && exp_type == FLOAT || given_type == DOUBLE && exp_type == DOUBLE) || (given_type == exp_type) || (given_type <= LONG && exp_type == FLOAT && exp_type == DOUBLE))){
+            if(!((given_type <= LONG && exp_type <= LONG) || (given_type == FLOAT && exp_type == FLOAT || given_type == DOUBLE && exp_type == DOUBLE) || (given_type == exp_type) || (given_type <= LONG && (exp_type == FLOAT || exp_type == DOUBLE)))){
                 string err = "invalid datatypes, cannot convert from \"" + typeStrings[given_type] + "\" to \"" + typeStrings[exp_type] + "\"";
                 yyerror(const_cast<char*>(err.c_str()));
                 return false;
@@ -367,5 +375,28 @@ void createDOT(Node* root, char* output_file){
 void createAST(Node* root, char* output_file){
     Node* ast_root = convertToAST(root);
     createDOT(ast_root, output_file);
+    return ;
+}
+
+void create3ACCode(Node* root){
+    if(root == NULL) return ;
+    if(root->entry_type == METHOD_DECLARATION){
+        cout<<root->name<<":"<<endl;
+    }
+    for(int i=0;i<root->children.size();i++){
+        create3ACCode(root->children[i]);
+    }
+    if(root->entry_type == VARIABLE_DECLARATION){
+        // cout<<"here?\n";
+        // cout<<root->name<<" = get_value("<<root->name<<")\n";
+    }
+    else if(root->entry_type == EXPRESSIONS){
+        Expression* temp = (Expression*)root;
+        vector<int> codes = temp->code;
+        for(int i=0;i<codes.size();i++){
+            cout<<"    ";
+            print3AC(threeAC_list[codes[i]]);
+        }
+    }
     return ;
 }

@@ -5,7 +5,7 @@ using namespace std;
 enum ModifierType {PUBLIC, PROTECTED, PRIVATE, ABSTRACT, STATIC, SEALED, NONSEALED, STRICTFP, TRANSITIVE, FINAL, VOLATILE, SYNCHRONIZED, TRANSIENT, NATIVE, };
 enum Types {CHAR, BYTE, SHORT, INT, LONG, FLOAT, DOUBLE, BOOLEAN, ARRAY, STRING, VOID, };
 // symbol table entry is added whenever one of these declaration is done
-enum DeclarationType {VARIABLE_DECLARATION, CLASS_DECLARATION, METHOD_DECLARATION, };
+enum DeclarationType {VARIABLE_DECLARATION, CLASS_DECLARATION, METHOD_DECLARATION, METHOD_INVOCATION, IF_THEN_STATEMENT, IF_THEN_ELSE_STATEMENT, WHILE_STATEMENT, EXPRESSIONS, };
 
 class Node {
 
@@ -17,7 +17,7 @@ class Node {
         vector<Node*> children;
         bool isTerminal;
         bool isWritten;
-        DeclarationType entry_type;
+        int entry_type;
         int line_no;
         pair<int, int> current_level;
         long long int id;
@@ -171,6 +171,8 @@ class Expression : public Node {
         int registor_index;
         // primary_exp_val have variable name or object name or literal value stored as string to use in 3ac generation;
         string primary_exp_val;
+        // stores the index of threeAC_list containing the instruction;
+        vector<int> code;
         Expression(string lex, Value* val, bool primary, bool literal);
 };
 
@@ -190,3 +192,4 @@ void  createAST(Node* root, char* output_file);
 Node* createNode(string str);
 Node* cloneRoot(Node* root);
 bool typenameErrorChecking(Node* node, pair<int,int> curr_level, int entry_type);
+void create3ACCode(Node* root);
