@@ -5,7 +5,7 @@ using namespace std;
 enum ModifierType {PUBLIC, PROTECTED, PRIVATE, ABSTRACT, STATIC, SEALED, NONSEALED, STRICTFP, TRANSITIVE, FINAL, VOLATILE, SYNCHRONIZED, TRANSIENT, NATIVE, };
 enum Types {CHAR, BYTE, SHORT, INT, LONG, FLOAT, DOUBLE, BOOLEAN, ARRAY, STRING, VOID, };
 // symbol table entry is added whenever one of these declaration is done
-enum DeclarationType {VARIABLE_DECLARATION, CLASS_DECLARATION, METHOD_DECLARATION, METHOD_INVOCATION, IF_THEN_STATEMENT, IF_THEN_ELSE_STATEMENT, WHILE_STATEMENT, EXPRESSIONS, FOR_STATEMENT};
+enum DeclarationType {VARIABLE_DECLARATION, CLASS_DECLARATION, METHOD_DECLARATION, METHOD_INVOCATION, IF_THEN_STATEMENT, IF_THEN_ELSE_STATEMENT, WHILE_STATEMENT, EXPRESSIONS, FOR_STATEMENT, TERNARY_EXPRESSION};
 
 class Node {
 
@@ -93,6 +93,7 @@ class VariableDeclaratorId : public Node {
         string identifier;
         int num_of_dims;
         Value* initialized_value;
+        string lex_val;
         VariableDeclaratorId(string lex, string identifier, int num, Value* initialized_value);
 };
 

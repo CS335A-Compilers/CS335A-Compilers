@@ -87,11 +87,9 @@ OCTAL_EXCAPE                \\{OCTAL_DIGIT}|\\{OCTAL_DIGIT}{OCTAL_DIGIT}|\\[0-3]
 "continue"              {char* temp = strdup(yytext); yylval.lex_val = temp; return(continue_keyword_terminal);}
 "for"                   {char* temp = strdup(yytext); yylval.lex_val = temp; return(for_keyword_terminal);}
 "new"                   {char* temp = strdup(yytext); yylval.lex_val = temp; return(new_keyword_terminal);}
-"assert"                {char* temp = strdup(yytext); yylval.lex_val = temp; return(assert_keyword_terminal);}
 "default"               {char* temp = strdup(yytext); yylval.lex_val = temp; return(default_keyword_terminal);}
 "if"                    {char* temp = strdup(yytext); yylval.lex_val = temp; return(if_keyword_terminal);}
 "boolean"               {char* temp = strdup(yytext); yylval.lex_val = temp; return(boolean_keyword_terminal);}
-"do"                    {char* temp = strdup(yytext); yylval.lex_val = temp; return(do_keyword_terminal);}
 "goto"                  {char* temp = strdup(yytext); yylval.lex_val = temp; return(goto_keyword_terminal);}
 "private"               {char* temp = strdup(yytext); yylval.lex_val = temp; return(private_keyword_terminal);}
 "this"                  {char* temp = strdup(yytext); yylval.lex_val = temp; return(this_keyword_terminal);}
@@ -99,7 +97,6 @@ OCTAL_EXCAPE                \\{OCTAL_DIGIT}|\\{OCTAL_DIGIT}{OCTAL_DIGIT}|\\[0-3]
 "double"                {char* temp = strdup(yytext); yylval.lex_val = temp; return(double_keyword_terminal);}
 "implements"            {char* temp = strdup(yytext); yylval.lex_val = temp; return(implements_keyword_terminal);}
 "protected"             {char* temp = strdup(yytext); yylval.lex_val = temp; return(protected_keyword_terminal);}
-"throw"                 {char* temp = strdup(yytext); yylval.lex_val = temp; return(throw_keyword_terminal);}
 "byte"                  {char* temp = strdup(yytext); yylval.lex_val = temp; return(byte_keyword_terminal);}
 "else"                  {char* temp = strdup(yytext); yylval.lex_val = temp; return(else_keyword_terminal);}
 "public"                {char* temp = strdup(yytext); yylval.lex_val = temp; return(public_keyword_terminal);}
@@ -218,6 +215,7 @@ OCTAL_EXCAPE                \\{OCTAL_DIGIT}|\\{OCTAL_DIGIT}{OCTAL_DIGIT}|\\[0-3]
 "case"                  {char* temp = strdup(yytext); yylval.lex_val = temp; return(case_keyword_terminal);}
 "enum"                  {char* temp = strdup(yytext); yylval.lex_val = temp; return(enum_keyword_terminal);}
 "interface"             {char* temp = strdup(yytext); yylval.lex_val = temp; return(interface_keyword_terminal);}
+"throw"                 {char* temp = strdup(yytext); yylval.lex_val = temp; return(throw_keyword_terminal);}
 "opens"                 {char* temp = strdup(yytext); yylval.lex_val = temp; return(opens_keyword_terminal);}
 "requires"              {char* temp = strdup(yytext); yylval.lex_val = temp; return(requires_keyword_terminal);}
 "uses"                  {char* temp = strdup(yytext); yylval.lex_val = temp; return(uses_keyword_terminal);}
@@ -225,6 +223,7 @@ OCTAL_EXCAPE                \\{OCTAL_DIGIT}|\\{OCTAL_DIGIT}{OCTAL_DIGIT}|\\[0-3]
 "package"               {char* temp = strdup(yytext); yylval.lex_val = temp; return(package_keyword_terminal);}
 "permits"               {char* temp = strdup(yytext); yylval.lex_val = temp; return(permits_keyword_terminal);}
 "sealed"                {char* temp = strdup(yytext); yylval.lex_val = temp; return(sealed_keyword_terminal);}
+"do"                    {char* temp = strdup(yytext); yylval.lex_val = temp; return(do_keyword_terminal);}
 "non-sealed"            {char* temp = strdup(yytext); yylval.lex_val = temp; return(nonsealed_keyword_terminal);}
 "to"                    {char* temp = strdup(yytext); yylval.lex_val = temp; return(to_keyword_terminal);}
 "with"                  {char* temp = strdup(yytext); yylval.lex_val = temp; return(with_keyword_terminal);}
@@ -232,6 +231,7 @@ OCTAL_EXCAPE                \\{OCTAL_DIGIT}|\\{OCTAL_DIGIT}{OCTAL_DIGIT}|\\[0-3]
 "record"                {char* temp = strdup(yytext); yylval.lex_val = temp; return(record_keyword_terminal);}
 "exports"               {char* temp = strdup(yytext); yylval.lex_val = temp; return(exports_keyword_terminal);}
 "transitive"            {char* temp = strdup(yytext); yylval.lex_val = temp; return(transitive_keyword_terminal);}
+"assert"                {char* temp = strdup(yytext); yylval.lex_val = temp; return(assert_keyword_terminal);}
 "->"                    {char* temp = strdup(yytext); yylval.lex_val = temp; return(PTR_OP_TERMINAL);}
 "instanceof"            {char* temp = strdup(yytext); yylval.lex_val = temp; return(instanceof_keyword_terminal);}
 "provides"              {char* temp = strdup(yytext); yylval.lex_val = temp; return(provides_keyword_terminal);}
