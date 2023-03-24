@@ -26,13 +26,15 @@ class Node {
         void addChildren(vector<Node*> childrens);
 };
 
+class NormalClassDeclaration;
+
 class Type : public Node{
     public :
         Type() = default;
         // gives enum index value of the data type
         // gives -1 if type is class_type;
         int primitivetypeIndex;
-        Node* class_instantiated_from;
+        NormalClassDeclaration* class_instantiated_from;
         Type(string lex, int primitivetype);
 };
 
@@ -41,9 +43,10 @@ class Expression;
 class IdentifiersList : public Node {
     public:
         vector<string> identifiers;
-        Expression* exp;
+        // Expression* exp;
         IdentifiersList(string lex, string single_ident, vector<string> idents);
         string createString();
+        void addIdentifiers(string lists);
 };
 
 class LocalVariableDeclaration;
@@ -70,6 +73,7 @@ class Value : public Node {
         long long int dim2_count;
         long long int dim3_count;
         // support for object values, maps from field members pointers to their current value;
+        NormalClassDeclaration* class_type;
         map<LocalVariableDeclaration*, Value*> field_members;
         // use in printing 3ac code;
         string getValue();
@@ -165,6 +169,8 @@ class Expression : public Node {
         bool isLiteral;
         // temp registor where expression is stored;
         int registor_index;
+        // primary_exp_val have variable name or object name or literal value stored as string to use in 3ac generation;
+        string primary_exp_val;
         Expression(string lex, Value* val, bool primary, bool literal);
 };
 
@@ -175,7 +181,7 @@ class ExpressionList : public Node{
 };
 
 // Helper funtion related to ast.h
-void addVariablesToSymtab(Type* t, VariableDeclaratorList* declarator_list, pair<int,int> curr_level, ModifierList* modif_lists, bool is_field_variable);
+bool addVariablesToSymtab(Type* t, VariableDeclaratorList* declarator_list, pair<int,int> curr_level, ModifierList* modif_lists, bool is_field_variable);
 Value* createObject(string class_name, ExpressionList* exp_list, pair<int,int> curr_level);
 Node* convertToAST(Node* root);
 void  writeEdges(Node* root, FILE* file);
@@ -183,4 +189,4 @@ void  createDOT(Node* root, char* output_file);
 void  createAST(Node* root, char* output_file);
 Node* createNode(string str);
 Node* cloneRoot(Node* root);
-bool typenameErrorChecking(Node* node, pair<int,int> curr_level);
+bool typenameErrorChecking(Node* node, pair<int,int> curr_level, int entry_type);

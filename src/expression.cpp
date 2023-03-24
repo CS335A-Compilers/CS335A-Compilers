@@ -7,7 +7,7 @@ extern void yyerror(char const*);
 extern GlobalSymbolTable* global_symtab;
 
 // Define an array of strings that corresponds to the type values.
-const string typeStrings[] = {"char", "byte", "short", "int", "long", "float", "double", "boolean", "array", "string", "void"};
+vector<string> typeStrings = {"char", "byte", "short", "int", "long", "float", "double", "boolean", "array", "string", "void"};
 
 double getValue(Value* val){
     switch (val->primitivetypeIndex){
@@ -62,12 +62,12 @@ Expression* grammar_1(string lex,Expression* e1,bool isprimary,bool isliteral){
     if (e1 == NULL) return NULL;
     Expression* obj = new Expression(lex, e1->value, isprimary, isliteral);
     obj->registor_index = e1->registor_index;
+    obj->primary_exp_val = e1->primary_exp_val;
     return obj;
 }
 
 // Segmentation fault on character eg : a = (false) ? 'k' : 6;
 Expression* cond_qn_co(string lex, Expression* e1, Expression* e2, Expression* e3){
-    cout << "i am here\n";
     if (e1 == NULL || e2 == NULL)
         return NULL;
     /*
@@ -152,9 +152,9 @@ Expression* evalEQ(string lex,Expression* e1,string op,Expression* e2){
     if(e1==NULL||e2==NULL)
         return NULL;
     int t1 = e1->value->primitivetypeIndex, t2 = e2->value->primitivetypeIndex;
-    if (!((t1 < 7 && t2 < 7) || (t1 == t2) || (t1 != 10 && t2 != 10)))
+    if (!((t1 < 7 && t2 < 7) || (t1 == t2) && (t1 != 10 && t2 != 10)))
     {
-        yyerror("Incomparable types: cannot be compared");
+        yyerror("Incomparable operand types: cannot be compared");
         return NULL;
     }
     bool val;
@@ -260,77 +260,74 @@ Expression* evalEQ(string lex,Expression* e1,string op,Expression* e2){
 }
 
 //not done for char
-Expression* evalRELATIONAL(string lex,Expression* e1,string op,Expression* e2){
-    if(e1==NULL||e2==NULL)
+Expression* evalRELATIONAL(string lex, Expression* e1, string op, Expression* e2){
+    if(e1 == NULL || e2 == NULL)
         return NULL;
-    if(e1->value->primitivetypeIndex >= 6 && e1->value->primitivetypeIndex !=9){
+    if(e1->value->primitivetypeIndex > 6 || e2->value->primitivetypeIndex > 6){
         yyerror("Incomparable types: cannot be compared");
         return NULL;
     }
-    bool val;
-    if(e1->value->primitivetypeIndex==9){
-        if(op==">")
-            val=e1->value->string_val[0] > e2->value->string_val[0];
-        if(op=="<")
-            val=e1->value->string_val[0] < e2->value->string_val[0];
-        if(op==">=")
-            val=e1->value->string_val[0] >= e2->value->string_val[0];
-        if(op=="<=")
-            val=e1->value->string_val[0] <= e2->value->string_val[0];
-    }
-    else{
-        double d1 = getValue(e1->value), d2 = getValue(e2->value);
-        if(op==">")
-            val=d1>d2;
-        if(op=="<")
-            val=d1<d2;
-        if(op==">=")
-            val=d1>=d2;
-        if(op=="<=")
-            val=d1<=d2;
-    }
+    // bool val;
+    // if(e1->value->primitivetypeIndex == 9){
+    //     if(op==">")
+    //         val=e1->value->string_val[0] > e2->value->string_val[0];
+    //     if(op=="<")
+    //         val=e1->value->string_val[0] < e2->value->string_val[0];
+    //     if(op==">=")
+    //         val=e1->value->string_val[0] >= e2->value->string_val[0];
+    //     if(op=="<=")
+    //         val=e1->value->string_val[0] <= e2->value->string_val[0];
+    // }
+    // else{
+    //     double d1 = getValue(e1->value), d2 = getValue(e2->value);
+    //     if(op==">")
+    //         val=d1>d2;
+    //     if(op=="<")
+    //         val=d1<d2;
+    //     if(op==">=")
+    //         val=d1>=d2;
+    //     if(op=="<=")
+    //         val=d1<=d2;
+    // }
     
     Value* va= new Value();
-    va->boolean_val.push_back(val);
+    va->primitivetypeIndex = 7;
     Expression* obj=new Expression(lex,va,false,false);
-    addInstruction(obj, e1,e2,op, 0);
+    // addInstruction(obj, e1,e2,op, 0);
     return obj;
 }
 
-Expression* evalSHIFT(string lex,Expression* e1,string op,Expression* e2){
-    if(e1==NULL||e2==NULL)
+// Segmentation fault on character eg : a = 'k' >> 8;
+Expression* evalSHIFT(string lex, Expression* e1, string op, Expression* e2){
+    if(e1 == NULL || e2 == NULL)
         return NULL;
-    if(e1->value->num_val.size()==0||e2->value->num_val.size()==0){
+    if(e1->value->primitivetypeIndex > 4 || e2->value->primitivetypeIndex > 4){
         yyerror("Incompatible types: cannot be conveted");
         return NULL;
     }
-    int val;
-    if(op=="<<")
-        val=e1->value->num_val[0]<<e2->value->num_val[0];
-    else if(op==">>")
-        val=e1->value->num_val[0]>>e2->value->num_val[0];
-    else if(op==">>>")
-        val=(unsigned int)e1->value->num_val[0] >> (unsigned int)e2->value->num_val[0];
+    // int val;
+    // if(op=="<<")
+    //     val=e1->value->num_val[0]<<e2->value->num_val[0];
+    // else if(op==">>")
+    //     val=e1->value->num_val[0]>>e2->value->num_val[0];
+    // else if(op==">>>")
+    //     val=(unsigned int)e1->value->num_val[0] >> (unsigned int)e2->value->num_val[0];
     Value* va= new Value();
-    va->primitivetypeIndex = 3;
-    va->num_val.push_back(val);
-    Expression* obj=new Expression(lex,va,false,false);
-    addInstruction(obj, e1,e2,op, 0);
+    va->primitivetypeIndex = 4;
+    Expression* obj=new Expression(lex, va, false, false);
+    // addInstruction(obj, e1,e2,op, 0);
     return obj;   
 }
 
-Expression* evalARITHMETIC(string lex,string op,Expression* e1,Expression* e2){
-
-    if(e1==NULL||e2==NULL)
+Expression* evalARITHMETIC(string lex, string op, Expression* e1, Expression* e2){
+    if(e1 == NULL || e2 == NULL)
         return NULL;
     // wrong type checking;
-    if ((e1->value->num_val.size() == 0 && e1->value->float_val.size() == 0 && e1->value->double_val.size() == 0) || (e2->value->double_val.size() == 0 && e2->value->num_val.size() == 0 && e2->value->float_val.size() == 0))
-    {
-        // cout<<e1->value->num_val[0]<<endl<<e2->value->num_val[0]<<endl;
-        yyerror("bad operand types for arthimetic operator");
+    if (e1->value->primitivetypeIndex > 6 || e2->value->primitivetypeIndex > 6){
+        yyerror("Bad operand types for arthimetic operator");
         return NULL;
     }
-    Value* va=new Value();
+    Value* va = new Value();
     // if(op=="-"){
     //     if(e1->value->num_val.size()!=0 && e2->value->num_val.size()!=0){
     //         long long int val=e1->value->num_val[0] - e2->value->num_val[0];
@@ -571,20 +568,22 @@ Expression* evalARITHMETIC(string lex,string op,Expression* e1,Expression* e2){
     //     }
     // }
     
+    va->primitivetypeIndex = max(e2->value->primitivetypeIndex, e1->value->primitivetypeIndex);
     Expression* obj=new Expression(lex,va,false,false);
     // addInstruction(obj, e1, e2, op, 0);
     return obj;
 }
 
-Expression* evalUNARY(string lex,string op,Expression* e1){
+// Segmentation fault on characters
+Expression* evalUNARY(string lex, string op, Expression* e1){
     //don't know how to do this
-    if(e1==NULL)
+    if(e1 == NULL)
         return NULL;
-    if(e1->value->primitivetypeIndex >5){
-        yyerror("Error: bad operand types for unary operator");
+    if(e1->value->primitivetypeIndex > 6){
+        yyerror("Bad operand types for unary operator");
         return NULL;
     }
-    Value* va= new Value();
+    // int val;
     // if(op=="+"){   
     //     if(e1->value->primitivetypeIndex <4)
     //         val=e1->value->num_val[0];
@@ -602,92 +601,106 @@ Expression* evalUNARY(string lex,string op,Expression* e1){
     //     else if(e1->value->primitivetypeIndex ==5)
     //         val=-e1->value->double_val[0];
     // }
-    // Value* va= new Value();
-    // va->boolean_val.push_back(val);
-
-    Expression* obj=new Expression(lex,va,false,false);
+    Value* va= new Value();
+    va->primitivetypeIndex = e1->value->primitivetypeIndex;
+    Expression* obj=new Expression(lex, va, false, false);
     // addInstruction(obj, e1, NULL, op, 0);
     return obj; 
 }
 
 // make different function for preincrement and postincrement;
-Expression* evalIC_DC(string lex,string op,Expression* e1){
-    if(e1==NULL)
+Expression* evalIC_DC(string lex, string op, Expression* e1){
+    if(e1 == NULL)
         return NULL;
-    if(e1->value->primitivetypeIndex >5){
-        yyerror("Error: bad operand types for increment or decrement operator");
+    if(e1->value->primitivetypeIndex > 6){
+        yyerror("Bad operand types for increment or decrement operator");
         return NULL;
     }
-    int val;
-    if(op=="++")
-        val=e1->value->num_val[0]+1;
-    else if(op=="--")
-        val=e1->value->float_val[0]-1;
-    Value* va= new Value();
-    va->boolean_val.push_back(val);
-    Expression* obj=new Expression(lex,va,false,false);
+    // int val;
+    // if(op=="++")
+    //     val=e1->value->num_val[0]+1;
+    // else if(op=="--")
+    //     val=e1->value->float_val[0]-1;
+    Value* va = new Value();
+    va->primitivetypeIndex = e1->value->primitivetypeIndex;
+    Expression* obj = new Expression(lex, va, false, false);
     // assuming for post increment; change afterwards
-    addInstruction(obj, e1, NULL, op, 0);
+    // addInstruction(obj, e1, NULL, op, 0);
     return obj;
 }
 
-Expression* evalTL(string lex,Expression* e1){
-    if(e1==NULL)
+Expression* evalTL(string lex, Expression* e1){
+    if(e1 == NULL)
         return NULL;
-    if(e1->value->primitivetypeIndex >3){
-        yyerror("Error: bad operand types for bitwise complement operator");
+    if(e1->value->primitivetypeIndex > 4){
+        yyerror("Bad operand types for bitwise complement operator");
         return NULL;
     }
-    int val;
-    if(e1->value->primitivetypeIndex<4)
-        val=~e1->value->num_val[0];
     Value* va= new Value();
-    va->boolean_val.push_back(val);
-    Expression* obj=new Expression(lex,va,false,false);
+    va->primitivetypeIndex = e1->value->primitivetypeIndex;
+    Expression* obj=new Expression(lex, va, false, false);
     return obj; 
 
 }
 
-Expression* evalEX(string lex,Expression* e1){
-    if(e1==NULL)
+Expression* evalEX(string lex, Expression* e1){
+    if(e1 == NULL)
         return NULL;
-    if(e1->value->primitivetypeIndex!=6){
-        yyerror("Error: bad operand type for unary operator '!'");
+    if(e1->value->primitivetypeIndex != 7){
+        yyerror("Bad operand type for unary operator '!'");
         return NULL;
     }
-    int val;
-    if(e1->value->primitivetypeIndex<4)
-        val=!e1->value->num_val[0];
-    Value* va= new Value();
-    va->boolean_val.push_back(val);
-    Expression* obj=new Expression(lex,va,false,false);
+    Value* va = new Value();
+    va->primitivetypeIndex = 7;
+    Expression* obj = new Expression(lex, va, false, false);
     return obj; 
 
 }
 
 Expression* assignValue(IdentifiersList* type_name, string op, Expression* exp){
     LocalVariableDeclaration* name = (LocalVariableDeclaration*)(get_local_symtab(global_symtab->current_level)->get_entry(type_name->createString(), -1));
-    assert(name != NULL);
+    if(name == NULL){
+        yyerror("use of undeclared variable");
+        return NULL;
+    }
     Expression* obj = new Expression("assignment", NULL, false, false);
     if(name->entry_type == VARIABLE_DECLARATION){
         if(type_name->identifiers.size() == 1){
             int name_type = name->type->primitivetypeIndex;
             int exp_type = exp->value->primitivetypeIndex;
-            // cout<<name->variable_declarator->initialized_value->num_val[0]<<" <-previous value\n";
-            // cout<<exp->value->num_val[0]<<" <-new value\n";
-            if((name_type <= 3 && exp_type <= 3) || ((name_type >= 4 && exp_type >= 4) && (name_type >= 6 && exp_type >= 6))){
+            cout<<name_type<<exp_type<<endl;
+            if((name_type <= LONG && exp_type <= LONG) || (name_type == FLOAT && exp_type == FLOAT || name_type == DOUBLE && exp_type == DOUBLE) || (name_type == exp_type) || (name_type <= LONG && exp_type == FLOAT && exp_type == DOUBLE)) {
                 if(op == "="){
-                    name->variable_declarator->initialized_value = exp->value;
+                    // name->variable_declarator->initialized_value = exp->value;
                     // addInstruction();
                 }
-                else if(op == "+="){
-                    // doing for all operators; 
-                }
-                obj->value = exp->value;
+
+                // else if(op == "+="){
+
+                //     // doing for all operators; 
+                // }
+                // else if(op == "-="){
+
+                // }
+                // else if(op == "*="){
+
+                // }
+                // else if(op == "/="){
+
+                // }
+                // else if(op == "|="){
+
+                // }
+                // else if(op == "&="){
+
+                // }
+                
+                // obj->value = exp->value;
                 return obj;
             }
             else{
-                yyerror("invalid data type for assignment");
+                string err = "invalid types for assignment, cannot convert from \"" + typeStrings[name_type] + "\" to " + typeStrings[exp_type] + "\"";
+                yyerror(const_cast<char*>(err.c_str()));
                 return NULL;
             }
         }
@@ -697,7 +710,7 @@ Expression* assignValue(IdentifiersList* type_name, string op, Expression* exp){
         }
     }
     else{
-        string err = "use of undeclared variable \"" + name->name + "\"";
+        string err = "type mismatch, cannot assign value to \"" + name->name + "\"";
         yyerror(const_cast<char*>(err.c_str()));
         return NULL;
     }
