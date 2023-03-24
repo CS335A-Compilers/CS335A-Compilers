@@ -87,6 +87,8 @@ In order to evaluate the code on some java file (with path "../tests/test_1.java
   ./ASTGenerator --input=../tests/test_1.java --output=./test_1.dot
   ```
 
+This will generate .csv files containing the symbol table for each method and the whole class as a whole. It will also generate a dump of the 3AC instructions in the file - `3ac.txt`
+
 In order to vizualize the dot file in svg format, run the following command.
 
   ```sh
@@ -115,7 +117,7 @@ If the makefile does not compile properly, use the following commands,
 instead of 
 
   ```sh
-	g++ -std=c++11 lex.yy.c parser.tab.c -o ASTGenerator
+	g++ -std=c++17 lex.yy.c parser.tab.c -o ASTGenerator
   ```
 
 in the Makefile
