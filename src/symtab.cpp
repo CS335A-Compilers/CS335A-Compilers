@@ -193,7 +193,7 @@ Node* LocalSymbolTable::get_entry(string name, int entry_type){
     LocalSymbolTable* temp = this;
     int pos = name.find('.');
     if(pos != string::npos) name = name.substr(0, pos);
-    // cout<<"get entry: "<<name<<endl;
+
     while(temp != NULL){
         if(temp->hashed_names.find(name)!=temp->hashed_names.end()){
             Node* res = temp->symbol_table_entries[temp->hashed_names[name]];
