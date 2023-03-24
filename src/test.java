@@ -34,12 +34,4 @@ class test {
         // boolean a = true;
         // b = 6;
         // if(b==5){
-
-        // }
-        // int y = 5;
-        // x = 6;
-        // x = 5;
-        // for(x++;x<5;x--){}
-
-    }
-}
+}}}
