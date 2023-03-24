@@ -8,6 +8,10 @@ extern vector<bool> temporary_registors_in_use;
 extern vector<ThreeAC*> threeAC_list;
 extern map<string, int> method_address;
 
+// std::ofstream out("3ac.txt");
+// std::streambuf* coutbuf = std::cout.rdbuf();
+// std::cout.rdbuf(outfile.rdbuf());
+
 ThreeAC::ThreeAC(string operand, string t, int r, int r1, int r2, string t1, string t2, int form){
     op = operand;
     this->t = t;

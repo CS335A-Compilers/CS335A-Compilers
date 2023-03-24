@@ -56,7 +56,7 @@ LocalSymbolTable::LocalSymbolTable(pair<int,int> level, GlobalSymbolTable* assig
 const string modifierStrings[] = {"public", "protected", "private", "abstract", "static", "sealed", "nonsealed", "strictfp", "transitive", "final", "volatile", "transient", "native"};
 
 // Modifier list - PUBLIC (0), STATIC (4), FINAL (9), PRIVATE (2)
-void LocalSymbolTable::add_entry(Node* symtab_entry){
+bool LocalSymbolTable::add_entry(Node* symtab_entry){
     hashed_names.insert({symtab_entry->name, symbol_table_entries.size()});
     symbol_table_entries.push_back(symtab_entry);
     // cout<<symtab_entry->lexeme<<" "<<symtab_entry->line_no<<" "<<symtab_entry->name<<endl;
@@ -74,14 +74,14 @@ void LocalSymbolTable::add_entry(Node* symtab_entry){
             if (element->modifier_type != 0 && element->modifier_type != 9){
                 error = "Modifier " + modifierStrings[element->modifier_type] + " not allowed in class declaration";
                 yyerror(error.c_str());
-                break;
+                return false;
             }
         }
         for (auto z : counts) {
             if (z.second > 1) {
                 error = "Duplicate modifier found for the class - " + modifierStrings[z.first];
                 yyerror(error.c_str());
-                break;
+                return false;
             }
         }
         // throw error if bad modifier list combination done
@@ -107,19 +107,20 @@ void LocalSymbolTable::add_entry(Node* symtab_entry){
             if (element->modifier_type != 0 && element->modifier_type != 9 && element->modifier_type != 4 && element->modifier_type != 2){
                 error = "Modifier " + modifierStrings[element->modifier_type] + " not allowed in method declaration";
                 yyerror(error.c_str());
-                break;
+                return false;
             }
         }
         for (auto z : counts) {
             if (z.second > 1) {
                 error = "Duplicate modifier found for the method - " + modifierStrings[z.first];
                 yyerror(error.c_str());
-                break;
+                return false;
             }
         }
         if (c > 1){
             error = "Methods can only set one of public / private access modifiers.";
             yyerror(error.c_str());
+            return false;
         }
         if(temp->isConstructor){
             // throw error if bad modifier list combination done
@@ -138,7 +139,7 @@ void LocalSymbolTable::add_entry(Node* symtab_entry){
             if (z.second > 1) {
                 error = "Duplicate modifier found for the field variable - " + modifierStrings[z.first];
                 yyerror(error.c_str());
-                break;
+                return false;
             }
         }
         if (temp->isFieldVariable == true)
@@ -152,23 +153,22 @@ void LocalSymbolTable::add_entry(Node* symtab_entry){
                 if (element->modifier_type != 0 && element->modifier_type != 9 && element->modifier_type != 4 && element->modifier_type != 2){
                     error = "Modifier " + modifierStrings[element->modifier_type] + " not allowed in field variable declaration";
                     yyerror(error.c_str());
-                    break;
+                    return false;
                 }
             }
             if (c > 1){
                 error = "Methods can only set one of public / private access modifiers.";
                 yyerror(error.c_str());
+                return false;
             }
         }
         else {
             for (Modifier *element : modifiers)
             {
-                cout << "2 ";
                 if (element->modifier_type != 9){
-                    cout << "1 ";
                     error = "Modifier " + modifierStrings[element->modifier_type] + " not allowed in field variable declaration";
                     yyerror(error.c_str());
-                    break;
+                    return false;
                 }
             }
         }
@@ -184,7 +184,7 @@ void LocalSymbolTable::add_entry(Node* symtab_entry){
     else {
 
     }
-    return ;
+    return true;
 }
 
 Node* LocalSymbolTable::get_entry(string name, int entry_type){
