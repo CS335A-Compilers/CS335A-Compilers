@@ -10,7 +10,7 @@ class test {
         // int a = 0;
         // if (a==5){}
         int z;
-        // z = 5;
+        z = 5;
         // test t = new test();
     }
 }
