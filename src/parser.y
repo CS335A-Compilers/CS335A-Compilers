@@ -84,77 +84,289 @@ start_state
             }
 
 compilation_unit
-            :   ordinary_compilation_unit                                                                                                       {Node* node = createNode("compilation unit"); node->addChildren({$1}); $$ = node;}
+            :   ordinary_compilation_unit                                                                                                       
+            {   
+                Node* node = createNode("compilation unit"); 
+                node->addChildren({$1}); 
+                $$ = node;
+            }
 
 ordinary_compilation_unit
-            :   top_level_class_or_interface_declaration_zero_or_more                                                                           {Node* node = createNode("ordinary compilation unit"); node->addChildren({$1}); $$ = node;}
+            :   top_level_class_or_interface_declaration_zero_or_more                                                                           
+            {
+                Node* node = createNode("ordinary compilation unit"); 
+                node->addChildren({$1}); 
+                $$ = node;
+            }
 
 top_level_class_or_interface_declaration_zero_or_more
-            :   /* empty */                                                                                                                     {Node* node = createNode("top level class or interface declaration zero or more"); $$ = node;} 
-            |   top_level_class_or_interface_declaration top_level_class_or_interface_declaration_zero_or_more                                  {Node* node = createNode("top level class or interface declaration zero or more"); node->addChildren({$1, $2}); $$ = node;}
+            :   /* empty */                                                                                                                     
+            {
+                Node* node = createNode("top level class or interface declaration zero or more"); 
+                $$ = node;
+            } 
+            |   top_level_class_or_interface_declaration top_level_class_or_interface_declaration_zero_or_more                                  
+            {
+                Node* node = createNode("top level class or interface declaration zero or more"); 
+                node->addChildren({$1, $2}); 
+                $$ = node;
+            }
 
 top_level_class_or_interface_declaration
-            :   class_declaration                                                                                                               {Node* node = createNode("top level class or interface declaration"); node->addChildren({$1}); $$ = node;}
-            |   SEMICOLON_OP                                                                                                                    {Node* node = createNode("top level class or interface declaration"); node->addChildren({$1}); $$ = node;}
+            :   class_declaration                                                                                                               
+            {
+                Node* node = createNode("top level class or interface declaration"); 
+                node->addChildren({$1}); 
+                $$ = node;
+            }
+            |   SEMICOLON_OP                                                                                                                    
+            {
+                Node* node = createNode("top level class or interface declaration"); 
+                node->addChildren({$1}); 
+                $$ = node;
+            }
 
 //  ########   EXPRESSIONS   ########  
 
 primary
-            :   primary_no_new_array                                                                                                            {Expression* node = grammar_1("primary",$1, $1->isPrimary, $1->isLiteral); node->addChildren({$1}); $$ = node;}
-            |   array_creation_expression                                                                                                       {Expression* node = grammar_1("primary",$1, $1->isPrimary, $1->isLiteral); node->addChildren({$1}); $$ = node;}
+            :   primary_no_new_array                                                                                                            
+            {
+                Expression* node = grammar_1("primary",$1, $1->isPrimary, $1->isLiteral); 
+                node->addChildren({$1}); 
+                $$ = node;
+            }
+            |   array_creation_expression                                                                                                       
+            {
+                Expression* node = grammar_1("primary",$1, $1->isPrimary, $1->isLiteral); 
+                node->addChildren({$1}); 
+                $$ = node;
+            }
 
 primary_no_new_array
-            :   LITERALS                                                                                                                        {Expression* node = grammar_1("primary no new array", $1, $1->isPrimary, $1->isLiteral); node->primary_exp_val = $1->lexeme; node->addChildren({$1}); $$ = node;}
-        //     |   THIS_KEYWORD                                                                                                                    {Expression* node = grammar_1("primary no new array",$1, $1->isPrimary, $1->isLiteral); node->addChildren({$1}); $$ = node;}
-        //     |   type_name DOT_OP THIS_KEYWORD                                                                                                   {Node* node = createNode("primary no new array"); node->addChildren({$1,$2,$3}); $$ = node;}
-        //     |   class_literal                                                                                                                   {Node* node = createNode("primary no new array"); node->addChildren({$1}); $$ = node;}
-            |   class_instance_creation_expression                                                                                              {Expression* node = grammar_1("primary no new array", $1, false, false); node->addChildren({$1}); $$ = node;}
-            |   OP_BRCKT expression CLOSE_BRCKT                                                                                                 {Expression* node = grammar_1("primary no new array", $2, $2->isPrimary, $2->isLiteral); node->addChildren({$1,$2,$3}); $$ = node;}
-            |   method_invocation                                                                                                               {Expression* node = grammar_1("primary no new array", $1, false, false); node->addChildren({$1}); $$ = node;}
-            |   field_access                                                                                                                    {Expression* node = grammar_1("primary no new array", $1, $1->isPrimary, $1->isLiteral); node->addChildren({$1}); $$ = node;}
-        //     |   array_access                                                                                                                    {Node* node = createNode("primary no new array"); node->addChildren({$1}); $$ = node;}
+            :   LITERALS                                                                                                                        
+            {
+                Expression* node = grammar_1("primary no new array", $1, $1->isPrimary, $1->isLiteral); 
+                node->primary_exp_val = $1->lexeme; 
+                node->addChildren({$1}); 
+                $$ = node;
+            }
+            |   class_instance_creation_expression                                                                                              
+            {
+                Expression* node = grammar_1("primary no new array", $1, false, false); 
+                node->addChildren({$1}); 
+                $$ = node;
+            }
+            |   OP_BRCKT expression CLOSE_BRCKT                                                                                                 
+            {
+                Expression* node = grammar_1("primary no new array", $2, $2->isPrimary, $2->isLiteral); 
+                node->addChildren({$1,$2,$3}); 
+                $$ = node;
+            }
+            |   method_invocation                                                                                                               
+            {
+                Expression* node = grammar_1("primary no new array", $1, false, false); 
+                node->addChildren({$1}); 
+                $$ = node;
+            }
+            |   field_access                                                                                                                    
+            {
+                Expression* node = grammar_1("primary no new array", $1, $1->isPrimary, $1->isLiteral); 
+                node->addChildren({$1}); 
+                $$ = node;
+            }
+     //     |   array_access                                                                                                                    {Node* node = createNode("primary no new array"); node->addChildren({$1}); $$ = node;}
+     //     |   THIS_KEYWORD                                                                                                                    {Expression* node = grammar_1("primary no new array",$1, $1->isPrimary, $1->isLiteral); node->addChildren({$1}); $$ = node;}
+     //     |   type_name DOT_OP THIS_KEYWORD                                                                                                   {Node* node = createNode("primary no new array"); node->addChildren({$1,$2,$3}); $$ = node;}
+     //     |   class_literal                                                                                                                   {Node* node = createNode("primary no new array"); node->addChildren({$1}); $$ = node;}
 
-// #############  assign proper value to field access modifier;  ##############
+
+
+// #############  Assign proper value to field access modifier  ##############
 
 field_access
-            :   IDENTIFIERS DOT_OP type_name_scoping                                                                                            {IdentifiersList* temp = new IdentifiersList("type_name", $1->lexeme, $3->identifiers); if(!typenameErrorChecking(temp, global_symtab->current_level, 0)) YYERROR; Value* va = new Value(); va->primitivetypeIndex = -1; Expression* node = new Expression("postfix expression", va, true, false); if(node == NULL) YYERROR; node->primary_exp_val = temp->createString(); node->isPrimary = true; node->addChildren({$1,$2,$3}); $$ = node;}
-        //     |   SUPER_KEYWORD DOT_OP IDENTIFIERS                                                                                                {Node* node = createNode("field access"); node->addChildren({$1,$2,$3}); $$ = node;}
+            :   IDENTIFIERS DOT_OP type_name_scoping                                                                                            
+            {
+                IdentifiersList* temp = new IdentifiersList("type_name", $1->lexeme, $3->identifiers); 
+                if (!typenameErrorChecking(temp, global_symtab->current_level, 0)) 
+                    YYERROR; 
+                Value* va = new Value(); 
+                va->primitivetypeIndex = -1; 
+                Expression* node = new Expression("postfix expression", va, true, false); 
+                if (node == NULL) 
+                    YYERROR; 
+                node->primary_exp_val = temp->createString(); 
+                node->isPrimary = true; 
+                node->addChildren({$1,$2,$3}); 
+                $$ = node;
+            }
+     //     |   SUPER_KEYWORD DOT_OP IDENTIFIERS                                                                                                {Node* node = createNode("field access"); node->addChildren({$1,$2,$3}); $$ = node;}
 
 array_access
-            :   type_name OP_SQR_BRCKT expression CLOSE_SQR_BRCKT                                                                               {Node* node = createNode("array access"); node->addChildren({$1,$2,$3,$4}); $$ = node;}
-            |   primary_no_new_array OP_SQR_BRCKT expression CLOSE_SQR_BRCKT                                                                    {Node* node = createNode("array access"); node->addChildren({$1,$2,$3,$4}); $$ = node;}
+            :   type_name OP_SQR_BRCKT expression CLOSE_SQR_BRCKT                                                                               
+            {
+                Node* node = createNode("array access"); 
+                node->addChildren({$1,$2,$3,$4}); 
+                $$ = node;
+            }
+            |   primary_no_new_array OP_SQR_BRCKT expression CLOSE_SQR_BRCKT                                                                    
+            {
+                Node* node = createNode("array access"); 
+                node->addChildren({$1,$2,$3,$4}); 
+                $$ = node;
+            }
 
 method_invocation
-            :   IDENTIFIERS  OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT                                                                    {IdentifiersList* temp = new IdentifiersList("type_name", $1->lexeme, {});                                    if(!typenameErrorChecking(temp, global_symtab->current_level, 2)) YYERROR; Value* va = new Value(); va->primitivetypeIndex = ((MethodDeclaration*)(get_local_symtab(global_symtab->current_level)->get_entry($1->lexeme, 2)))->type->primitivetypeIndex; Expression* node = new Expression("postfix expression", va, false, false); if(node == NULL) YYERROR; node->name = temp->createString(); node->entry_type = METHOD_INVOCATION; node->addChildren({$1,$2,$3,$4}); $$ = node;}
-            |   field_access OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT                                                                    {IdentifiersList* temp = new IdentifiersList("type_name", "", {}); temp->addIdentifiers($1->primary_exp_val); if(!typenameErrorChecking(temp, global_symtab->current_level, 2)) YYERROR; Value* va = new Value(); va->primitivetypeIndex = ((MethodDeclaration*)(get_local_symtab(global_symtab->current_level)->get_entry($1->lexeme, 2)))->type->primitivetypeIndex; Expression* node = new Expression("postfix expression", va, false, false); if(node == NULL) YYERROR; node->name = temp->createString(); node->entry_type = METHOD_INVOCATION; node->addChildren({$1,$2,$3,$4}); $$ = node;}
-        //     |   SUPER_KEYWORD DOT_OP IDENTIFIERS OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT                                                 {Node* node = createNode("method invocation"); node->addChildren({$1,$2,$3,$4,$5,$6}); $$ = node;}
+            :   IDENTIFIERS  OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT                                                                    
+            {
+                IdentifiersList* temp = new IdentifiersList("type_name", $1->lexeme, {});                                    
+                if(!typenameErrorChecking(temp, global_symtab->current_level, 2)) 
+                    YYERROR; 
+                Value* va = new Value(); 
+                va->primitivetypeIndex = ((MethodDeclaration*)(get_local_symtab(global_symtab->current_level)->get_entry($1->lexeme, 2)))->type->primitivetypeIndex; 
+                Expression* node = new Expression("postfix expression", va, false, false); 
+                if(node == NULL) 
+                    YYERROR; 
+                node->name = temp->createString(); 
+                node->entry_type = METHOD_INVOCATION; 
+                node->addChildren({$1,$2,$3,$4}); 
+                $$ = node;
+            }
+            |   field_access OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT                                                                    
+            {
+                IdentifiersList* temp = new IdentifiersList("type_name", "", {}); 
+                temp->addIdentifiers($1->primary_exp_val); 
+                if(!typenameErrorChecking(temp, global_symtab->current_level, 2)) 
+                    YYERROR; 
+                Value* va = new Value(); 
+                va->primitivetypeIndex = ((MethodDeclaration*)(get_local_symtab(global_symtab->current_level)->get_entry($1->lexeme, 2)))->type->primitivetypeIndex; 
+                Expression* node = new Expression("postfix expression", va, false, false); 
+                if(node == NULL) 
+                    YYERROR; 
+                node->name = temp->createString(); 
+                node->entry_type = METHOD_INVOCATION; 
+                node->addChildren({$1,$2,$3,$4}); 
+                $$ = node;
+            }
+     //     |   SUPER_KEYWORD DOT_OP IDENTIFIERS OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT                                                 {Node* node = createNode("method invocation"); node->addChildren({$1,$2,$3,$4,$5,$6}); $$ = node;}
 
 expression
-            :   assignment_expression                                                                                                           {Expression* node =grammar_1("expression", $1, $1->isPrimary, $1->isLiteral);if(node == NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
+            :   assignment_expression                                                                                                           
+            {
+                Expression* node =grammar_1("expression", $1, $1->isPrimary, $1->isLiteral);
+                if(node == NULL) 
+                    YYERROR; 
+                node->addChildren({$1}); 
+                $$ = node;
+            }           
 
 assignment_expression
-            :   condtional_expression                                                                                                           {Expression* node = grammar_1("assignment expression",$1, $1->isPrimary, $1->isLiteral);if(node == NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
-            |   assignment                                                                                                                      {Expression* node = grammar_1("assignment expression",$1, $1->isPrimary, $1->isLiteral);if(node == NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
+            :   condtional_expression                                                                                                           
+            {
+                Expression* node = grammar_1("assignment expression",$1, $1->isPrimary, $1->isLiteral);
+                if(node == NULL) 
+                    YYERROR; 
+                node->addChildren({$1}); 
+                $$ = node;
+            }           
+            |   assignment                                                                                                                      
+            {
+                Expression* node = grammar_1("assignment expression",$1, $1->isPrimary, $1->isLiteral);
+                if(node == NULL) 
+                    YYERROR; 
+                node->addChildren({$1}); 
+                $$ = node;
+            }           
 
 condtional_expression
-            :   conditional_or_expression                                                                                                       {Expression* node = grammar_1("condtional expression",$1, $1->isPrimary, $1->isLiteral);if(node == NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
-            |   conditional_or_expression QN_OP expression COLON_OP condtional_expression                                                       {Expression* node = cond_qn_co("condtional expression",$1,$3,$5); if(node == NULL) YYERROR; node->addChildren({$1,$2,$3,$4,$5}); node->entry_type = TERNARY_EXPRESSION;   $$ = node;}           
+            :   conditional_or_expression                                                                                                       
+            {
+                Expression* node = grammar_1("condtional expression",$1, $1->isPrimary, $1->isLiteral);
+                if(node == NULL) 
+                    YYERROR; 
+                node->addChildren({$1}); 
+                $$ = node;
+            }           
+            |   conditional_or_expression QN_OP expression COLON_OP condtional_expression                                                       
+            {
+                Expression* node = cond_qn_co("condtional expression",$1,$3,$5); 
+                if(node == NULL) 
+                    YYERROR; 
+                node->addChildren({$1,$2,$3,$4,$5}); 
+                node->entry_type = TERNARY_EXPRESSION;   
+                $$ = node;
+            }           
 
 conditional_or_expression
-            :   conditional_and_expression                                                                                                      {Expression* node = grammar_1("condtional or expression",$1,$1->isPrimary, $1->isLiteral);if(node == NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
-            |   conditional_or_expression OR_OP conditional_and_expression                                                                      {Expression* node = evalOR_AND("condtional or expression",$1,"||",$3);if(node == NULL) YYERROR; node->addChildren({$1,$2,$3}); $$ = node;}           
+            :   conditional_and_expression                                                                                                      
+            {
+                Expression* node = grammar_1("condtional or expression",$1,$1->isPrimary, $1->isLiteral);
+                if(node == NULL) 
+                    YYERROR; 
+                node->addChildren({$1}); 
+                $$ = node;
+            }           
+            |   conditional_or_expression OR_OP conditional_and_expression                                                                      
+            {
+                Expression* node = evalOR_AND("condtional or expression",$1,"||",$3);
+                if(node == NULL) 
+                    YYERROR; 
+                node->addChildren({$1,$2,$3}); 
+                $$ = node;
+            }           
 
 conditional_and_expression
-            :   inclusive_or_expression                                                                                                         {Expression* node = grammar_1("condtional and expression",$1,$1->isPrimary, $1->isLiteral);if(node == NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
-            |   conditional_and_expression AND_OP inclusive_or_expression                                                                       {Expression* node = evalOR_AND("condtional and expression",$1,"&&",$3);if(node == NULL) YYERROR; node->addChildren({$1,$2,$3}); $$ = node;}           
+            :   inclusive_or_expression                                                                                                         
+            {
+                Expression* node = grammar_1("condtional and expression",$1,$1->isPrimary, $1->isLiteral);
+                if(node == NULL) 
+                    YYERROR; 
+                node->addChildren({$1}); 
+                $$ = node;
+            }           
+            |   conditional_and_expression AND_OP inclusive_or_expression                                                                       
+            {
+                Expression* node = evalOR_AND("condtional and expression",$1,"&&",$3);
+                if(node == NULL) 
+                    YYERROR; 
+                node->addChildren({$1,$2,$3}); 
+                $$ = node;
+            }           
 
 inclusive_or_expression
-            :   exclusive_or_expression                                                                                                         {Expression* node = grammar_1("inclusive or expression",$1,$1->isPrimary, $1->isLiteral);if(node == NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
-            |   inclusive_or_expression BAR_OP exclusive_or_expression                                                                          {Expression* node = evalBITWISE("inclusive or expression",$1,"|",$3);if(node == NULL) YYERROR; node->addChildren({$1,$2,$3}); $$ = node;}           
+            :   exclusive_or_expression                                                                                                         
+            {
+                Expression* node = grammar_1("inclusive or expression",$1,$1->isPrimary, $1->isLiteral);
+                if(node == NULL) 
+                    YYERROR; 
+                node->addChildren({$1}); 
+                $$ = node;
+            }           
+            |   inclusive_or_expression BAR_OP exclusive_or_expression                                                                          
+            {
+                Expression* node = evalBITWISE("inclusive or expression",$1,"|",$3);
+                if(node == NULL) 
+                    YYERROR; 
+                node->addChildren({$1,$2,$3}); 
+                $$ = node;
+            }           
 
 exclusive_or_expression
-            :   and_expression                                                                                                                  {Expression* node = grammar_1("exclusive or expression",$1,$1->isPrimary, $1->isLiteral);if(node == NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
-            |   exclusive_or_expression RAISE_OP and_expression                                                                                 {Expression* node = evalBITWISE("exclusive or expression",$1,"^",$3);if(node == NULL) YYERROR; node->addChildren({$1,$2,$3}); $$ = node;}           
+            :   and_expression                                                                                                                  
+            {
+                Expression* node = grammar_1("exclusive or expression",$1,$1->isPrimary, $1->isLiteral);
+                if(node == NULL) 
+                    YYERROR; 
+                node->addChildren({$1}); 
+                $$ = node;
+            }           
+            |   exclusive_or_expression RAISE_OP and_expression                                                                                 
+            {
+                Expression* node = evalBITWISE("exclusive or expression",$1,"^",$3);
+                if(node == NULL) 
+                    YYERROR; 
+                node->addChildren({$1,$2,$3}); 
+                $$ = node;
+            }           
 
 and_expression
             :   equality_expression                                                                                                             {Expression* node = grammar_1("and expression",$1,$1->isPrimary, $1->isLiteral);if(node == NULL) YYERROR; node->addChildren({$1}); $$ = node;}           
@@ -730,143 +942,405 @@ PROTECTED_KEYWORD
         :       protected_keyword_terminal                                              {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 BYTE_KEYWORD
-        :       byte_keyword_terminal                                                   {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
+        :       byte_keyword_terminal                                                   
+        {
+            Node* temp = createNode($1); 
+            temp->isTerminal = true; 
+            $$ = temp;
+        }
 
 ELSE_KEYWORD
-        :       else_keyword_terminal                                                   {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
+        :       else_keyword_terminal                                                   
+        {
+            Node* temp = createNode($1); 
+            temp->isTerminal = true; 
+            $$ = temp;
+        }
 
 PUBLIC_KEYWORD
-        :       public_keyword_terminal                                                 {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
+        :       public_keyword_terminal                                                 
+        {
+            Node* temp = createNode($1); 
+            temp->isTerminal = true; 
+            $$ = temp;
+        }
 
 // CASE_KEYWORD
 //         :       case_keyword_terminal                                                   {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
 
 RETURN_KEYWORD
-        :       return_keyword_terminal                                                 {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
+        :       return_keyword_terminal                                                 
+        {
+            Node* temp = createNode($1); 
+            temp->isTerminal = true; 
+            $$ = temp;
+        }
 
 TRANSIENT_KEYWORD
-        :       transient_keyword_terminal                                              {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
+        :       transient_keyword_terminal                                              
+        {
+            Node* temp = createNode($1); 
+            temp->isTerminal = true; 
+            $$ = temp;
+        }
 
 EXTENDS_KEYWORD
-        :       extends_keyword_terminal                                                {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
+        :       extends_keyword_terminal                                                
+        {
+            Node* temp = createNode($1); 
+            temp->isTerminal = true; 
+            $$ = temp;
+        }
 
 INT_KEYWORD
-        :       int_keyword_terminal                                                    {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
+        :       int_keyword_terminal                                                    
+        {
+            Node* temp = createNode($1); 
+            temp->isTerminal = true; 
+            $$ = temp;
+        }
 
 SHORT_KEYWORD
-        :       short_keyword_terminal                                                  {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
+        :       short_keyword_terminal                                                  
+        {
+            Node* temp = createNode($1); 
+            temp->isTerminal = true; 
+            $$ = temp;
+        }
 
 CHAR_KEYWORD
-        :       char_keyword_terminal                                                   {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
+        :       char_keyword_terminal                                                   
+        {
+            Node* temp = createNode($1); 
+            temp->isTerminal = true; 
+            $$ = temp;
+        }
 
 FINAL_KEYWORD
-        :       final_keyword_terminal                                                  {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
+        :       final_keyword_terminal                                                  
+        {
+            Node* temp = createNode($1); 
+            temp->isTerminal = true; 
+            $$ = temp;
+        }
 
 STATIC_KEYWORD
-        :       static_keyword_terminal                                                 {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
+        :       static_keyword_terminal                                                 
+        {
+            Node* temp = createNode($1); 
+            temp->isTerminal = true; 
+            $$ = temp;
+        }
 
 VOID_KEYWORD
-        :       void_keyword_terminal                                                   {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
+        :       void_keyword_terminal                                                   
+        {
+            Node* temp = createNode($1); 
+            temp->isTerminal = true; 
+            $$ = temp;
+        }
 
 CLASS_KEYWORD
-        :       class_keyword_terminal                                                  {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
+        :       class_keyword_terminal                                                  
+        {
+            Node* temp = createNode($1); 
+            temp->isTerminal = true; 
+            $$ = temp;
+        }
 
 LONG_KEYWORD
-        :       long_keyword_terminal                                                   {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
+        :       long_keyword_terminal                                                   
+        {
+            Node* temp = createNode($1); 
+            temp->isTerminal = true; 
+            $$ = temp;
+        }
 
 STRICTFP_KEYWORD
-        :       strictfp_keyword_terminal                                               {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
+        :       strictfp_keyword_terminal                                               
+        {
+            Node* temp = createNode($1); 
+            temp->isTerminal = true; 
+            $$ = temp;
+        }
 
 VOLATILE_KEYWORD
-        :       volatile_keyword_terminal                                               {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
+        :       volatile_keyword_terminal                                               
+        {
+            Node* temp = createNode($1); 
+            temp->isTerminal = true; 
+            $$ = temp;
+        }
 
 FLOAT_KEYWORD
-        :       float_keyword_terminal                                                  {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
+        :       float_keyword_terminal                                                  
+        {
+            Node* temp = createNode($1); 
+            temp->isTerminal = true; 
+            $$ = temp;
+        }
 
 NATIVE_KEYWORD
-        :       native_keyword_terminal                                                 {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
+        :       native_keyword_terminal                                                 
+        {
+            Node* temp = createNode($1); 
+            temp->isTerminal = true; 
+            $$ = temp;
+        }
 
 SUPER_KEYWORD
-        :       super_keyword_terminal                                                  {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
+        :       super_keyword_terminal                                                  
+        {
+            Node* temp = createNode($1); 
+            temp->isTerminal = true; 
+            $$ = temp;
+        }
 
 WHILE_KEYWORD
-        :       while_keyword_terminal                                                  {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
+        :       while_keyword_terminal                                                  
+        {
+            Node* temp = createNode($1); 
+            temp->isTerminal = true; 
+            $$ = temp;
+        }
 
 EQ_OP
-        :       EQ_OP_TERMINAL                                                          {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
+        :       EQ_OP_TERMINAL                                                          
+        {
+            Node* temp = createNode($1); 
+            temp->isTerminal = true; 
+            $$ = temp;
+        }
 
 GE_OP
-        :       GE_OP_TERMINAL                                                          {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
+        :       GE_OP_TERMINAL                                                          
+        {
+            Node* temp = createNode($1); 
+            temp->isTerminal = true; 
+            $$ = temp;
+        }
 
 LE_OP
-        :       LE_OP_TERMINAL                                                          {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
+        :       LE_OP_TERMINAL                                                          
+        {
+            Node* temp = createNode($1); 
+            temp->isTerminal = true; 
+            $$ = temp;
+        }
 
 NE_OP
-        :       NE_OP_TERMINAL                                                          {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
+        :       NE_OP_TERMINAL                                                          
+        {
+            Node* temp = createNode($1); 
+            temp->isTerminal = true; 
+            $$ = temp;
+        }
 
 AND_OP
-        :       AND_OP_TERMINAL                                                         {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
+        :       AND_OP_TERMINAL                                                         
+        {
+            Node* temp = createNode($1); 
+            temp->isTerminal = true; 
+            $$ = temp;
+        }
 
 OR_OP
-        :       OR_OP_TERMINAL                                                          {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
+        :       OR_OP_TERMINAL                                                          
+        {
+            Node* temp = createNode($1); 
+            temp->isTerminal = true; 
+            $$ = temp;
+        }
 
 INC_OP
-        :       INC_OP_TERMINAL                                                         {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
+        :       INC_OP_TERMINAL                                                         
+        {
+            Node* temp = createNode($1); 
+            temp->isTerminal = true; 
+            $$ = temp;
+        }
 
 DEC_OP
-        :       DEC_OP_TERMINAL                                                         {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
+        :       DEC_OP_TERMINAL                                                         
+        {
+            Node* temp = createNode($1); 
+            temp->isTerminal = true; 
+            $$ = temp;
+        }
 
 LEFT_OP
-        :       LEFT_OP_TERMINAL                                                        {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
+        :       LEFT_OP_TERMINAL                                                        
+        {
+            Node* temp = createNode($1); 
+            temp->isTerminal = true; 
+            $$ = temp;
+        }
 
 RIGHT_OP
-        :       RIGHT_OP_TERMINAL                                                       {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
+        :       RIGHT_OP_TERMINAL                                                       
+        {
+            Node* temp = createNode($1); 
+            temp->isTerminal = true; 
+            $$ = temp;
+        }
 
 BIT_RIGHT_SHFT_OP
-        :       BIT_RIGHT_SHFT_OP_TERMINAL                                              {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
+        :       BIT_RIGHT_SHFT_OP_TERMINAL                                              
+        {
+            Node* temp = createNode($1); 
+            temp->isTerminal = true; 
+            $$ = temp;
+        }
 
 ADD_ASSIGN
-        :       ADD_ASSIGN_TERMINAL                                                     {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
+        :       ADD_ASSIGN_TERMINAL                                                     
+        {
+            Node* temp = createNode($1); 
+            temp->isTerminal = true; 
+            $$ = temp;
+        }
 
 SUB_ASSIGN
-        :       SUB_ASSIGN_TERMINAL                                                     {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
+        :       SUB_ASSIGN_TERMINAL                                                     
+        {
+            Node* temp = createNode($1); 
+            temp->isTerminal = true; 
+            $$ = temp;
+        }
 
 MUL_ASSIGN
-        :       MUL_ASSIGN_TERMINAL                                                     {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
+        :       MUL_ASSIGN_TERMINAL                                                     
+        {
+            Node* temp = createNode($1); 
+            temp->isTerminal = true; 
+            $$ = temp;
+        }
 
 DIV_ASSIGN
-        :       DIV_ASSIGN_TERMINAL                                                     {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
+        :       DIV_ASSIGN_TERMINAL                                                     
+        {
+            Node* temp = createNode($1); 
+            temp->isTerminal = true; 
+            $$ = temp;
+        }
 
 AND_ASSIGN
-        :       AND_ASSIGN_TERMINAL                                                     {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
+        :       AND_ASSIGN_TERMINAL                                                     
+        {
+            Node* temp = createNode($1); 
+            temp->isTerminal = true; 
+            $$ = temp;
+        }
 
 OR_ASSIGN
-        :       OR_ASSIGN_TERMINAL                                                      {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
+        :       OR_ASSIGN_TERMINAL                                                      
+        {
+            Node* temp = createNode($1); 
+            temp->isTerminal = true; 
+            $$ = temp;
+        }
 
 XOR_ASSIGN
-        :       XOR_ASSIGN_TERMINAL                                                     {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
+        :       XOR_ASSIGN_TERMINAL                                                     
+        {
+            Node* temp = createNode($1); 
+            temp->isTerminal = true; 
+            $$ = temp;
+        }
 
 MOD_ASSIGN
-        :       MOD_ASSIGN_TERMINAL                                                     {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
+        :       MOD_ASSIGN_TERMINAL                                                     
+        {
+            Node* temp = createNode($1); 
+            temp->isTerminal = true; 
+            $$ = temp;
+        }
 
 LEFT_ASSIGN
-        :       LEFT_ASSIGN_TERMINAL                                                    {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
+        :       LEFT_ASSIGN_TERMINAL                                                    
+        {
+            Node* temp = createNode($1); 
+            temp->isTerminal = true; 
+            $$ = temp;
+        }
 
 RIGHT_ASSIGN
-        :       RIGHT_ASSIGN_TERMINAL                                                   {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
+        :       RIGHT_ASSIGN_TERMINAL                                                   
+        {
+            Node* temp = createNode($1); 
+            temp->isTerminal = true; 
+            $$ = temp;
+        }
 
 BIT_RIGHT_SHFT_ASSIGN
-        :       BIT_RIGHT_SHFT_ASSIGN_TERMINAL                                          {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
+        :       BIT_RIGHT_SHFT_ASSIGN_TERMINAL                                          
+        {
+            Node* temp = createNode($1); 
+            temp->isTerminal = true; 
+            $$ = temp;
+        }
 
 IDENTIFIERS
-        :       IDENTIFIERS_TERMINAL                                                    {Node* temp = createNode($1); temp->isTerminal = true; $$ = temp;}
+        :       IDENTIFIERS_TERMINAL                                                    
+        {
+            Node* temp = createNode($1); 
+            temp->isTerminal = true; 
+            $$ = temp;
+        }
 
 LITERALS
-        :       NUM_LITERALS                                                            {Value* va = new Value(); va->primitivetypeIndex = LONG;    va->num_val.push_back(strtol($1, NULL, 10));      Expression* temp = new Expression($1, va, true, true); temp->isTerminal = true; temp->primary_exp_val = $1; $$ = temp;}
-        |       DOUBLE_LITERALS                                                         {Value* va = new Value(); va->primitivetypeIndex = DOUBLE;  va->double_val.push_back(strtod($1, NULL));       Expression* temp = new Expression($1, va, true, true); temp->isTerminal = true; temp->primary_exp_val = $1; $$ = temp;}
-        |       STRING_LITERALS                                                         {Value* va = new Value(); va->primitivetypeIndex = STRING;  va->string_val.push_back($1);                     Expression* temp = new Expression($1, va, true, true); temp->isTerminal = true; temp->primary_exp_val = $1; $$ = temp;}
-        |       CHAR_LITERALS                                                           {Value* va = new Value(); va->primitivetypeIndex = CHAR;    va->string_val.push_back($1);                     Expression* temp = new Expression($1, va, true, true); temp->isTerminal = true; temp->primary_exp_val = $1; temp->value->is_char_val = true;  $$ = temp;}
-        |       BOOLEAN_LITERALS                                                        {Value* va = new Value(); va->primitivetypeIndex = BOOLEAN; va->boolean_val.push_back(strcmp($1, "true")==0); Expression* temp = new Expression($1, va, true, true); temp->isTerminal = true; temp->primary_exp_val = $1; temp->value->is_char_val = false; $$ = temp;}
+        :       NUM_LITERALS                                                            
+        {
+            Value* va = new Value(); 
+            va->primitivetypeIndex = LONG;    
+            va->num_val.push_back(strtol($1, NULL, 10));      
+            Expression* temp = new Expression($1, va, true, true); 
+            temp->isTerminal = true; 
+            temp->primary_exp_val = $1;
+            $$ = temp;
+        }
+        |       DOUBLE_LITERALS                                                         
+        {
+            Value* va = new Value(); 
+            va->primitivetypeIndex = DOUBLE;  
+            va->double_val.push_back(strtod($1, NULL));       
+            Expression* temp = new Expression($1, va, true, true); 
+            temp->isTerminal = true; 
+            temp->primary_exp_val = $1; 
+            $$ = temp;
+        }
+        |       STRING_LITERALS                                                         
+        {
+            Value* va = new Value(); 
+            va->primitivetypeIndex = STRING;  
+            va->string_val.push_back($1);                     
+            Expression* temp = new Expression($1, va, true, true); 
+            temp->isTerminal = true; 
+            temp->primary_exp_val = $1; 
+            $$ = temp;
+        }
+        |       CHAR_LITERALS                                                           
+        {
+            Value* va = new Value(); 
+            va->primitivetypeIndex = CHAR;    
+            va->string_val.push_back($1);                     
+            Expression* temp = new Expression($1, va, true, true); 
+            temp->isTerminal = true; 
+            temp->primary_exp_val = $1; 
+            temp->value->is_char_val = true;  
+            $$ = temp;
+        }
+        |       BOOLEAN_LITERALS                                                        
+        {
+            Value* va = new Value(); 
+            va->primitivetypeIndex = BOOLEAN; 
+            va->boolean_val.push_back(strcmp($1, "true")==0); 
+            Expression* temp = new Expression($1, va, true, true); 
+            temp->isTerminal = true; 
+            temp->primary_exp_val = $1; 
+            temp->value->is_char_val = false; 
+            $$ = temp;
+        }
 
 %%
 
@@ -1144,14 +1618,14 @@ int main(int argc, char **argv){
     fclose(yyin);
 
 //     Print the symbol table
-//     for(int i = 0;i < global_symtab->symbol_tables.size(); i++){
-//         for(int j = 0; j < global_symtab->symbol_tables[i].size(); j++){
-//             // get the local symbol table
-//             LocalSymbolTable* curr_scope = ((LocalSymbolTable*)global_symtab->symbol_tables[i][j]);
-//             get_csv_entries(curr_scope);
-//         }
-//     }
-//     print_to_csv();
+    for(int i = 0;i < global_symtab->symbol_tables.size(); i++){
+        for(int j = 0; j < global_symtab->symbol_tables[i].size(); j++){
+            // get the local symbol table
+            LocalSymbolTable* curr_scope = ((LocalSymbolTable*)global_symtab->symbol_tables[i][j]);
+            get_csv_entries(curr_scope);
+        }
+    }
+    print_to_csv();
 
     // Redirect cout back to screen
     cout.rdbuf(stream_buffer_cout);
