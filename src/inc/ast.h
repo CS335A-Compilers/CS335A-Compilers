@@ -174,6 +174,7 @@ class Expression : public Node {
         int registor_index;
         // primary_exp_val have variable name or object name or literal value stored as string to use in 3ac generation;
         string primary_exp_val;
+        string createString();
         Expression(string lex, Value* val, bool primary, bool literal);
 };
 

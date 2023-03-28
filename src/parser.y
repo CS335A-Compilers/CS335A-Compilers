@@ -60,7 +60,7 @@
 %type<expression_list> argument_list statement_expression_list argument_list_zero_or_one comma_expression_zero_or_more comma_statement_expression_zero_or_more variable_initializer_list_zero_or_more variable_initializer_list
 %type<formal_parameter> formal_parameter 
 %type<formal_parameter_list> formal_parameter_list formal_parameter_list_zero_or_one
-%type<modifier_list> modifiers_zero_or_more
+%type<modifier_list> modifiers_one_or_more
 %type<modifier> modifiers
 %type<type> unann_type primitive_type numeric_type
 %type<method_declaration> constructor_declaration constructor_declarator method_declaration method_header method_declarator
@@ -258,7 +258,7 @@ post_decrement_expression
 //             :   condtional_expression                                                                                                                   {Node* node = createNode("case constant"); node->addChildren({$1}); $$ = node;}           
 
 class_instance_creation_expression
-            :   NEW_KEYWORD IDENTIFIERS OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT class_body_zero_or_one                                              {Value* val = createObject($2->lexeme, $4, global_symtab->current_level); Expression* node = new Expression("class instance creation expression", val, false, false); node->addChildren({$1,$2,$3,$4,$5,$6}); $$ = node;}
+            :   NEW_KEYWORD IDENTIFIERS OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT class_body_zero_or_one                                              {Value* val = createObject($2->lexeme, $4, global_symtab->current_level); if(val == NULL) YYERROR; Expression* node = new Expression("class instance creation expression", val, false, false); node->addChildren({$1,$2,$3,$4,$5,$6}); $$ = node;}
 
 // ##############  class_body is ignored for time being  ##################
 
@@ -274,8 +274,8 @@ comma_expression_zero_or_more
             |   COMMA_OP expression comma_expression_zero_or_more                                                                                       {ExpressionList* node = new ExpressionList("comma expression zero or more", $2, $3->lists); node->addChildren({$1,$2,$3}); $$ = node;}           
 
 assignment
-            :   postfix_expression assignment_operators expression                                                                                      {Expression* node = assignValue($1, $2->children[0]->lexeme, $3); if(node == NULL) YYERROR; node->addChildren({$1,$2,$3});  $$ = node;}           
-            |   field_access assignment_operators expression                                                                                            {Expression* node = assignValue($1, $2->children[0]->lexeme, $3); if(node == NULL) YYERROR; node->addChildren({$1,$2,$3});  $$ = node;}           
+            :   IDENTIFIERS assignment_operators expression                                                                                             {IdentifiersList* temp = new IdentifiersList("identifiers", "", {$1->lexeme}); if(!typenameErrorChecking(temp, global_symtab->current_level, 0)) YYERROR; Value* va = new Value(); va->primitivetypeIndex = ((LocalVariableDeclaration*)(get_local_symtab(global_symtab->current_level)->get_entry($1->lexeme, 0)))->type->primitivetypeIndex; Expression* node1 = new Expression("postfix expression", va, true, false); if(node1 == NULL) YYERROR; node1->primary_exp_val = $1->lexeme; Expression* node = assignValue(node1, $2->children[0]->lexeme, $3); if(node == NULL) YYERROR; node->addChildren({$1,$2,$3});  $$ = node;}           
+        //     |   field_access assignment_operators expression                                                                                            {Expression* node = assignValue($1, $2->children[0]->lexeme, $3); if(node == NULL) YYERROR; node->addChildren({$1,$2,$3});  $$ = node;}
         //     |   array_access assignment_operators expression                                                                                            {Node* node = createNode("assignment"); node->addChildren({$1,$2,$3}); $$ = node;}           
 
 assignment_operators 
@@ -365,9 +365,9 @@ modifiers
             |   TRANSIENT_KEYWORD                                                                                                                       {Modifier* node = new Modifier(TRANSIENT, "modifiers"); node->addChildren({$1}); $$ = node;}
             |   NATIVE_KEYWORD                                                                                                                          {Modifier* node = new Modifier(NATIVE, "modifiers"); node->addChildren({$1}); $$ = node;}
 
-modifiers_zero_or_more
-            :   /* empty */                                                                                                                             {ModifierList* node = new ModifierList("modifiers zero or more", NULL, {}); node->addChildren({}); $$ = node;}
-            |   modifiers modifiers_zero_or_more                                                                                                        {ModifierList* node = new ModifierList("modifiers zero or more", $1, $2->lists); node->addChildren({$1,$2}); $$ = node;}
+modifiers_one_or_more
+            :   modifiers                                                                                                                               {ModifierList* node = new ModifierList("modifiers zero or more", $1, {}); node->addChildren({$1}); $$ = node;}
+            |   modifiers modifiers_one_or_more                                                                                                        {ModifierList* node = new ModifierList("modifiers zero or more", $1, $2->lists); node->addChildren({$1,$2}); $$ = node;}
 
 
 //  ########   BLOCKS, STATEMENTS AND PATTERNS   ########  
@@ -398,7 +398,7 @@ local_variable_declaration_statement
         :   local_variable_declaration SEMICOLON_OP                                                                                                     {Node* node = createNode("local variable declaration statemen"); node->addChildren({$1,$2}); $$ = node;}
 
 local_variable_declaration
-        :   modifiers_zero_or_more unann_type variable_declarator_list                                                                                  {Node* node = createNode("local variable declaration"); node->addChildren({$1,$2,$3}); if(!addVariablesToSymtab($2, $3, global_symtab->current_level, $1, false)) YYERROR; node->name = createTAC($3); $$ = node;}
+        :   unann_type variable_declarator_list                                                                                                         {Node* node = createNode("local variable declaration"); node->addChildren({$1,$2}); if(!addVariablesToSymtab($1, $2, global_symtab->current_level, NULL, false)) YYERROR; node->name = createTAC($2); $$ = node;}
 
 statement
         :   statement_without_trailing_substatement                                                                                                     {Node* node = createNode("statement"); node->addChildren({$1}); $$ = node;}
@@ -537,7 +537,8 @@ normal_class_declaration
         :  normal_class_declaration_statement class_body                                                                                                   {Node* node = createNode("normal_class_declaration"); ((LocalSymbolTable*)((global_symtab->symbol_tables)[$2->parent_level.first][$2->parent_level.second]))->level_node = (Node*)($1); node->addChildren({$1,$2}); $$ = node;}
 
 normal_class_declaration_statement
-        :  modifiers_zero_or_more CLASS_KEYWORD IDENTIFIERS class_extends_zero_or_one                                                                   {NormalClassDeclaration* node = new NormalClassDeclaration("normal class declaration statement", $1, $3->lexeme); node->line_no = $2->line_no; node->entry_type = CLASS_DECLARATION; node->addChildren({$1,$2,$3,$4}); if(!get_local_symtab(global_symtab->current_level)->add_entry(node)) YYERROR; $$ = node;}
+        :  CLASS_KEYWORD IDENTIFIERS class_extends_zero_or_one                                                                                         {NormalClassDeclaration* node = new NormalClassDeclaration("normal class declaration statement", NULL, $2->lexeme); node->line_no = $1->line_no; node->entry_type = CLASS_DECLARATION; node->addChildren({$1,$2,$3}); get_local_symtab(global_symtab->current_level)->add_entry(node); $$ = node;}
+        |  modifiers_one_or_more CLASS_KEYWORD IDENTIFIERS class_extends_zero_or_one                                                                   {NormalClassDeclaration* node = new NormalClassDeclaration("normal class declaration statement", $1, $3->lexeme); node->line_no = $2->line_no; node->entry_type = CLASS_DECLARATION; node->addChildren({$1,$2,$3,$4}); get_local_symtab(global_symtab->current_level)->add_entry(node); $$ = node;}
 
 class_extends_zero_or_one
         :   /* empty */                                                                                                                                 {Node* node = createNode("class extends zero or one"); node->addChildren({}); $$ = node;}
@@ -562,7 +563,8 @@ class_body_declaration
         |  SEMICOLON_OP                                                                                                                                 {Node* node = createNode("class body declaration"); node->addChildren({$1}); $$ = node;}
 
 field_declaration
-        :  modifiers_zero_or_more unann_type variable_declarator_list SEMICOLON_OP                                                                      {Node* node = createNode("field declaration"); if(!addVariablesToSymtab($2, $3, global_symtab->current_level, $1, true)) YYERROR;  node->addChildren({$1,$2,$3,$4}); node->name = createTAC($3); node->entry_type = VARIABLE_DECLARATION; $$ = node;}
+        :  unann_type variable_declarator_list SEMICOLON_OP                                                                                            {Node* node = createNode("field declaration"); if(!addVariablesToSymtab($1, $2, global_symtab->current_level, NULL, true)) YYERROR;  node->addChildren({$1,$2,$3});  node->name = createTAC($2); $$ = node;}
+        |  modifiers_one_or_more unann_type variable_declarator_list SEMICOLON_OP                                                                      {Node* node = createNode("field declaration"); if(!addVariablesToSymtab($2, $3, global_symtab->current_level, $1, true)) YYERROR;  node->addChildren({$1,$2,$3,$4}); node->name = createTAC($3); $$ = node;}
 
 variable_declarator_list
         :  variable_declarator comma_variable_declarator_zero_or_more                                                                                   {VariableDeclaratorList* node = new VariableDeclaratorList("variable declarator list", $1, $2->lists); node->addChildren({$1,$2}); $$ = node;}
@@ -583,8 +585,10 @@ unann_type
         |  type_name                                                                                                                                    {Type* node = new Type("unann type", -1); Node* temp = get_local_symtab(global_symtab->current_level)->get_entry($1->identifiers[0], 1); if(temp==NULL) YYERROR; node->class_instantiated_from = (NormalClassDeclaration*)(temp); node->addChildren({$1}); $$ = node;}
 
 method_declaration
-        :  modifiers_zero_or_more method_header block                                                                                                   {MethodDeclaration* node = new MethodDeclaration("method_declaration"); node->line_no = $1->line_no; node->name = $2->name; node->formal_parameter_list = $2->formal_parameter_list; node->type = $2->type; node->modifiers = $1; node->addChildren({$1,$2,$3}); node->entry_type = METHOD_DECLARATION; if(!get_local_symtab(global_symtab->current_level)->add_entry(node)) YYERROR; ((LocalSymbolTable*)((global_symtab->symbol_tables)[$3->parent_level.first][$3->parent_level.second]))->level_node = (Node*)(node); $$ = node;}
-        |  modifiers_zero_or_more method_header SEMICOLON_OP                                                                                            {MethodDeclaration* node = new MethodDeclaration("method_declaration"); node->name = $2->name; node->formal_parameter_list = $2->formal_parameter_list; node->type = $2->type; node->modifiers = $1; node->addChildren({$1,$2,$3}); node->entry_type = METHOD_DECLARATION; if(!get_local_symtab(global_symtab->current_level)->add_entry(node)) YYERROR; $$ = node;}
+        :  method_header block                                                                                                                          {MethodDeclaration* node = new MethodDeclaration("method_declaration"); node->line_no = $1->line_no; node->name = $1->name; node->formal_parameter_list = $1->formal_parameter_list; node->type = $1->type; node->modifiers = NULL; node->addChildren({$1,$2});  node->entry_type = METHOD_DECLARATION; get_local_symtab(global_symtab->current_level)->add_entry(node); ((LocalSymbolTable*)((global_symtab->symbol_tables)[$2->parent_level.first][$2->parent_level.second]))->level_node = (Node*)(node); $$ = node;}
+        |  modifiers_one_or_more method_header SEMICOLON_OP                                                                                             {MethodDeclaration* node = new MethodDeclaration("method_declaration"); node->line_no = $2->line_no; node->name = $2->name; node->formal_parameter_list = $2->formal_parameter_list; node->type = $2->type; node->modifiers = $1; node->addChildren({$1,$2,$3}); node->entry_type = METHOD_DECLARATION; get_local_symtab(global_symtab->current_level)->add_entry(node); $$ = node;}
+        |  modifiers_one_or_more method_header block                                                                                                    {MethodDeclaration* node = new MethodDeclaration("method_declaration"); node->line_no = $2->line_no; node->name = $2->name; node->formal_parameter_list = $2->formal_parameter_list; node->type = $2->type; node->modifiers = $1; node->addChildren({$1,$2,$3}); node->entry_type = METHOD_DECLARATION; get_local_symtab(global_symtab->current_level)->add_entry(node); ((LocalSymbolTable*)((global_symtab->symbol_tables)[$3->parent_level.first][$3->parent_level.second]))->level_node = (Node*)(node); $$ = node;}
+        |   method_header SEMICOLON_OP                                                                                                                  {MethodDeclaration* node = new MethodDeclaration("method_declaration"); node->line_no = $1->line_no; node->name = $1->name; node->formal_parameter_list = $1->formal_parameter_list; node->type = $1->type; node->modifiers = NULL; node->addChildren({$1,$2});  node->entry_type = METHOD_DECLARATION; get_local_symtab(global_symtab->current_level)->add_entry(node); $$ = node;}
 
 method_header
         :  unann_type method_declarator                                                                                                                 {MethodDeclaration* node = new MethodDeclaration("method_header"); node->name = $2->name; node->formal_parameter_list = $2->formal_parameter_list; node->type = $1;  node->addChildren({$1,$2}); $$ = node;}
@@ -610,7 +614,8 @@ static_initializer
         :  STATIC_KEYWORD block                                                                                                                         {Node* node = createNode("static initializer"); node->addChildren({$1,$2}); $$ = node;}
 
 constructor_declaration
-        :  modifiers_zero_or_more constructor_declarator constructor_body                                                                                  {MethodDeclaration* node = new MethodDeclaration("constructor_declaration"); node->name = $2->name; node->formal_parameter_list = $2->formal_parameter_list; node->modifiers = $1; node->entry_type = METHOD_DECLARATION; node->isConstructor = true; node->addChildren({$1,$2,$3}); if(!get_local_symtab(global_symtab->current_level)->add_entry(node)) YYERROR; $$ = node;}
+        :  constructor_declarator constructor_body                                                                                                      {MethodDeclaration* node = new MethodDeclaration("constructor_declaration"); node->name = $1->name; node->formal_parameter_list = $1->formal_parameter_list; node->modifiers = NULL; node->entry_type = METHOD_DECLARATION; node->isConstructor = true; node->addChildren({$1,$2}); get_local_symtab(global_symtab->current_level)->add_entry(node); $$ = node;}
+        |  modifiers_one_or_more constructor_declarator constructor_body                                                                                {MethodDeclaration* node = new MethodDeclaration("constructor_declaration"); node->name = $2->name; node->formal_parameter_list = $2->formal_parameter_list; node->modifiers = $1; node->entry_type = METHOD_DECLARATION; node->isConstructor = true; node->addChildren({$1,$2,$3}); get_local_symtab(global_symtab->current_level)->add_entry(node); $$ = node;}
 
 constructor_declarator
         :  IDENTIFIERS OP_BRCKT formal_parameter_list_zero_or_one CLOSE_BRCKT                                                                           {MethodDeclaration* node = new MethodDeclaration("constructor declarator"); node->name = $1->lexeme; node->formal_parameter_list = $3;  node->addChildren({$1,$2,$3,$4}); $$ = node;}
@@ -1131,14 +1136,14 @@ int main(int argc, char **argv){
     fclose(yyin);
 
 //     Print the symbol table
-    for(int i = 0;i < global_symtab->symbol_tables.size(); i++){
-        for(int j = 0; j < global_symtab->symbol_tables[i].size(); j++){
-            // get the local symbol table
-            LocalSymbolTable* curr_scope = ((LocalSymbolTable*)global_symtab->symbol_tables[i][j]);
-            get_csv_entries(curr_scope);
-        }
-    }
-    print_to_csv();
+//     for(int i = 0;i < global_symtab->symbol_tables.size(); i++){
+//         for(int j = 0; j < global_symtab->symbol_tables[i].size(); j++){
+//             // get the local symbol table
+//             LocalSymbolTable* curr_scope = ((LocalSymbolTable*)global_symtab->symbol_tables[i][j]);
+//             get_csv_entries(curr_scope);
+//         }
+//     }
+//     print_to_csv();
 
     // Redirect cout back to screen
     cout.rdbuf(stream_buffer_cout);
@@ -1147,5 +1152,6 @@ int main(int argc, char **argv){
 }
 
 void yyerror (char const *s) {
-  printf("\nError: %s. Line number %d\n\n", s, yylineno);
+   
+   printf("\nError: %s. Line number %d\n\n", s, yylineno);
 }
