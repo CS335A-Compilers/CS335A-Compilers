@@ -37,6 +37,7 @@
     IdentifiersList* identifiers_list;
     ExpressionList* expression_list;
 }
+
 // type == nonterminal, token = terminal
 
 %token<lex_val> goto_keyword_terminal const_keyword_terminal __keyword_terminal abstract_keyword_terminal continue_keyword_terminal for_keyword_terminal new_keyword_terminal default_keyword_terminal if_keyword_terminal boolean_keyword_terminal private_keyword_terminal this_keyword_terminal break_keyword_terminal double_keyword_terminal implements_keyword_terminal protected_keyword_terminal byte_keyword_terminal else_keyword_terminal public_keyword_terminal return_keyword_terminal transient_keyword_terminal extends_keyword_terminal int_keyword_terminal short_keyword_terminal char_keyword_terminal final_keyword_terminal static_keyword_terminal void_keyword_terminal class_keyword_terminal long_keyword_terminal strictfp_keyword_terminal volatile_keyword_terminal float_keyword_terminal native_keyword_terminal super_keyword_terminal while_keyword_terminal record_keyword_terminal
@@ -68,12 +69,19 @@
 %type<variable_declarator_list> variable_declarator_list comma_variable_declarator_zero_or_more
 %type<dims> dims dims_zero_or_one
 %type<identifiers_list> type_name type_name_scoping
+
 %% 
 
 //  ########   COMPILATION UNIT   ########  
 
 start_state 
-            :   compilation_unit                                                                                                                {$$ = $1; create3ACCode($$, true); cout<<"endFun\n"; createAST($$, output_file);}
+            :   compilation_unit                                                                                                                
+            {
+                $$ = $1; 
+                create3ACCode($$, true); 
+                cout<<"endFun\n"; 
+                createAST($$, output_file);
+            }
 
 compilation_unit
             :   ordinary_compilation_unit                                                                                                       {Node* node = createNode("compilation unit"); node->addChildren({$1}); $$ = node;}
