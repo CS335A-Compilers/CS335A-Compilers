@@ -203,6 +203,11 @@ ExpressionList::ExpressionList(string lex, Expression* single_expression, vector
     }
 }
 
+string Expression::createString(){
+    if(registor_index == -1) return primary_exp_val;
+    else return "t" + to_string(registor_index);
+}
+
 /* ####################   Helper funtion related to ast  #################### */
 
 bool typenameErrorChecking(Node* node, pair<int,int> curr_level, int entry_type){
@@ -287,12 +292,12 @@ Value* createObject(string class_name, ExpressionList* exp_list, pair<int,int> c
         return NULL;
     }
     else if(constructor_ptr == NULL && given_param == 0){
-        cout<<"No constructor present\n";
+        // cout<<"No constructor present\n";
         return obj;
         // call 3ac code-
     }
     else if(constructor_ptr != NULL){
-        cout<<"Constructor present\n";
+        // cout<<"Constructor present\n";
         vector<FormalParameter*> parameters = constructor_ptr->formal_parameter_list->lists;
         if(parameters.size() != given_param){
             string err = "invalid number of arguments while creating object of class \"" + class_name + "\"\ngiven " + to_string(given_param)  + " expected " + to_string(parameters.size());
@@ -407,13 +412,15 @@ int create3ACCode(Node* root, bool print){
         }
     }
     if(root->entry_type == VARIABLE_DECLARATION){
+        // variable_declarator_id ASSIGNMENT_OP variable_initializer
+        string temp = ((VariableDeclaratorId*)root)->lex_val;
+        if(root->children.size() > 2) res+=create3ACCode(root->children[2], print);
         if(print){
-            cout<<curr_address<<":    ";
-            cout<<root->name<<" = add_to_symtab(";
-            string temp = ((VariableDeclaratorId*)root)->lex_val;
-            cout<<temp<<")\n";
-            curr_address++;
+            cout<<curr_address<<":    "<<root->name<<" = add_to_symtab(";
         }
+        if(root->children.size() > 2) cout<<((Expression*)root->children[2])->createString();
+        cout<<")\n";
+        curr_address++;
         res++;
     }
     else if(root->entry_type == EXPRESSIONS){

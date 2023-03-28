@@ -63,6 +63,7 @@ void LocalSymbolTable::add_entry(Node* symtab_entry){
     if(symtab_entry->entry_type == CLASS_DECLARATION){
         NormalClassDeclaration* temp = (NormalClassDeclaration*)(symtab_entry);
         // cout<<"class entry added: "<<(symtab_entry->name)<<" at level: "<<global_symtab->current_level.first<<" "<<global_symtab->current_level.second<<endl;
+        if(temp->modifiers_list == NULL) return;
         vector<Modifier*> modifiers = temp->modifiers_list->lists;
         // Count the number of each modifier to give error if there are duplicates
         map<ModifierType, int> counts;
@@ -91,6 +92,7 @@ void LocalSymbolTable::add_entry(Node* symtab_entry){
         MethodDeclaration* temp = (MethodDeclaration*)(symtab_entry);
         // cout<<"method entry added: "<<(symtab_entry->name)<<" at level: "<<global_symtab->current_level.first<<" "<<global_symtab->current_level.second<<endl;
         // cout<<temp->formal_parameter_list->lists[0]->variable_declarator_id->num_of_dims;
+        if(temp->modifiers == NULL) return ;
         vector<Modifier*> modifiers = temp->modifiers->lists;
         // Count the number of each modifier to give error if there are duplicates
         map<ModifierType, int> counts;
@@ -127,6 +129,7 @@ void LocalSymbolTable::add_entry(Node* symtab_entry){
     }
     else if(symtab_entry->entry_type == VARIABLE_DECLARATION){
         LocalVariableDeclaration* temp = (LocalVariableDeclaration*)(symtab_entry);
+        if(temp->modifiers_lists == NULL) return ;
         vector<Modifier *> modifiers = temp->modifiers_lists->lists;
         // Count the number of each modifier to give error if there are duplicates
         map<ModifierType, int> counts;
