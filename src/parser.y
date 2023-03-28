@@ -1136,14 +1136,14 @@ int main(int argc, char **argv){
     fclose(yyin);
 
 //     Print the symbol table
-    for(int i = 0;i < global_symtab->symbol_tables.size(); i++){
-        for(int j = 0; j < global_symtab->symbol_tables[i].size(); j++){
-            // get the local symbol table
-            LocalSymbolTable* curr_scope = ((LocalSymbolTable*)global_symtab->symbol_tables[i][j]);
-            get_csv_entries(curr_scope);
-        }
-    }
-    print_to_csv();
+//     for(int i = 0;i < global_symtab->symbol_tables.size(); i++){
+//         for(int j = 0; j < global_symtab->symbol_tables[i].size(); j++){
+//             // get the local symbol table
+//             LocalSymbolTable* curr_scope = ((LocalSymbolTable*)global_symtab->symbol_tables[i][j]);
+//             get_csv_entries(curr_scope);
+//         }
+//     }
+//     print_to_csv();
 
     // Redirect cout back to screen
     cout.rdbuf(stream_buffer_cout);
