@@ -4,10 +4,10 @@
 <div align="center">
 
 <h2 align="center">Compiler for Java</h2>
-<h3 align="center">Milestone 1</h3>
+<!-- <h3 align="center">Milestone 1</h3> -->
 
   <p align="center">
-    Implemented a lexical analyzer and parser for Java language. 
+    Implementing Compiler for Java language. 
     <br />
     <br />
     <a href="https://github.com/Deepak-Sangle/CS335A-Compilers">View Demo</a>
