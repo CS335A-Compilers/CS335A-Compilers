@@ -6,19 +6,21 @@ EndFun
 
 main:
 2:    y = add_to_symtab()
-3:    x = add_to_symtab()
-4:    a = add_to_symtab()
-5:    f = add_to_symtab()
-6:    t0 = 6 < 7
-7:    y = t0  
-8:    t0 = 4 * 3
-9:    x = t0  
-10:    t0 = x == 12
-11:    if t0 == false goto 15
-12:    t1 = x  
-13:    t2 = x + 1
-14:    x = t2  
-15:    t2 = x  
-16:    t3 = x - 1
-17:    x = t3  
+3:    t0 =  cast_to_double 5
+4:    t1 = t0 + 5.65
+5:    x = add_to_symtab(t1)
+6:    a = add_to_symtab()
+7:    f = add_to_symtab()
+8:    t0 = 6 < 7
+9:    y = t0  
+10:    t0 = 4 * 3
+11:    x = t0  
+12:    t0 = x == 12
+13:    if t0 == false goto 17
+14:    t2 = x  
+15:    t3 = x + 1
+16:    x = t3  
+17:    t3 = x  
+18:    t4 = x - 1
+19:    x = t4  
 endFun
