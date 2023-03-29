@@ -1665,108 +1665,433 @@ return_statement
 //  ########   CLASSES   ########  
 
 class_declaration
-        :  normal_class_declaration                                                                                                                     {Node* node = createNode("class declaration"); node->addChildren({$1}); $$ = node;}
+        :  normal_class_declaration                                                                                                                     
+        {
+            Node* node = createNode("class declaration"); 
+            node->addChildren({$1}); 
+            $$ = node;
+        }
 
 normal_class_declaration
-        :  normal_class_declaration_statement class_body                                                                                                   {Node* node = createNode("normal_class_declaration"); ((LocalSymbolTable*)((global_symtab->symbol_tables)[$2->parent_level.first][$2->parent_level.second]))->level_node = (Node*)($1); node->addChildren({$1,$2}); $$ = node;}
+        :  normal_class_declaration_statement class_body                                                                                                   
+        {
+            Node* node = createNode("normal_class_declaration"); 
+            ((LocalSymbolTable*)((global_symtab->symbol_tables)[$2->parent_level.first][$2->parent_level.second]))->level_node = (Node*)($1); 
+            node->addChildren({$1,$2}); 
+            $$ = node;
+        }
 
 normal_class_declaration_statement
-        :  CLASS_KEYWORD IDENTIFIERS class_extends_zero_or_one                                                                                         {NormalClassDeclaration* node = new NormalClassDeclaration("normal class declaration statement", NULL, $2->lexeme); node->line_no = $1->line_no; node->entry_type = CLASS_DECLARATION; node->addChildren({$1,$2,$3}); get_local_symtab(global_symtab->current_level)->add_entry(node); $$ = node;}
-        |  modifiers_one_or_more CLASS_KEYWORD IDENTIFIERS class_extends_zero_or_one                                                                   {NormalClassDeclaration* node = new NormalClassDeclaration("normal class declaration statement", $1, $3->lexeme); node->line_no = $2->line_no; node->entry_type = CLASS_DECLARATION; node->addChildren({$1,$2,$3,$4}); get_local_symtab(global_symtab->current_level)->add_entry(node); $$ = node;}
+        :  CLASS_KEYWORD IDENTIFIERS class_extends_zero_or_one                                                                                         
+        {
+            NormalClassDeclaration* node = new NormalClassDeclaration("normal class declaration statement", NULL, $2->lexeme); 
+            node->line_no = $1->line_no; 
+            node->entry_type = CLASS_DECLARATION; 
+            node->addChildren({$1,$2,$3}); 
+            get_local_symtab(global_symtab->current_level)->add_entry(node); 
+            $$ = node;
+        }
+        |  modifiers_one_or_more CLASS_KEYWORD IDENTIFIERS class_extends_zero_or_one                                                                   
+        {
+            NormalClassDeclaration* node = new NormalClassDeclaration("normal class declaration statement", $1, $3->lexeme); 
+            node->line_no = $2->line_no; 
+            node->entry_type = CLASS_DECLARATION; 
+            node->addChildren({$1,$2,$3,$4}); 
+            get_local_symtab(global_symtab->current_level)->add_entry(node); 
+            $$ = node;
+        }
 
 class_extends_zero_or_one
-        :   /* empty */                                                                                                                                 {Node* node = createNode("class extends zero or one"); node->addChildren({}); $$ = node;}
-        |  class_extends                                                                                                                                {Node* node = createNode("class extends zero or one"); node->addChildren({$1}); $$ = node;}
+        :   /* empty */                                                                                                                                 
+        {
+            Node* node = createNode("class extends zero or one"); 
+            node->addChildren({});
+            $$ = node;
+        }
+        |  class_extends                                                                                                                                
+        {
+            Node* node = createNode("class extends zero or one"); 
+            node->addChildren({$1}); 
+            $$ = node;
+        }
 
 class_extends
-        :  EXTENDS_KEYWORD IDENTIFIERS                                                                                                                   {Node* node = createNode("class extends"); node->addChildren({$1,$2}); $$ = node;}
+        :  EXTENDS_KEYWORD IDENTIFIERS                                                                                                                   
+        {
+            Node* node = createNode("class extends"); 
+            node->addChildren({$1,$2}); 
+            $$ = node;
+        }
 
 class_body
-        :  OP_CURLY_BRCKT class_body_declaration_zero_or_more CLOSE_CURLY_BRCKT                                                                         {Node* node = createNode("class body"); node->addChildren({$1,$2,$3}); node->parent_level = $1->parent_level; $$ = node;}
+        :  OP_CURLY_BRCKT class_body_declaration_zero_or_more CLOSE_CURLY_BRCKT                                                                         
+        {
+            Node* node = createNode("class body"); 
+            node->addChildren({$1,$2,$3}); 
+            node->parent_level = $1->parent_level; 
+            $$ = node;
+        }
 
 class_body_declaration_zero_or_more
-        :   /* empty */                                                                                                                                 {Node* node = createNode("class body declaration zero or more"); node->addChildren({}); $$ = node;}
-        |  class_body_declaration class_body_declaration_zero_or_more                                                                                   {Node* node = createNode("class body declaration zero or more"); node->addChildren({$1,$2}); $$ = node;}
+        :   /* empty */                                                                                                                                 
+        {
+            Node* node = createNode("class body declaration zero or more"); 
+            node->addChildren({}); 
+            $$ = node;
+        }
+        |  class_body_declaration class_body_declaration_zero_or_more                                                                                   
+        {
+            Node* node = createNode("class body declaration zero or more"); 
+            node->addChildren({$1,$2}); 
+            $$ = node;
+        }
 
 class_body_declaration
-        :  constructor_declaration                                                                                                                      {Node* node = createNode("class body declaration"); node->addChildren({$1}); $$ = node;}
-        |  block                                                                                                                                        {Node* node = createNode("class body declaration"); node->addChildren({$1}); $$ = node;}
-        |  static_initializer                                                                                                                           {Node* node = createNode("class body declaration"); node->addChildren({$1}); $$ = node;}
-        |  field_declaration                                                                                                                            {Node* node = createNode("class body declaration"); node->addChildren({$1}); $$ = node;}
-        |  method_declaration                                                                                                                           {Node* node = createNode("class body declaration"); node->addChildren({$1}); $$ = node;}              
-        |  SEMICOLON_OP                                                                                                                                 {Node* node = createNode("class body declaration"); node->addChildren({$1}); $$ = node;}
+        :  constructor_declaration                                                                                                                      
+        {
+            Node* node = createNode("class body declaration"); 
+            node->addChildren({$1}); 
+            $$ = node;
+        }
+        |  block                                                                                                                                        
+        {
+            Node* node = createNode("class body declaration"); 
+            node->addChildren({$1}); 
+            $$ = node;
+        }
+        |  static_initializer                                                                                                                           
+        {
+            Node* node = createNode("class body declaration"); 
+            node->addChildren({$1}); 
+            $$ = node;
+        }
+        |  field_declaration                                                                                                                            
+        {
+            Node* node = createNode("class body declaration"); 
+            node->addChildren({$1}); 
+            $$ = node;
+        }
+        |  method_declaration                                                                                                                           
+        {
+            Node* node = createNode("class body declaration"); 
+            node->addChildren({$1}); 
+            $$ = node;
+        }             
+        |  SEMICOLON_OP                                                                                                                                 
+        {
+            Node* node = createNode("class body declaration"); 
+            node->addChildren({$1}); 
+            $$ = node;
+        }
 
 field_declaration
-        :  unann_type variable_declarator_list SEMICOLON_OP                                                                                            {Node* node = createNode("field declaration"); if(!addVariablesToSymtab($1, $2, global_symtab->current_level, NULL, true)) YYERROR;  node->addChildren({$1,$2,$3});  node->name = createTAC($2); $$ = node;}
-        |  modifiers_one_or_more unann_type variable_declarator_list SEMICOLON_OP                                                                      {Node* node = createNode("field declaration"); if(!addVariablesToSymtab($2, $3, global_symtab->current_level, $1, true)) YYERROR;  node->addChildren({$1,$2,$3,$4}); node->name = createTAC($3); $$ = node;}
+        :  unann_type variable_declarator_list SEMICOLON_OP                                                                                            
+        {
+            Node* node = createNode("field declaration"); 
+            if(!addVariablesToSymtab($1, $2, global_symtab->current_level, NULL, true)) 
+                YYERROR;  
+            node->addChildren({$1,$2,$3});  
+            node->name = createTAC($2); 
+            $$ = node;
+        }
+        |  modifiers_one_or_more unann_type variable_declarator_list SEMICOLON_OP                                                                      
+        {
+            Node* node = createNode("field declaration"); i
+            f(!addVariablesToSymtab($2, $3, global_symtab->current_level, $1, true)) 
+                YYERROR;  
+            node->addChildren({$1,$2,$3,$4}); 
+            node->name = createTAC($3); 
+            $$ = node;
+        }
 
 variable_declarator_list
-        :  variable_declarator comma_variable_declarator_zero_or_more                                                                                   {VariableDeclaratorList* node = new VariableDeclaratorList("variable declarator list", $1, $2->lists); node->addChildren({$1,$2}); $$ = node;}
+        :  variable_declarator comma_variable_declarator_zero_or_more                                                                                   
+        {
+            VariableDeclaratorList* node = new VariableDeclaratorList("variable declarator list", $1, $2->lists); 
+            node->addChildren({$1,$2}); 
+            $$ = node;
+        }
 
 comma_variable_declarator_zero_or_more
-        :  /* empty */                                                                                                                                  {VariableDeclaratorList* node = new VariableDeclaratorList("comma variable declarator zero or more", NULL, {}); node->addChildren({}); $$ = node;}
-        |  comma_variable_declarator_zero_or_more COMMA_OP variable_declarator                                                                          {VariableDeclaratorList* node = new VariableDeclaratorList("comma variable declarator zero or more", $3, $1->lists); node->addChildren({$1,$2,$3}); $$ = node;}
+        :  /* empty */                                                                                                                                  
+        {
+            VariableDeclaratorList* node = new VariableDeclaratorList("comma variable declarator zero or more", NULL, {}); 
+            node->addChildren({}); 
+            $$ = node;
+        }
+        |  comma_variable_declarator_zero_or_more COMMA_OP variable_declarator                                                                          
+        {
+            VariableDeclaratorList* node = new VariableDeclaratorList("comma variable declarator zero or more", $3, $1->lists); 
+            node->addChildren({$1,$2,$3}); 
+            $$ = node;
+        }
 
 variable_declarator
-        :  variable_declarator_id                                                                                                                       {VariableDeclaratorId* node = new VariableDeclaratorId("variable_declarator", $1->identifier, $1->num_of_dims, NULL);      node->entry_type = VARIABLE_DECLARATION; node->lex_val = ""; node->addChildren({$1}); $$ = node;}
-        |  variable_declarator_id ASSIGNMENT_OP variable_initializer                                                                                    {VariableDeclaratorId* node = new VariableDeclaratorId("variable_declarator", $1->identifier, $1->num_of_dims, $3->value); node->entry_type = VARIABLE_DECLARATION; node->lex_val = $3->primary_exp_val; node->addChildren({$1,$2,$3}); $$ = node;}
+        :  variable_declarator_id                                                                                                                       
+        {
+            VariableDeclaratorId* node = new VariableDeclaratorId("variable_declarator", $1->identifier, $1->num_of_dims, NULL);      
+            node->entry_type = VARIABLE_DECLARATION; 
+            node->lex_val = ""; node->addChildren({$1}); 
+            $$ = node;
+        }
+        |  variable_declarator_id ASSIGNMENT_OP variable_initializer                                                                                    
+        {
+            VariableDeclaratorId* node = new VariableDeclaratorId("variable_declarator", $1->identifier, $1->num_of_dims, $3->value); 
+            node->entry_type = VARIABLE_DECLARATION; 
+            node->lex_val = $3->primary_exp_val; 
+            node->addChildren({$1,$2,$3}); 
+            $$ = node;
+        }
 
 variable_declarator_id
-        :  IDENTIFIERS dims_zero_or_one                                                                                                                 {VariableDeclaratorId* node = new VariableDeclaratorId("variable declarator id", $1->lexeme, $2->count_dims, NULL); node->addChildren({$1,$2}); $$ = node;}
+        :  IDENTIFIERS dims_zero_or_one                                                                                                                 
+        {
+            VariableDeclaratorId* node = new VariableDeclaratorId("variable declarator id", $1->lexeme, $2->count_dims, NULL); 
+            node->addChildren({$1,$2}); 
+            $$ = node;
+        }
 
 unann_type
-        :  primitive_type                                                                                                                               {Type* node = new Type("unann type", $1->primitivetypeIndex); node->addChildren({$1}); $$ = node;}
-        |  type_name                                                                                                                                    {Type* node = new Type("unann type", -1); Node* temp = get_local_symtab(global_symtab->current_level)->get_entry($1->identifiers[0], 1); if(temp==NULL) YYERROR; node->class_instantiated_from = (NormalClassDeclaration*)(temp); node->addChildren({$1}); $$ = node;}
+        :  primitive_type                                                                                                                               
+        {
+            Type* node = new Type("unann type", $1->primitivetypeIndex); 
+            node->addChildren({$1}); 
+            $$ = node;
+        }
+        |  type_name                                                                                                                                    
+        {
+            Type* node = new Type("unann type", -1); 
+            Node* temp = get_local_symtab(global_symtab->current_level)->get_entry($1->identifiers[0], 1); 
+            if(temp==NULL) 
+                YYERROR; 
+            node->class_instantiated_from = (NormalClassDeclaration*)(temp); 
+            node->addChildren({$1}); 
+            $$ = node;
+        }
 
 method_declaration
-        :  method_header block                                                                                                                          {MethodDeclaration* node = new MethodDeclaration("method_declaration"); node->line_no = $1->line_no; node->name = $1->name; node->formal_parameter_list = $1->formal_parameter_list; node->type = $1->type; node->modifiers = NULL; node->addChildren({$1,$2});  node->entry_type = METHOD_DECLARATION; get_local_symtab(global_symtab->current_level)->add_entry(node); ((LocalSymbolTable*)((global_symtab->symbol_tables)[$2->parent_level.first][$2->parent_level.second]))->level_node = (Node*)(node); $$ = node;}
-        |  modifiers_one_or_more method_header SEMICOLON_OP                                                                                             {MethodDeclaration* node = new MethodDeclaration("method_declaration"); node->line_no = $2->line_no; node->name = $2->name; node->formal_parameter_list = $2->formal_parameter_list; node->type = $2->type; node->modifiers = $1; node->addChildren({$1,$2,$3}); node->entry_type = METHOD_DECLARATION; get_local_symtab(global_symtab->current_level)->add_entry(node); $$ = node;}
-        |  modifiers_one_or_more method_header block                                                                                                    {MethodDeclaration* node = new MethodDeclaration("method_declaration"); node->line_no = $2->line_no; node->name = $2->name; node->formal_parameter_list = $2->formal_parameter_list; node->type = $2->type; node->modifiers = $1; node->addChildren({$1,$2,$3}); node->entry_type = METHOD_DECLARATION; get_local_symtab(global_symtab->current_level)->add_entry(node); ((LocalSymbolTable*)((global_symtab->symbol_tables)[$3->parent_level.first][$3->parent_level.second]))->level_node = (Node*)(node); $$ = node;}
-        |   method_header SEMICOLON_OP                                                                                                                  {MethodDeclaration* node = new MethodDeclaration("method_declaration"); node->line_no = $1->line_no; node->name = $1->name; node->formal_parameter_list = $1->formal_parameter_list; node->type = $1->type; node->modifiers = NULL; node->addChildren({$1,$2});  node->entry_type = METHOD_DECLARATION; get_local_symtab(global_symtab->current_level)->add_entry(node); $$ = node;}
+        :  method_header block                                                                                                                          
+        {
+            MethodDeclaration* node = new MethodDeclaration("method_declaration"); 
+            node->line_no = $1->line_no; 
+            node->name = $1->name; 
+            node->formal_parameter_list = $1->formal_parameter_list; 
+            node->type = $1->type; 
+            node->modifiers = NULL; 
+            node->addChildren({$1,$2});  
+            node->entry_type = METHOD_DECLARATION; 
+            get_local_symtab(global_symtab->current_level)->add_entry(node); 
+            ((LocalSymbolTable*)((global_symtab->symbol_tables)[$2->parent_level.first][$2->parent_level.second]))->level_node = (Node*)(node); 
+            $$ = node;
+        }
+        |  modifiers_one_or_more method_header SEMICOLON_OP                                                                                             
+        {
+            MethodDeclaration* node = new MethodDeclaration("method_declaration"); 
+            node->line_no = $2->line_no; 
+            node->name = $2->name; 
+            node->formal_parameter_list = $2->formal_parameter_list; 
+            node->type = $2->type; 
+            node->modifiers = $1; 
+            node->addChildren({$1,$2,$3}); 
+            node->entry_type = METHOD_DECLARATION; 
+            get_local_symtab(global_symtab->current_level)->add_entry(node); 
+            $$ = node;
+        }
+        |  modifiers_one_or_more method_header block                                                                                                    
+        {
+            MethodDeclaration* node = new MethodDeclaration("method_declaration"); 
+            node->line_no = $2->line_no; 
+            node->name = $2->name; 
+            node->formal_parameter_list = $2->formal_parameter_list; 
+            node->type = $2->type; 
+            node->modifiers = $1; 
+            node->addChildren({$1,$2,$3}); 
+            node->entry_type = METHOD_DECLARATION; 
+            get_local_symtab(global_symtab->current_level)->add_entry(node); 
+            ((LocalSymbolTable*)((global_symtab->symbol_tables)[$3->parent_level.first][$3->parent_level.second]))->level_node = (Node*)(node); 
+            $$ = node;
+        }
+        |  method_header SEMICOLON_OP                                                                                                                  
+        {
+            MethodDeclaration* node = new MethodDeclaration("method_declaration"); 
+            node->line_no = $1->line_no; 
+            node->name = $1->name; 
+            node->formal_parameter_list = $1->formal_parameter_list; 
+            node->type = $1->type; 
+            node->modifiers = NULL; 
+            node->addChildren({$1,$2});  
+            node->entry_type = METHOD_DECLARATION; 
+            get_local_symtab(global_symtab->current_level)->add_entry(node); 
+            $$ = node;
+        }
 
 method_header
-        :  unann_type method_declarator                                                                                                                 {MethodDeclaration* node = new MethodDeclaration("method_header"); node->name = $2->name; node->formal_parameter_list = $2->formal_parameter_list; node->type = $1;  node->addChildren({$1,$2}); $$ = node;}
-        |  VOID_KEYWORD method_declarator                                                                                                               {Type* t = new Type("result", VOID); MethodDeclaration* node = new MethodDeclaration("method_header"); node->name = $2->name; node->formal_parameter_list = $2->formal_parameter_list; node->type = t; node->addChildren({$1,$2}); $$ = node;}
+        :  unann_type method_declarator                                                                                                                 
+        {
+            MethodDeclaration* node = new MethodDeclaration("method_header"); 
+            node->name = $2->name; 
+            node->formal_parameter_list = $2->formal_parameter_list; 
+            node->type = $1;  
+            node->addChildren({$1,$2}); 
+            $$ = node;
+        }
+        |  VOID_KEYWORD method_declarator                                                                                                               
+        {
+            Type* t = new Type("result", VOID); 
+            MethodDeclaration* node = new MethodDeclaration("method_header"); 
+            node->name = $2->name; 
+            node->formal_parameter_list = $2->formal_parameter_list; 
+            node->type = t; 
+            node->addChildren({$1,$2}); 
+            $$ = node;
+        }
 
 method_declarator
-        :  IDENTIFIERS OP_BRCKT formal_parameter_list_zero_or_one CLOSE_BRCKT dims_zero_or_one                                                          {MethodDeclaration* node = new MethodDeclaration("method declarator"); node->name = $1->lexeme; node->formal_parameter_list = $3; node->addChildren({$1,$2,$3,$4,$5}); $$ = node;}
-        // |  IDENTIFIERS OP_BRCKT reciever_parameter COMMA_OP formal_parameter_list_zero_or_one CLOSE_BRCKT dims_zero_or_one                              {Node* node = createNode("method declarator"); node->addChildren({$1,$2,$3,$4,$5,$6,$7}); $$ = node;}
+        :  IDENTIFIERS OP_BRCKT formal_parameter_list_zero_or_one CLOSE_BRCKT dims_zero_or_one                                                          
+        {
+            MethodDeclaration* node = new MethodDeclaration("method declarator"); 
+            node->name = $1->lexeme; 
+            node->formal_parameter_list = $3; 
+            node->addChildren({$1,$2,$3,$4,$5}); 
+            $$ = node;
+        }
+     // |  IDENTIFIERS OP_BRCKT reciever_parameter COMMA_OP formal_parameter_list_zero_or_one CLOSE_BRCKT dims_zero_or_one                              {Node* node = createNode("method declarator"); node->addChildren({$1,$2,$3,$4,$5,$6,$7}); $$ = node;}
 
 formal_parameter_list_zero_or_one
-        :   /* empty */                                                                                                                                 {FormalParameterList* node = new FormalParameterList("formal parameter list zero or one", NULL, {}); node->addChildren({}); $$ = node;}
-        |  formal_parameter_list                                                                                                                        {FormalParameterList* node = new FormalParameterList("formal parameter list zero or one", NULL, $1->lists); node->addChildren({$1}); $$ = node;}
+        :   /* empty */                                                                                                                                 
+        {
+            FormalParameterList* node = new FormalParameterList("formal parameter list zero or one", NULL, {}); 
+            node->addChildren({}); 
+            $$ = node;
+        }
+        |  formal_parameter_list                                                                                                                        
+        {
+            FormalParameterList* node = new FormalParameterList("formal parameter list zero or one", NULL, $1->lists); 
+            node->addChildren({$1}); 
+            $$ = node;
+        }
 
 formal_parameter_list
-        :  formal_parameter                                                                                                                             {FormalParameterList* node = new FormalParameterList("formal parameter list", $1, {}); node->addChildren({$1}); $$ = node;}
-        |  formal_parameter COMMA_OP formal_parameter_list                                                                                              {FormalParameterList* node = new FormalParameterList("formal parameter list", $1, $3->lists); node->addChildren({$1,$2,$3}); $$ = node;}
+        :  formal_parameter                                                                                                                             
+        {
+            FormalParameterList* node = new FormalParameterList("formal parameter list", $1, {}); 
+            node->addChildren({$1}); 
+            $$ = node;
+        }
+        |  formal_parameter COMMA_OP formal_parameter_list                                                                                              
+        {
+            FormalParameterList* node = new FormalParameterList("formal parameter list", $1, $3->lists); 
+            node->addChildren({$1,$2,$3}); 
+            $$ = node;
+        }
 
 formal_parameter
-        :  unann_type variable_declarator_id                                                                                                            {FormalParameter* node = new FormalParameter("formal parameter", $1, $2, false); node->addChildren({$1,$2}); $$ = node;}
-        |  FINAL_KEYWORD unann_type variable_declarator_id                                                                                              {FormalParameter* node = new FormalParameter("formal parameter", $2, $3, true); node->addChildren({$1,$2,$3}); $$ = node;}
+        :  unann_type variable_declarator_id                                                                                                            
+        {
+            FormalParameter* node = new FormalParameter("formal parameter", $1, $2, false); 
+            node->addChildren({$1,$2}); 
+            $$ = node;
+        }
+        |  FINAL_KEYWORD unann_type variable_declarator_id                                                                                              
+        {
+            FormalParameter* node = new FormalParameter("formal parameter", $2, $3, true); 
+            node->addChildren({$1,$2,$3}); 
+            $$ = node;
+        }
 
 static_initializer
-        :  STATIC_KEYWORD block                                                                                                                         {Node* node = createNode("static initializer"); node->addChildren({$1,$2}); $$ = node;}
+        :  STATIC_KEYWORD block                                                                                                                         
+        {Node* node = createNode("static initializer"); node->addChildren({$1,$2}); $$ = node;}
 
 constructor_declaration
-        :  constructor_declarator constructor_body                                                                                                      {MethodDeclaration* node = new MethodDeclaration("constructor_declaration"); node->name = $1->name; node->formal_parameter_list = $1->formal_parameter_list; node->modifiers = NULL; node->entry_type = METHOD_DECLARATION; node->isConstructor = true; node->addChildren({$1,$2}); get_local_symtab(global_symtab->current_level)->add_entry(node); $$ = node;}
-        |  modifiers_one_or_more constructor_declarator constructor_body                                                                                {MethodDeclaration* node = new MethodDeclaration("constructor_declaration"); node->name = $2->name; node->formal_parameter_list = $2->formal_parameter_list; node->modifiers = $1; node->entry_type = METHOD_DECLARATION; node->isConstructor = true; node->addChildren({$1,$2,$3}); get_local_symtab(global_symtab->current_level)->add_entry(node); $$ = node;}
+        :  constructor_declarator constructor_body                                                                                                      
+        {
+            MethodDeclaration* node = new MethodDeclaration("constructor_declaration"); 
+            node->name = $1->name; 
+            node->formal_parameter_list = $1->formal_parameter_list; 
+            node->modifiers = NULL; 
+            node->entry_type = METHOD_DECLARATION; 
+            node->isConstructor = true; 
+            node->addChildren({$1,$2}); 
+            get_local_symtab(global_symtab->current_level)->add_entry(node); 
+            $$ = node;
+        }
+        |  modifiers_one_or_more constructor_declarator constructor_body                                                                                
+        {
+            MethodDeclaration* node = new MethodDeclaration("constructor_declaration"); 
+            node->name = $2->name; 
+            node->formal_parameter_list = $2->formal_parameter_list; 
+            node->modifiers = $1; 
+            node->entry_type = METHOD_DECLARATION; 
+            node->isConstructor = true; 
+            node->addChildren({$1,$2,$3}); 
+            get_local_symtab(global_symtab->current_level)->add_entry(node);
+            $$ = node;
+        }
 
 constructor_declarator
-        :  IDENTIFIERS OP_BRCKT formal_parameter_list_zero_or_one CLOSE_BRCKT                                                                           {MethodDeclaration* node = new MethodDeclaration("constructor declarator"); node->name = $1->lexeme; node->formal_parameter_list = $3;  node->addChildren({$1,$2,$3,$4}); $$ = node;}
+        :  IDENTIFIERS OP_BRCKT formal_parameter_list_zero_or_one CLOSE_BRCKT                                                                           
+        {
+            MethodDeclaration* node = new MethodDeclaration("constructor declarator"); 
+            node->name = $1->lexeme; 
+            node->formal_parameter_list = $3;  
+            node->addChildren({$1,$2,$3,$4}); 
+            $$ = node;
+        }
 
 constructor_body
-        :  OP_CURLY_BRCKT explicit_constructor_invocation CLOSE_CURLY_BRCKT                                                                             {Node* node = createNode("constructor body"); node->addChildren({$1,$2,$3}); $$ = node;}
-        |  OP_CURLY_BRCKT block_statements CLOSE_CURLY_BRCKT                                                                                            {Node* node = createNode("constructor body"); node->addChildren({$1,$2,$3}); $$ = node;}
-        |  OP_CURLY_BRCKT explicit_constructor_invocation block_statements CLOSE_CURLY_BRCKT                                                            {Node* node = createNode("constructor body"); node->addChildren({$1,$2,$3,$4}); $$ = node;}
-        |  OP_CURLY_BRCKT CLOSE_CURLY_BRCKT                                                                                                             {Node* node = createNode("constructor body"); node->addChildren({$1,$2}); $$ = node;}
+        :  OP_CURLY_BRCKT explicit_constructor_invocation CLOSE_CURLY_BRCKT                                                                             
+        {
+            Node* node = createNode("constructor body"); 
+            node->addChildren({$1,$2,$3}); 
+            $$ = node;
+        }
+        |  OP_CURLY_BRCKT block_statements CLOSE_CURLY_BRCKT                                                                                            
+        {
+            Node* node = createNode("constructor body"); 
+            node->addChildren({$1,$2,$3}); 
+            $$ = node;
+        }
+        |  OP_CURLY_BRCKT explicit_constructor_invocation block_statements CLOSE_CURLY_BRCKT                                                            
+        {
+            Node* node = createNode("constructor body"); 
+            node->addChildren({$1,$2,$3,$4}); 
+            $$ = node;
+        }
+        |  OP_CURLY_BRCKT CLOSE_CURLY_BRCKT                                                                                                             
+        {
+            Node* node = createNode("constructor body"); 
+            node->addChildren({$1,$2}); 
+            $$ = node;
+        }
 
 explicit_constructor_invocation
-        :  THIS_KEYWORD OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT SEMICOLON_OP                                                                     {Node* node = createNode("explicit constructor invocation"); node->addChildren({$1,$2,$3,$4,$5}); $$ = node;}
-        |  SUPER_KEYWORD OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT SEMICOLON_OP                                                                    {Node* node = createNode("explicit constructor invocation"); node->addChildren({$1,$2,$3,$4,$5}); $$ = node;}
+        :  THIS_KEYWORD OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT SEMICOLON_OP                                                                     
+        {
+            Node* node = createNode("explicit constructor invocation"); 
+            node->addChildren({$1,$2,$3,$4,$5}); 
+            $$ = node;
+        }
+        |  SUPER_KEYWORD OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT SEMICOLON_OP                                                                    
+        {
+            Node* node = createNode("explicit constructor invocation"); 
+            node->addChildren({$1,$2,$3,$4,$5}); 
+            $$ = node;
+        }
 
 argument_list_zero_or_one
-        :   /* empty */                                                                                                                                 {ExpressionList* node = new ExpressionList("argument list zero or one", NULL, {}); node->addChildren({}); $$ = node;} 
-        |  argument_list                                                                                                                                {ExpressionList* node = new ExpressionList("argument list zero or one", NULL, $1->lists); node->addChildren({$1}); $$ = node;}
+        :   /* empty */                                                                                                                                 
+        {
+            ExpressionList* node = new ExpressionList("argument list zero or one", NULL, {}); 
+            node->addChildren({}); 
+            $$ = node;
+        } 
+        |  argument_list                                                                                                                                
+        {
+            ExpressionList* node = new ExpressionList("argument list zero or one", NULL, $1->lists); 
+            node->addChildren({$1}); 
+            $$ = node;
+        }
 
 // TERMINALS 
 
