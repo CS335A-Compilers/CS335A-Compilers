@@ -1,0 +1,26 @@
+
+fivepointfive:
+0:    return 5.5
+1:    x = add_to_symtab(0)
+EndFun
+
+main:
+2:    y = add_to_symtab()
+3:    x = add_to_symtab(5)
+4:    a = add_to_symtab()
+5:    f = add_to_symtab()
+6:    t0 = 4 * 3
+7:    x = t0  
+8:    t0 = x == 12
+9:    if t0 == false goto 17
+10:    t1 = x  
+11:    t2 = x + 1
+12:    x = t2  
+13:    y = t1  
+14:    t1 = x + 1
+15:    x = t1  
+16:    y = t1  
+17:    t1 = x  
+18:    t2 = x - 1
+19:    x = t2  
+endFun

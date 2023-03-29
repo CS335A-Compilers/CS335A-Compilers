@@ -6,15 +6,16 @@ class test {
     }
     int x = 0;
     public void main(){
-        boolean y ;
+        int y ;
         // double x = 55 + 6.5;
-        double x = 5 + 5.65;
+        int x = 5;
         double a, f;
-        y = 6 < 7;
+        // y = (int)(6 < 7);
         x = 4 * 3;
         if (x == 12)
         {
-            x++;
+            y = x++;
+            y = ++x;
         }
         x--;
     }

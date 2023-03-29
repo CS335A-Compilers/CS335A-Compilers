@@ -56,9 +56,9 @@
 %type<node> EQ_OP GE_OP  LE_OP  NE_OP  AND_OP  OR_OP  INC_OP  DEC_OP  LEFT_OP  RIGHT_OP  BIT_RIGHT_SHFT_OP ADD_ASSIGN  SUB_ASSIGN  MUL_ASSIGN  DIV_ASSIGN  AND_ASSIGN  OR_ASSIGN  XOR_ASSIGN  MOD_ASSIGN  LEFT_ASSIGN  RIGHT_ASSIGN  BIT_RIGHT_SHFT_ASSIGN
 %type<node> IDENTIFIERS
 
-%type<node> expression_statement normal_class_declaration_statement array_access assignment_operators basic_for_statement basic_for_statement_no_short_if block block_statement block_statements block_statements_zero_or_more block_statements_zero_or_one break_statement class_body class_body_declaration class_body_declaration_zero_or_more class_body_zero_or_one class_declaration class_extends class_extends_zero_or_one compilation_unit constructor_body continue_statement dim_expr dim_exprs empty_statement explicit_constructor_invocation field_declaration for_init for_init_zero_or_one for_statement for_statement_no_short_if for_update for_update_zero_or_one identifier_zero_or_one if_then_else_statement if_then_else_statement_no_short_if if_then_statement labeled_statement labeled_statement_no_short_if local_class_or_interface_declaration local_variable_declaration local_variable_declaration_statement normal_class_declaration ordinary_compilation_unit return_statement start_state statement  statement_no_short_if statement_without_trailing_substatement static_initializer top_level_class_or_interface_declaration top_level_class_or_interface_declaration_zero_or_more while_statement while_statement_no_short_if
+%type<node> expression_statement normal_class_declaration_statement array_access assignment_operators basic_for_statement basic_for_statement_no_short_if block block_statement block_statements block_statements_zero_or_more block_statements_zero_or_one break_statement class_body class_body_declaration class_body_declaration_zero_or_more class_body_zero_or_one class_declaration class_extends class_extends_zero_or_one compilation_unit constructor_body continue_statement empty_statement explicit_constructor_invocation field_declaration for_init for_init_zero_or_one for_statement for_statement_no_short_if for_update for_update_zero_or_one identifier_zero_or_one if_then_else_statement if_then_else_statement_no_short_if if_then_statement labeled_statement labeled_statement_no_short_if local_class_or_interface_declaration local_variable_declaration local_variable_declaration_statement normal_class_declaration ordinary_compilation_unit return_statement start_state statement  statement_no_short_if statement_without_trailing_substatement static_initializer top_level_class_or_interface_declaration top_level_class_or_interface_declaration_zero_or_more while_statement while_statement_no_short_if
 %type<expression> array_creation_expression assignment LITERALS class_instance_creation_expression additive_expression and_expression assignment_expression unary_expression unary_expression_not_plus_minus statement_expression conditional_and_expression conditional_or_expression condtional_expression equality_expression exclusive_or_expression expression expression_zero_or_one inclusive_or_expression multiplicative_expression post_decrement_expression post_increment_expression postfix_expression pre_decrement_expression pre_increment_expression primary primary_no_new_array relational_expression shift_expression variable_initializer field_access method_invocation
-%type<expression_list> argument_list statement_expression_list argument_list_zero_or_one comma_expression_zero_or_more comma_statement_expression_zero_or_more variable_initializer_list_zero_or_more variable_initializer_list
+%type<expression_list> argument_list statement_expression_list argument_list_zero_or_one comma_expression_zero_or_more comma_statement_expression_zero_or_more
 %type<formal_parameter> formal_parameter 
 %type<formal_parameter_list> formal_parameter_list formal_parameter_list_zero_or_one
 %type<modifier_list> modifiers_one_or_more
@@ -80,7 +80,7 @@ start_state
                 $$ = $1; 
                 create3ACCode($$, true); 
                 cout<<"endFun\n"; 
-                createAST($$, output_file);
+                // createAST($$, output_file);
             }
 
 compilation_unit
@@ -180,8 +180,6 @@ primary_no_new_array
      //     |   class_literal                                                                                                                   {Node* node = createNode("primary no new array"); node->addChildren({$1}); $$ = node;}
 
 
-
-// #############  Assign proper value to field access modifier  ##############
 
 field_access
             :   IDENTIFIERS DOT_OP type_name_scoping                                                                                            
@@ -754,7 +752,7 @@ class_instance_creation_expression
                 $$ = node;
             }
 
-// ##############  class_body is ignored for time being  ##################
+// ##############  class_body is ignored for time being  ##############
 
 class_body_zero_or_one
             :   /* empty */                                                                                                                             
@@ -897,9 +895,6 @@ array_creation_expression
                 node->addChildren({$1,$2,$3,$4,$5}); 
                 $$ = node;
             }           
-     //     |   NEW_KEYWORD primitive_type dims array_initializer                                                                                       {Node* node = createNode("array creation expression"); node->addChildren({$1,$2,$3,$4}); $$ = node;}           
-     //     |   NEW_KEYWORD type_name dim_expr dim_exprs dims_zero_or_one                                                                              {Node* node = createNode("array creation expression"); node->addChildren({$1,$2,$3,$4,$5}); $$ = node;}           
-     //     |   NEW_KEYWORD type_name dims array_initializer                                                                                           {Node* node = createNode("array creation expression"); node->addChildren({$1,$2,$3,$4}); $$ = node;}           
 
 dims_zero_or_one
             :   /* empty */                                                                                                                             
@@ -914,28 +909,6 @@ dims_zero_or_one
                 node->addChildren({$1}); 
                 $$ = node;
             }           
-
-dim_exprs
-            :   /* empty */                                                                                                                             
-            {
-                Node* node = createNode("dim exprs"); 
-                node->addChildren({}); 
-                $$ = node;
-            }           
-            |   dim_exprs dim_expr                                                                                                                      
-            {
-                Node* node = createNode("dim exprs"); 
-                node->addChildren({$1,$2}); 
-                $$ = node;
-            }           
-
-dim_expr    
-            :  OP_SQR_BRCKT expression CLOSE_SQR_BRCKT                                                                                                  
-            {
-                Node* node = createNode("dim expr"); 
-                node->addChildren({$1,$2,$3}); 
-                $$ = node;
-            }
 
 dims
             :   OP_SQR_BRCKT CLOSE_SQR_BRCKT                                                                                                            
@@ -1009,37 +982,6 @@ numeric_type
                 $$ = node;
             }
 
-// array_initializer
-//             :   OP_CURLY_BRCKT variable_initializer_list_zero_or_more CLOSE_CURLY_BRCKT                                                                 {Node* node = createNode("array initializer"); node->addChildren({$1,$2,$3}); $$ = node;}
-
-variable_initializer_list_zero_or_more
-            :   /* empty */                                                                                                                             
-            {
-                ExpressionList* node = new ExpressionList("variable initializer list zero or more", NULL, {}); 
-                node->addChildren({}); 
-                $$ = node;
-            }
-            |   variable_initializer_list                                                                                                               
-            {
-                ExpressionList* node = new ExpressionList("variable initializer list zero or more", NULL, $1->lists); 
-                node->addChildren({$1}); 
-                $$ = node;
-            }
-
-variable_initializer_list
-            :   variable_initializer                                                                                                                    
-            {
-                ExpressionList* node = new ExpressionList("variable initializer list", $1, {}); 
-                node->addChildren({$1}); 
-                $$ = node;
-            }
-            |   variable_initializer COMMA_OP variable_initializer_list                                                                                 
-            {
-                ExpressionList* node = new ExpressionList("variable initializer list", $1, $3->lists); 
-                node->addChildren({$1,$2,$3}); 
-                $$ = node;
-            }
-
 variable_initializer
             :   expression                                                                                                                              
             {
@@ -1047,7 +989,6 @@ variable_initializer
                 node->addChildren({$1}); 
                 $$ = node;
             }
-     //     |   array_initializer                                                                                                                    {Expression* node = grammar_1("variable initializer", $1, $1->isPrimary, $1->isLiteral); node->addChildren({$1}); $$ = node;}
 
 type_name
             :   type_name_scoping                                                                                                                       
@@ -1072,8 +1013,6 @@ type_name_scoping
                 node->addChildren({$1,$2,$3}); 
                 $$ = node;
             }
-
-// ########   MODIFIERS   ########  
 
 modifiers
             :   PUBLIC_KEYWORD                                                                                                                          
@@ -1106,15 +1045,12 @@ modifiers
                 node->addChildren({$1}); 
                 $$ = node;
             }
-     //     |   SEALED_KEYWORD                                                                                                                          {Modifier* node = new Modifier(SEALED, "modifiers"); node->addChildren({$1}); $$ = node;}
-     //     |   NONSEALED_KEYWORD                                                                                                                       {Modifier* node = new Modifier(NONSEALED, "modifiers"); node->addChildren({$1}); $$ = node;}
             |   STRICTFP_KEYWORD                                                                                                                        
             {
                 Modifier* node = new Modifier(STRICTFP, "modifiers"); 
                 node->addChildren({$1}); 
                 $$ = node;
             }
-     //     |   TRANSITIVE_KEYWORD                                                                                                                      {Modifier* node = new Modifier(TRANSITIVE, "modifiers"); node->addChildren({$1}); $$ = node;}
             |   FINAL_KEYWORD                                                                                                                           
             {
                 Modifier* node = new Modifier(FINAL, "modifiers"); 
@@ -1796,8 +1732,8 @@ field_declaration
         }
         |  modifiers_one_or_more unann_type variable_declarator_list SEMICOLON_OP                                                                      
         {
-            Node* node = createNode("field declaration"); i
-            f(!addVariablesToSymtab($2, $3, global_symtab->current_level, $1, true)) 
+            Node* node = createNode("field declaration");
+            if(!addVariablesToSymtab($2, $3, global_symtab->current_level, $1, true)) 
                 YYERROR;  
             node->addChildren({$1,$2,$3,$4}); 
             node->name = createTAC($3); 
@@ -2762,235 +2698,20 @@ LITERALS
 
 %%
 
-string filename;
-map<string, vector<string>> csv_contents;
-/*temp->value->is_char_val = true;*/
-// use the 'fprintf' function to print the lexeme, its token and its count to a CSV file. 
-void print_to_csv() {
-    // Loop through the map and write the data to the CSV file
-   for (auto z : csv_contents) {
-      // Open the CSV file for writing
-      ofstream file("./output/" + z.first + ".csv");
-      // Loop through the vector and write each element to the CSV file
-      file << "Name,Type,Syntactic Category,Line no" << "\n";
-      for (auto v : z.second) {
-         file << v << "\n";
-      }
-   }
-}
-
-// Define an array of strings that corresponds to the type values.
-vector<string> class_name;
-int class_index = -1;
-
-void get_csv_entries(LocalSymbolTable* scope){
-    if(scope==NULL) return ;
-    vector<LocalSymbolTable*> children = scope->children;
-    // get the symbol table entries
-    vector<Node*> temp_var = scope->symbol_table_entries;
-    for (Node* variable : temp_var){
-        if (variable->isWritten ==  false){
-            // For class csv file
-            if(variable->entry_type == CLASS_DECLARATION){
-                variable->isWritten = true;
-                csv_contents.insert({variable->name, {}});
-                class_name.push_back(variable->name);
-                class_index++;
-            }
-
-            if(variable->entry_type == METHOD_DECLARATION){
-                variable->isWritten = true;
-                csv_contents.insert({variable->name, {}});
-                int dt_index = ((MethodDeclaration*)(variable))->type->primitivetypeIndex;
-                string type;
-                if (dt_index == -1){
-                }
-                else{
-                    type = typeStrings[dt_index];
-                }
-                string str = variable->name + "," + type + "," + variable->lexeme + "," + to_string(variable->line_no);
-                csv_contents[class_name[class_index]].push_back(str);
-            }
-            // For method csv file
-            if(variable->entry_type == VARIABLE_DECLARATION){
-                int dt_index = ((LocalVariableDeclaration*)(variable))->type->primitivetypeIndex;
-                string type;
-                if (dt_index == -1){
-                    type = ((LocalVariableDeclaration*)(variable))->type->class_instantiated_from->name;
-                }
-                else{
-                    type = typeStrings[dt_index];
-                }
-                string str = variable->name + "," + type + "," + variable->lexeme + "," + to_string(variable->line_no);
-                LocalSymbolTable* temp = get_local_symtab(variable->current_level);
-                while(true){
-                    if(temp==NULL) break;
-                    if(temp->level_node != NULL && temp->level_node->entry_type == METHOD_DECLARATION) {
-                        break;
-                    }
-                    else{
-                        temp = (LocalSymbolTable*)temp->parent;
-                    }
-                }
-                if(temp!=NULL && temp->level_node != NULL){
-                    variable->isWritten = true;
-                    csv_contents[temp->level_node->name].push_back(str);
-                }
-            }
-            
-        }
-        if (variable->isWritten ==  false){
-            // For class csv file
-            if(variable->entry_type == VARIABLE_DECLARATION){
-                int dt_index = ((LocalVariableDeclaration*)(variable))->type->primitivetypeIndex;
-                string type;
-                if (dt_index == -1){
-                    type = ((LocalVariableDeclaration*)(variable))->type->class_instantiated_from->name;
-                }
-                else{
-                    type = typeStrings[dt_index];
-                }
-                string str = variable->name + "," + type + "," + variable->lexeme + "," + to_string(variable->line_no);
-                LocalSymbolTable* temp = get_local_symtab(variable->current_level);
-                while(true){
-                    if(temp==NULL) break;
-                    if(temp->level_node != NULL && temp->level_node->entry_type == CLASS_DECLARATION) {
-                        break;
-                    }
-                    else{
-                        temp = (LocalSymbolTable*)temp->parent;
-                    }
-                }
-                if(temp!=NULL && temp->level_node != NULL){
-                    variable->isWritten = true;
-                    csv_contents[temp->level_node->name].push_back(str);
-                }
-            }
-        }
-    }
-    Node* level_node = scope->level_node;
-    if (level_node == NULL){
-        return;
-    }
-    if (level_node->entry_type == METHOD_DECLARATION){
-        for (LocalSymbolTable* child : children){
-            get_csv_entries(child);
-        } 
-    }
-}
-
 int main(int argc, char **argv){
     if (argc != 3){
         if(argc == 4 && strcmp(argv[3], "--verbose") == 0) {
-                yydebug = 1;        
+            yydebug = 1;        
         }
-        else if (argc == 2 && strcmp(argv[1], "--help") == 0)
-        {
-            printf("=====================================================================\n");
-            printf(" \t \t \t  AST GENERATOR \n");
-            printf("=====================================================================\n");
-            printf("\nASTGenerator is a combined scanner and parser for the JAVA 17 language, \nwhich generates an abstract syntax tree (AST) for any given input java file.\n\n");
-            printf("It takes a java file as an input, extracts the tokens from it \nand generates a dot file containing the abstract syntax tree for the input file.\n\n");
-            printf("----------------------------\n");
-            printf(" \t  SCANNER \n");
-            printf("----------------------------\n");
-            printf("The JAVA 17 Lexer (Scanner) analyzes the content of the input file and \nextracts the tokens and lexemes out of it.\n\n");
-            printf("The lexical structure given in \n\t\t'https://docs.oracle.com/javase/specs/jls/se17/html/jls-3.html' \nis followed to create the lexer ...\n\n");
-            printf("Taking an example -\n");
-            printf("\tclass Test {\n\t    int i = 5 + 5;\n\t}\n\n");
-            printf("This generates the following tokens and lexemes -\n");
-            printf("--------------------------------\n");
-            printf("  Lexeme  |   Token   |  Count  \n");
-            printf("--------------------------------\n");
-            printf("   class  |  keyword  |    1    \n");
-            printf("   Test   | identifier|    1    \n");
-            printf("     {    | separator |    1    \n");
-            printf("    int   |  keyword  |    1    \n");
-            printf("     i    | identifier|    1    \n");
-            printf("     =    |  operator |    1    \n");
-            printf("     5    |  literal  |    2    \n");
-            printf("     +    |  operator |    1    \n");
-            printf("     ;    | separator |    1    \n");
-            printf("     }    | separator |    1    \n\n\n");
-            printf("----------------------------\n");
-            printf(" \t  PARSER \n");
-            printf("----------------------------\n");
-            printf("The JAVA 17 parser uses the automated parser generator - Bison.\nIt uses the grammar given in -\n\t\thttps://docs.oracle.com/javase/specs/jls/se17/html/jls-19.html\n\n");
-            printf("The following language features are supported -\n");
-            printf("   - Primitive Data Types\n");
-            printf("   - Multidimensional arrays\n");
-            printf("   - Basic Operators\n\t- Arithmetic Operators\n\t- Pre-increment, Pre-decrement, Post-increment and Post-decrement\n\t- Relational Operators\n\t- Bitwise Operators\n\t- Logical Operators\n\t- Assignment Operators\n\t- Ternary Operators\n");
-            printf("   - Control Flow\n\t- If-else\n\t- For\n\t- While\n\t- Do-while\n\t- Switch\n");
-            printf("   - Methods and method calls\n");
-            printf("   - Classes and Objects\n");
-            printf("   - Import statements\n");
-            printf("   - Strings\n");
-            printf("   - Interfaces\n");
-            printf("   - Type Casting\n");
-            printf("   - Enums and Records\n");
-            printf("   - Constructors\n");
-            printf("   - Blocks, Statements, and Patterns\n\n");
-            printf("For the same example, the following nodes and edges will be generated ...\n");
-            printf("           top_level_class_or_interface_declaration\n");
-            printf("                              |\n");
-            printf("                              |\n");
-            printf("                  normal_class_declaration\n");
-            printf("                              /|\\\n");
-            printf("                             / | \\\n");
-            printf("                            /  |  \\\n");
-            printf("                        class test class_body\n");
-            printf("                                        /|\\\n");
-            printf("                                       / | \\\n");
-            printf("                                      /  |  \\\n");
-            printf("                                     /   |   \\\n");
-            printf("                                    /    |    \\\n");
-            printf("                                   /     |     \\\n");
-            printf("                                  /      |      \\\n");
-            printf("                                {   declaration   }\n");
-            printf("                                         |\n");
-            printf("                                         |\n");
-            printf("                                 field_declaration\n");
-            printf("                                         /\\\n");
-            printf("                                        /  \\\n");
-            printf("                                       /    \\\n");
-            printf("                                     int  variable_declarator\n");
-            printf("                                                    /\\\n");
-            printf("                                                   /  \\\n");
-            printf("                                                  /    \\\n");
-            printf("                                                id    equals_variable_initializer\n");
-            printf("                                                |              /\\\n");
-            printf("                                                |             /  \\\n");
-            printf("                                                i            = additive_expr\n");
-            printf("                                                                   /|\\\n");
-            printf("                                                                  / | \\\n");
-            printf("                                                                 5  +  5\n");
-            printf("\nUsage: ./ASTGenerator [--input=<input_file_name> --output=<output_file_name>][--verbose][--help]\n");
-            printf("\nOptions:\n");
-            printf("    --help : Describe the AST Generator\n");
-            printf("    --input : Gets the input file\n");
-            printf("    --output : The name of the output file\n");
-            printf("    --verbose : Print logs of the code\n");
-            return 0;
+        else if (argc == 2 && strcmp(argv[1], "--help") == 0){
+            printHelpCommand();
         } 
-
         else{
             printf("Usage: %s [--input=<input_file_name> --output=<output_file_name>][--verbose]\n", argv[0]);
             printf("--verbose is an optional flag ...\n");
             return 0;
         }
     }
-
-    fstream file;
-    file.open("3ac.txt", ios::out);
- 
-    // Backup streambuffers of  cout
-    streambuf* stream_buffer_cout = cout.rdbuf();
-    
-    // Get the streambuffer of the file
-    streambuf* stream_buffer_file = file.rdbuf();
- 
-    // Redirect cout to file
-    cout.rdbuf(stream_buffer_file);
 
     // Get input file
     char input_file[10000];
@@ -3028,30 +2749,28 @@ int main(int argc, char **argv){
        strcpy(output_file, token_out);
        token_out = strtok(NULL, "=");
     }
+
+//     redirecting output to 3ac file
+//     fstream file;
+//     file.open(output_file, ios::out);
+//     streambuf* stream_buffer_cout = cout.rdbuf();
+//     streambuf* stream_buffer_file = file.rdbuf();
+//     cout.rdbuf(stream_buffer_file);
+
     LocalSymbolTable* locale = new LocalSymbolTable({0,0}, NULL);
     global_symtab->symbol_tables[0][0] = locale;
+
     yyparse();
-//     Value* va = ((LocalVariableDeclaration*)(get_local_symtab(global_symtab->current_level)->get_entry("x", -1)))->variable_declarator->initialized_value;
-//     cout<<va->primitivetypeIndex<<endl<<va->num_val[0];
+
+    createSymbolTableCSV();
+
     fclose(yyin);
-
-//     Print the symbol table
-    for(int i = 0;i < global_symtab->symbol_tables.size(); i++){
-        for(int j = 0; j < global_symtab->symbol_tables[i].size(); j++){
-            // get the local symbol table
-            LocalSymbolTable* curr_scope = ((LocalSymbolTable*)global_symtab->symbol_tables[i][j]);
-            get_csv_entries(curr_scope);
-        }
-    }
-    print_to_csv();
-
     // Redirect cout back to screen
-    cout.rdbuf(stream_buffer_cout);
-    file.close();
+//     cout.rdbuf(stream_buffer_cout);
+//     file.close();
     return 0;
 }
 
 void yyerror (char const *s) {
-   
    printf("\nError: %s. Line number %d\n\n", s, yylineno);
 }
