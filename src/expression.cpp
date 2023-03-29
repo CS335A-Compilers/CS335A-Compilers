@@ -130,7 +130,7 @@ Expression* evalOR_AND(string lex, Expression* e1, string op, Expression* e2){
 Expression* evalBITWISE(string lex, Expression* e1, string op, Expression* e2){
     if (e1 == NULL || e2 == NULL)
         return NULL;
-    if ((e1->value->primitivetypeIndex > 4 || e2->value->primitivetypeIndex > 4)){
+    if ((e1->value->primitivetypeIndex > LONG || e2->value->primitivetypeIndex > LONG)){
         yyerror("Incompatible types: cannot be converted to type accepted for bitwise operator");
         return NULL;
     } 
@@ -172,7 +172,7 @@ Expression* evalEQ(string lex,Expression* e1,string op,Expression* e2){
 Expression* evalRELATIONAL(string lex, Expression* e1, string op, Expression* e2){
     if(e1 == NULL || e2 == NULL)
         return NULL;
-    if(e1->value->primitivetypeIndex > 6 || e2->value->primitivetypeIndex > 6){
+    if(e1->value->primitivetypeIndex > DOUBLE || e2->value->primitivetypeIndex > DOUBLE){
         yyerror("Incomparable types: cannot be compared");
         return NULL;
     }
@@ -210,7 +210,7 @@ Expression* evalRELATIONAL(string lex, Expression* e1, string op, Expression* e2
 Expression* evalSHIFT(string lex, Expression* e1, string op, Expression* e2){
     if(e1 == NULL || e2 == NULL)
         return NULL;
-    if(e1->value->primitivetypeIndex > 4 || e2->value->primitivetypeIndex > 4){
+    if(e1->value->primitivetypeIndex > LONG || e2->value->primitivetypeIndex > LONG){
         yyerror("Incompatible types: cannot be conveted");
         return NULL;
     }
@@ -237,10 +237,22 @@ Expression* evalARITHMETIC(string lex, string op, Expression* e1, Expression* e2
         return NULL;
     }
     Value* va = new Value();
-    
-    va->primitivetypeIndex = max(e2->value->primitivetypeIndex, e1->value->primitivetypeIndex);
+    int type1 = e2->value->primitivetypeIndex, type2 = e1->value->primitivetypeIndex;
+    va->primitivetypeIndex = max(type1, type2);
     Expression* obj=new Expression(lex,va,false,false);
-    obj->code.push_back(addInstruction(obj, e1, e2, op, 0));
+    if(type1 != type2) {
+        string convertingType = typeStrings[va->primitivetypeIndex];
+        Expression* temp = new Expression("cast expression", NULL, false, false);
+        if(type1 > type2){
+            obj->code.push_back(addInstruction(temp, NULL, e1, "cast_to_"+ convertingType, 0));
+            obj->code.push_back(addInstruction(obj, temp, e2, op ,0));
+        }
+        else {
+            obj->code.push_back(addInstruction(temp, NULL, e2, "cast_to_"+ convertingType, 0));
+            obj->code.push_back(addInstruction(obj, temp, e1, op ,0));
+        }
+    }
+    else obj->code.push_back(addInstruction(obj, e1, e2, op, 0));
     return obj;
 }
 
