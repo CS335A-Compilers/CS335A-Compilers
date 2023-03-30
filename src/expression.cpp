@@ -231,8 +231,7 @@ Expression* evalSHIFT(string lex, Expression* e1, string op, Expression* e2){
 Expression* evalARITHMETIC(string lex, string op, Expression* e1, Expression* e2){
     if(e1 == NULL || e2 == NULL)
         return NULL;
-    // wrong type checking;
-    if (e1->value->primitivetypeIndex > 6 || e2->value->primitivetypeIndex > 6){
+    if (e1->value->primitivetypeIndex > DOUBLE || e2->value->primitivetypeIndex > DOUBLE){
         yyerror("Bad operand types for arthimetic operator");
         return NULL;
     }
@@ -244,11 +243,11 @@ Expression* evalARITHMETIC(string lex, string op, Expression* e1, Expression* e2
         string convertingType = typeStrings[va->primitivetypeIndex];
         Expression* temp = new Expression("cast expression", NULL, false, false);
         if(type1 > type2){
-            obj->code.push_back(addInstruction(temp, NULL, e1, "cast_to_"+ convertingType, 0));
+            obj->code.push_back(addInstruction(temp, NULL, e1, "(" + convertingType + ")", 0));
             obj->code.push_back(addInstruction(obj, temp, e2, op ,0));
         }
         else {
-            obj->code.push_back(addInstruction(temp, NULL, e2, "cast_to_"+ convertingType, 0));
+            obj->code.push_back(addInstruction(temp, NULL, e2, "("+ convertingType + ")", 0));
             obj->code.push_back(addInstruction(obj, temp, e1, op ,0));
         }
     }
@@ -341,7 +340,6 @@ Expression* evalTL(string lex, Expression* e1){
     Expression* obj=new Expression(lex, va, false, false);
     obj->code.push_back(addInstruction(obj, NULL, e1, "~", 0));
     return obj; 
-
 }
 
 Expression* evalEX(string lex, Expression* e1){
@@ -356,7 +354,6 @@ Expression* evalEX(string lex, Expression* e1){
     Expression* obj = new Expression(lex, va, false, false);
     obj->code.push_back(addInstruction(obj, NULL, e1, "!", 0));
     return obj; 
-
 }
 
 Expression* assignValue(Expression* type_name, string op, Expression* exp){
@@ -367,18 +364,32 @@ Expression* assignValue(Expression* type_name, string op, Expression* exp){
     }
     Expression* obj = new Expression("assignment", NULL, false, false);
     if(name->entry_type == VARIABLE_DECLARATION){
-            int name_type = name->type->primitivetypeIndex;
-            int exp_type = exp->value->primitivetypeIndex;
-            if((name_type <= LONG && exp_type <= LONG) || (name_type == FLOAT && exp_type == FLOAT || name_type == DOUBLE && exp_type == DOUBLE) || (name_type == exp_type) || (exp_type <= LONG && (name_type == FLOAT || name_type == DOUBLE))) {
+        int name_type = name->type->primitivetypeIndex;
+        int exp_type = exp->value->primitivetypeIndex;
+        // weird thing in java where you can do x+=y but not x=y, where type(x) < type(y);
+        if((name_type >= exp_type) || op.length() > 1) {
             if(op == "="){
-                // name->variable_declarator->initialized_value = exp->value;
-                obj->code.push_back(addInstruction(type_name, exp, NULL, "", 0));
+                if(name_type != exp_type){
+                    Expression* temp = new Expression("cast expression", NULL, false, false);
+                    obj->code.push_back(addInstruction(temp, NULL, exp, "(" + typeStrings[name_type] + ")", 0));
+                    obj->code.push_back(addInstruction(type_name, temp, NULL, "", 0));
+                }
+                else{
+                    obj->code.push_back(addInstruction(type_name, exp, NULL, "", 0));
+                }
             }
             else{
                 int pos = op.find('=');
                 string fin_op = op.substr(0, pos);
                 Expression* temp = new Expression("typename", NULL, false, false);
-                obj->code.push_back(addInstruction(temp, type_name, exp, fin_op, 0));
+                if(name_type == exp_type){
+                    obj->code.push_back(addInstruction(temp, type_name, exp, fin_op, 0));
+                }
+                else{
+                    Expression* temp1 = new Expression("cast expression", NULL, false, false);
+                    obj->code.push_back(addInstruction(temp1, NULL, exp, "(" + typeStrings[name_type] +")", 0));
+                    obj->code.push_back(addInstruction(temp, type_name, temp1, fin_op, 0));
+                }
                 obj->code.push_back(addInstruction(type_name, temp, NULL, "", 0));
             }
             // obj->value = exp->value;
@@ -389,7 +400,6 @@ Expression* assignValue(Expression* type_name, string op, Expression* exp){
             yyerror(const_cast<char*>(err.c_str()));
             return NULL;
         }
-        
     }
     else{
         string err = "type mismatch, cannot assign value to \"" + name->name + "\"";

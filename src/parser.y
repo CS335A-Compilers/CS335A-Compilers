@@ -75,7 +75,7 @@
 //  ########   COMPILATION UNIT   ########  
 
 start_state 
-            :   compilation_unit                                                                                                                
+            :   compilation_unit                                                       
             {
                 $$ = $1; 
                 create3ACCode($$, true); 
@@ -84,7 +84,7 @@ start_state
             }
 
 compilation_unit
-            :   ordinary_compilation_unit                                                                                                       
+            :   ordinary_compilation_unit                                              
             {   
                 Node* node = createNode("compilation unit"); 
                 node->addChildren({$1}); 
@@ -1891,7 +1891,6 @@ method_declarator
             node->addChildren({$1,$2,$3,$4,$5}); 
             $$ = node;
         }
-     // |  IDENTIFIERS OP_BRCKT reciever_parameter COMMA_OP formal_parameter_list_zero_or_one CLOSE_BRCKT dims_zero_or_one                              {Node* node = createNode("method declarator"); node->addChildren({$1,$2,$3,$4,$5,$6,$7}); $$ = node;}
 
 formal_parameter_list_zero_or_one
         :   /* empty */                                                                                                                                 
@@ -1937,7 +1936,11 @@ formal_parameter
 
 static_initializer
         :  STATIC_KEYWORD block                                                                                                                         
-        {Node* node = createNode("static initializer"); node->addChildren({$1,$2}); $$ = node;}
+        {   
+            Node* node = createNode("static initializer"); 
+            node->addChildren({$1,$2}); 
+            $$ = node;
+        }
 
 constructor_declaration
         :  constructor_declarator constructor_body                                                                                                      
@@ -2499,7 +2502,7 @@ AND_OP
         }
 
 OR_OP
-        :       OR_OP_TERMINAL                                                          
+        :       OR_OP_TERMINAL 
         {
             Node* temp = createNode($1); 
             temp->isTerminal = true; 
@@ -2507,7 +2510,7 @@ OR_OP
         }
 
 INC_OP
-        :       INC_OP_TERMINAL                                                         
+        :       INC_OP_TERMINAL
         {
             Node* temp = createNode($1); 
             temp->isTerminal = true; 
@@ -2515,7 +2518,7 @@ INC_OP
         }
 
 DEC_OP
-        :       DEC_OP_TERMINAL                                                         
+        :       DEC_OP_TERMINAL
         {
             Node* temp = createNode($1); 
             temp->isTerminal = true; 
@@ -2531,7 +2534,7 @@ LEFT_OP
         }
 
 RIGHT_OP
-        :       RIGHT_OP_TERMINAL                                                       
+        :       RIGHT_OP_TERMINAL
         {
             Node* temp = createNode($1); 
             temp->isTerminal = true; 
@@ -2539,7 +2542,7 @@ RIGHT_OP
         }
 
 BIT_RIGHT_SHFT_OP
-        :       BIT_RIGHT_SHFT_OP_TERMINAL                                              
+        :       BIT_RIGHT_SHFT_OP_TERMINAL
         {
             Node* temp = createNode($1); 
             temp->isTerminal = true; 
@@ -2547,7 +2550,7 @@ BIT_RIGHT_SHFT_OP
         }
 
 ADD_ASSIGN
-        :       ADD_ASSIGN_TERMINAL                                                     
+        :       ADD_ASSIGN_TERMINAL
         {
             Node* temp = createNode($1); 
             temp->isTerminal = true; 
@@ -2555,7 +2558,7 @@ ADD_ASSIGN
         }
 
 SUB_ASSIGN
-        :       SUB_ASSIGN_TERMINAL                                                     
+        :       SUB_ASSIGN_TERMINAL
         {
             Node* temp = createNode($1); 
             temp->isTerminal = true; 
@@ -2563,7 +2566,7 @@ SUB_ASSIGN
         }
 
 MUL_ASSIGN
-        :       MUL_ASSIGN_TERMINAL                                                     
+        :       MUL_ASSIGN_TERMINAL
         {
             Node* temp = createNode($1); 
             temp->isTerminal = true; 
@@ -2643,10 +2646,10 @@ IDENTIFIERS
         }
 
 LITERALS
-        :       NUM_LITERALS                                                            
+        :       NUM_LITERALS   
         {
             Value* va = new Value(); 
-            va->primitivetypeIndex = LONG;    
+            va->primitivetypeIndex = INT;    
             va->num_val.push_back(strtol($1, NULL, 10));      
             Expression* temp = new Expression($1, va, true, true); 
             temp->isTerminal = true; 
@@ -2673,7 +2676,7 @@ LITERALS
             temp->primary_exp_val = $1; 
             $$ = temp;
         }
-        |       CHAR_LITERALS                                                           
+        |       CHAR_LITERALS  
         {
             Value* va = new Value(); 
             va->primitivetypeIndex = CHAR;    
@@ -2751,23 +2754,24 @@ int main(int argc, char **argv){
     }
 
 //     redirecting output to 3ac file
-//     fstream file;
-//     file.open(output_file, ios::out);
-//     streambuf* stream_buffer_cout = cout.rdbuf();
-//     streambuf* stream_buffer_file = file.rdbuf();
-//     cout.rdbuf(stream_buffer_file);
+    fstream file;
+    file.open(output_file, ios::out);
+    streambuf* stream_buffer_cout = cout.rdbuf();
+    streambuf* stream_buffer_file = file.rdbuf();
+    cout.rdbuf(stream_buffer_file);
 
     LocalSymbolTable* locale = new LocalSymbolTable({0,0}, NULL);
     global_symtab->symbol_tables[0][0] = locale;
 
     yyparse();
 
-    createSymbolTableCSV();
+//     does not work on windows systems :(
+//     createSymbolTableCSV();
 
     fclose(yyin);
     // Redirect cout back to screen
-//     cout.rdbuf(stream_buffer_cout);
-//     file.close();
+    cout.rdbuf(stream_buffer_cout);
+    file.close();
     return 0;
 }
 
