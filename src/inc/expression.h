@@ -14,4 +14,6 @@ Expression* evalUNARY(string lex,string op,Expression* e1);
 Expression* evalIC_DC(string lex,string op,Expression* e1, bool preOperation);
 Expression* evalTL(string lex,Expression* e1);
 Expression* evalEX(string lex,Expression* e1);
-Expression* assignValue(Expression* type_name, string op, Expression* exp);
+Expression* assignValue(Expression* type_name, string op, Expression* exp, string ident);
+void assignLiteralValue(Expression* literal, Expression* e);
+Expression* getArrayAccess(string ident, Expression* e);

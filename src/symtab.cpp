@@ -207,7 +207,6 @@ Node* LocalSymbolTable::get_entry(string name, int entry_type){
     while(temp != NULL){
         if(temp->hashed_names.find(name)!=temp->hashed_names.end()){
             Node* res = temp->symbol_table_entries[temp->hashed_names[name]];
-            // cout<<res->name<<endl;
             if((entry_type == -1) || (entry_type == (int)(res->entry_type))) return res;
             else temp = (LocalSymbolTable*)(temp->parent);
         }

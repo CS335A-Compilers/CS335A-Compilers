@@ -56,8 +56,8 @@
 %type<node> EQ_OP GE_OP  LE_OP  NE_OP  AND_OP  OR_OP  INC_OP  DEC_OP  LEFT_OP  RIGHT_OP  BIT_RIGHT_SHFT_OP ADD_ASSIGN  SUB_ASSIGN  MUL_ASSIGN  DIV_ASSIGN  AND_ASSIGN  OR_ASSIGN  XOR_ASSIGN  MOD_ASSIGN  LEFT_ASSIGN  RIGHT_ASSIGN  BIT_RIGHT_SHFT_ASSIGN
 %type<node> IDENTIFIERS
 
-%type<node> expression_statement normal_class_declaration_statement array_access assignment_operators basic_for_statement basic_for_statement_no_short_if block block_statement block_statements block_statements_zero_or_more block_statements_zero_or_one break_statement class_body class_body_declaration class_body_declaration_zero_or_more class_body_zero_or_one class_declaration class_extends class_extends_zero_or_one compilation_unit constructor_body continue_statement empty_statement explicit_constructor_invocation field_declaration for_init for_init_zero_or_one for_statement for_statement_no_short_if for_update for_update_zero_or_one identifier_zero_or_one if_then_else_statement if_then_else_statement_no_short_if if_then_statement labeled_statement labeled_statement_no_short_if local_class_or_interface_declaration local_variable_declaration local_variable_declaration_statement normal_class_declaration ordinary_compilation_unit return_statement start_state statement  statement_no_short_if statement_without_trailing_substatement static_initializer top_level_class_or_interface_declaration top_level_class_or_interface_declaration_zero_or_more while_statement while_statement_no_short_if
-%type<expression> array_creation_expression assignment LITERALS class_instance_creation_expression additive_expression and_expression assignment_expression unary_expression unary_expression_not_plus_minus statement_expression conditional_and_expression conditional_or_expression condtional_expression equality_expression exclusive_or_expression expression expression_zero_or_one inclusive_or_expression multiplicative_expression post_decrement_expression post_increment_expression postfix_expression pre_decrement_expression pre_increment_expression primary primary_no_new_array relational_expression shift_expression variable_initializer field_access method_invocation
+%type<node> expression_statement normal_class_declaration_statement assignment_operators basic_for_statement basic_for_statement_no_short_if block block_statement block_statements block_statements_zero_or_more block_statements_zero_or_one break_statement class_body class_body_declaration class_body_declaration_zero_or_more class_body_zero_or_one class_declaration class_extends class_extends_zero_or_one compilation_unit constructor_body continue_statement empty_statement explicit_constructor_invocation field_declaration for_init for_init_zero_or_one for_statement for_statement_no_short_if for_update for_update_zero_or_one identifier_zero_or_one if_then_else_statement if_then_else_statement_no_short_if if_then_statement labeled_statement labeled_statement_no_short_if local_class_or_interface_declaration local_variable_declaration local_variable_declaration_statement normal_class_declaration ordinary_compilation_unit return_statement start_state statement  statement_no_short_if statement_without_trailing_substatement static_initializer top_level_class_or_interface_declaration top_level_class_or_interface_declaration_zero_or_more while_statement while_statement_no_short_if
+%type<expression> array_creation_expression assignment LITERALS array_access class_instance_creation_expression additive_expression and_expression assignment_expression unary_expression unary_expression_not_plus_minus statement_expression conditional_and_expression conditional_or_expression condtional_expression equality_expression exclusive_or_expression expression expression_zero_or_one inclusive_or_expression multiplicative_expression post_decrement_expression post_increment_expression postfix_expression pre_decrement_expression pre_increment_expression primary primary_no_new_array relational_expression shift_expression variable_initializer field_access method_invocation
 %type<expression_list> argument_list statement_expression_list argument_list_zero_or_one comma_expression_zero_or_more comma_statement_expression_zero_or_more
 %type<formal_parameter> formal_parameter 
 %type<formal_parameter_list> formal_parameter_list formal_parameter_list_zero_or_one
@@ -147,6 +147,7 @@ primary_no_new_array
             {
                 Expression* node = grammar_1("primary no new array", $1, $1->isPrimary, $1->isLiteral); 
                 node->primary_exp_val = $1->lexeme; 
+                assignLiteralValue($1, node);
                 node->addChildren({$1}); 
                 $$ = node;
             }
@@ -174,7 +175,12 @@ primary_no_new_array
                 node->addChildren({$1}); 
                 $$ = node;
             }
-     //     |   array_access                                                                                                                    {Node* node = createNode("primary no new array"); node->addChildren({$1}); $$ = node;}
+            |   array_access                                                                                                                    
+            {   
+                Expression* node = grammar_1("primary no new array", $1, $1->isPrimary, $1->isLiteral); 
+                node->addChildren({$1}); 
+                $$ = node;
+            }
      //     |   THIS_KEYWORD                                                                                                                    {Expression* node = grammar_1("primary no new array",$1, $1->isPrimary, $1->isLiteral); node->addChildren({$1}); $$ = node;}
      //     |   type_name DOT_OP THIS_KEYWORD                                                                                                   {Node* node = createNode("primary no new array"); node->addChildren({$1,$2,$3}); $$ = node;}
      //     |   class_literal                                                                                                                   {Node* node = createNode("primary no new array"); node->addChildren({$1}); $$ = node;}
@@ -200,15 +206,11 @@ field_access
      //     |   SUPER_KEYWORD DOT_OP IDENTIFIERS                                                                                                {Node* node = createNode("field access"); node->addChildren({$1,$2,$3}); $$ = node;}
 
 array_access
-            :   type_name OP_SQR_BRCKT expression CLOSE_SQR_BRCKT                                                                               
+            :   type_name_scoping OP_SQR_BRCKT expression CLOSE_SQR_BRCKT                                                                               
             {
-                Node* node = createNode("array access"); 
-                node->addChildren({$1,$2,$3,$4}); 
-                $$ = node;
-            }
-            |   primary_no_new_array OP_SQR_BRCKT expression CLOSE_SQR_BRCKT                                                                    
-            {
-                Node* node = createNode("array access"); 
+                Expression* node = getArrayAccess($1->identifiers[0], $3);
+                if(node == NULL)
+                    YYERROR;
                 node->addChildren({$1,$2,$3,$4}); 
                 $$ = node;
             }
@@ -799,17 +801,30 @@ assignment
                 Value* va = new Value(); 
                 va->primitivetypeIndex = ((LocalVariableDeclaration*)(get_local_symtab(global_symtab->current_level)->get_entry($1->lexeme, 0)))->type->primitivetypeIndex; 
                 Expression* node1 = new Expression("postfix expression", va, true, false); 
-                if(node1 == NULL) 
-                    YYERROR; 
                 node1->primary_exp_val = $1->lexeme; 
-                Expression* node = assignValue(node1, $2->children[0]->lexeme, $3); 
+                Expression* node = assignValue(node1, $2->children[0]->lexeme, $3, $1->lexeme);
                 if(node == NULL) 
                     YYERROR; 
                 node->addChildren({$1,$2,$3});  
                 $$ = node;
                 }           
-     //     |   field_access assignment_operators expression                                                                                            {Expression* node = assignValue($1, $2->children[0]->lexeme, $3); if(node == NULL) YYERROR; node->addChildren({$1,$2,$3});  $$ = node;}
-     //     |   array_access assignment_operators expression                                                                                            {Node* node = createNode("assignment"); node->addChildren({$1,$2,$3}); $$ = node;}           
+            // |   field_access assignment_operators expression                                                                                            
+            // {   Expression* node = assignValue($1, $2->children[0]->lexeme, $3); if(node == NULL) YYERROR; 
+            //     node->addChildren({$1,$2,$3});  
+            //     $$ = node;
+            // }
+            |   array_access assignment_operators expression                                                                                            
+            {   
+                Value* va = new Value(); 
+                va->primitivetypeIndex = ((LocalVariableDeclaration*)(get_local_symtab(global_symtab->current_level)->get_entry($1->name, 0)))->type->primitivetypeIndex; 
+                Expression* temp = new Expression("array_access", va, true, false);
+                temp->primary_exp_val = $1->primary_exp_val;
+                Expression* node = assignValue(temp,  $2->children[0]->lexeme, $3, $1->name);
+                if(node == NULL) 
+                    YYERROR; 
+                node->addChildren({$1,$2,$3});
+                $$ = node;
+            }           
 
 assignment_operators 
             :   ASSIGNMENT_OP                                                                                                                           
@@ -888,13 +903,22 @@ assignment_operators
 array_creation_expression
             :   NEW_KEYWORD primitive_type OP_SQR_BRCKT expression CLOSE_SQR_BRCKT                                                                      
             {
+                if($4->value->primitivetypeIndex > LONG) {
+                    string err = "type mismatch: cannot convert from \"" + typeStrings[$4->value->primitivetypeIndex] + "\" to int";
+                    yyerror(const_cast<char*>(err.c_str()));
+                    YYERROR;
+                }
+                if($4->value->num_val.size() == 0) {
+                    yyerror("Variable must provide dimension literal only");
+                    YYERROR;
+                }
                 Value* val = new Value(); 
-                val->primitivetypeIndex = ARRAY; 
-                val->dim1_count = 0; 
+                val->primitivetypeIndex = $2->primitivetypeIndex; 
+                val->dim1_count = $4->value->num_val[0];
                 Expression* node = new Expression("array creation expression", val, false, false); 
                 node->addChildren({$1,$2,$3,$4,$5}); 
                 $$ = node;
-            }           
+            }
 
 dims_zero_or_one
             :   /* empty */                                                                                                                             
@@ -917,12 +941,6 @@ dims
                 node->addChildren({$1,$2}); 
                 $$ = node;
             }
-            |   OP_SQR_BRCKT CLOSE_SQR_BRCKT dims                                                                                                       
-            {
-                Dims* node = new Dims("dims", $3->count_dims + 1); 
-                node->addChildren({$1,$2,$3}); 
-                $$ = node;
-            } 
 
 primitive_type
             :   numeric_type                                                                                                                            

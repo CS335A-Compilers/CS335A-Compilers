@@ -62,6 +62,7 @@ double doubleMod(double a, double b) {
 Expression* grammar_1(string lex,Expression* e1,bool isprimary,bool isliteral){
     if (e1 == NULL) return NULL;
     Expression* obj = new Expression(lex, e1->value, isprimary, isliteral);
+    obj->value = e1->value;
     obj->registor_index = e1->registor_index;
     obj->primary_exp_val = e1->primary_exp_val;
     return obj;
@@ -356,17 +357,16 @@ Expression* evalEX(string lex, Expression* e1){
     return obj; 
 }
 
-Expression* assignValue(Expression* type_name, string op, Expression* exp){
-    LocalVariableDeclaration* name = (LocalVariableDeclaration*)(get_local_symtab(global_symtab->current_level)->get_entry(type_name->primary_exp_val, -1));
-    if(name == NULL){
-        yyerror("use of undeclared variable");
-        return NULL;
-    }
+Expression* assignValue(Expression* type_name, string op, Expression* exp, string ident){
+    LocalVariableDeclaration* name = (LocalVariableDeclaration*)(get_local_symtab(global_symtab->current_level)->get_entry(ident, -1));
+    // if(name == NULL){
+    //     yyerror("use of undeclared variable");
+    //     return NULL;
+    // }
     Expression* obj = new Expression("assignment", NULL, false, false);
     if(name->entry_type == VARIABLE_DECLARATION){
         int name_type = name->type->primitivetypeIndex;
         int exp_type = exp->value->primitivetypeIndex;
-        // weird thing in java where you can do x+=y but not x=y, where type(x) < type(y);
         if((name_type >= exp_type) || op.length() > 1) {
             if(op == "="){
                 if(name_type != exp_type){
@@ -406,4 +406,30 @@ Expression* assignValue(Expression* type_name, string op, Expression* exp){
         yyerror(const_cast<char*>(err.c_str()));
         return NULL;
     }
+}
+
+void assignLiteralValue(Expression* literal, Expression* e){
+    int type = literal->value->primitivetypeIndex;
+    if(type == INT) e->value->num_val.push_back(literal->value->num_val[0]);
+    else if(type == FLOAT) e->value->float_val.push_back(literal->value->float_val[0]);
+    else if(type == BOOLEAN) e->value->boolean_val.push_back(literal->value->boolean_val[0]);
+    else if(type == DOUBLE) e->value->double_val.push_back(literal->value->double_val[0]);
+    return ;
+}
+
+Expression* getArrayAccess(string ident, Expression* e){
+    Value* val = new Value();
+    LocalVariableDeclaration* temp = (LocalVariableDeclaration*)(get_local_symtab(global_symtab->current_level)->get_entry(ident, 0)) ;
+    if(temp == NULL){
+        string err = "use of undeclared variable \"" + ident + "\"";
+        yyerror(const_cast<char*>(err.c_str()));
+        return NULL;
+    }
+    val->primitivetypeIndex = temp->type->primitivetypeIndex;
+    Expression* node = new Expression("array_access", val, false, false);
+    e->primary_exp_val = temp->name + "[" + e->primary_exp_val + "]";
+    node->primary_exp_val = e->primary_exp_val;
+    node->name = temp->name;
+    node->code.push_back(addInstruction(node, e, NULL, "", 0));
+    return node;   
 }

@@ -250,7 +250,7 @@ bool typenameErrorChecking(Node* node, pair<int,int> curr_level, int entry_type)
 }
 
 bool addVariablesToSymtab(Type* t, VariableDeclaratorList* declarator_list, pair<int,int> curr_level, ModifierList* modif_lists, bool is_field_variable){
-    for(int i=0;i<declarator_list->lists.size();i++){
+    for(int i=0;i<declarator_list->lists.size();i++){        
         if(declarator_list->lists[i]->initialized_value != NULL){
             int exp_type = t->primitivetypeIndex;
             int given_type = declarator_list->lists[i]->initialized_value->primitivetypeIndex;
@@ -261,11 +261,20 @@ bool addVariablesToSymtab(Type* t, VariableDeclaratorList* declarator_list, pair
             }
             // type casting 3ac generate
         }
+        if(declarator_list->lists[i]->initialized_value != NULL && declarator_list->lists[i]->num_of_dims > 0){
+            int exp_type = t->primitivetypeIndex;
+            int given_type = declarator_list->lists[i]->initialized_value->primitivetypeIndex;
+            if(given_type != exp_type){
+                string err = "invalid datatypes, cannot convert from \"" + typeStrings[given_type] + "\" to \"" + typeStrings[exp_type] + "\"";
+                yyerror(const_cast<char*>(err.c_str()));
+                return false;
+            }
+        }
+        // cout<<declarator_list->lists[i]->num_of_dims<<endl;
         LocalVariableDeclaration* locale = new LocalVariableDeclaration("local_variable_declaration", t, declarator_list->lists[i], modif_lists);
         locale->isFieldVariable = is_field_variable;
         locale->entry_type = VARIABLE_DECLARATION;
         locale->name = declarator_list->lists[i]->identifier;
-        // cout<<"please : "<<locale->variable_declarator->lex_val<<endl;
         get_local_symtab(global_symtab->current_level)->add_entry(locale);
         if(is_field_variable){
             // NormalClassDeclaration* instantiating_class = (NormalClassDeclaration*)(get_local_symtab(global_symtab->current_level)->level_node);
