@@ -23,6 +23,7 @@ class Node {
         int line_no;
         pair<int, int> current_level;
         long long int id;
+        int reg_index;
         Node(string lex);
         pair<int,int> parent_level;
         void addChildren(vector<Node*> childrens);
@@ -196,3 +197,4 @@ Node* cloneRoot(Node* root);
 bool typenameErrorChecking(Node* node, pair<int,int> curr_level, int entry_type);
 string createTAC(VariableDeclaratorList* list);
 int create3ACCode(Node* root, bool print);
+bool checkParams(string name, ExpressionList* exp_list);

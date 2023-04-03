@@ -19,6 +19,7 @@ extern int curr_address;
 
 vector<string> entryTypeStrings = {"variable", "class", "method"};
 
+string current_class_name = "";
 
 int Node::node_id = 0;
 
@@ -32,6 +33,7 @@ Node::Node(string lex){
     entry_type = -1;
     isWritten = false;
     line_no = yylineno;
+    reg_index = -1;
 }
 
 void Node::addChildren(vector<Node*> childrens){
@@ -218,6 +220,7 @@ bool typenameErrorChecking(Node* node, pair<int,int> curr_level, int entry_type)
         Node* temp = get_local_symtab(curr_level)->get_entry(lists->identifiers[0], entry_type);
         if(temp != NULL) return true;
         else{
+            cout<<"err $$$ here\n";
             string entry = (entry_type == -1) ? entryTypeStrings[0] : entryTypeStrings[entry_type];
             string err = "use of undeclared " + entry + " \"" + lists->identifiers[0] + "\"";
             yyerror(const_cast<char*>(err.c_str()));
@@ -408,31 +411,60 @@ string createTAC(VariableDeclaratorList* list){
     return res;
 }
 
-int create3ACCode(Node* root, bool print){
+void replaceParams(Node* root, string name, int reg){
+    if(root->entry_type == EXPRESSIONS && ((Expression*)(root))->primary_exp_val == name){
+        ((Expression*)(root))->primary_exp_val = "t"+to_string(reg);
+    }
+    for(int i=0;i<root->children.size();i++){
+        replaceParams(root->children[i], name, reg);
+    }
+}
 
+int create3ACCode(Node* root, bool print){
     int res = 0;
     if(root == NULL) return res;
-    if(root->entry_type == METHOD_DECLARATION){
-        if(firstFun) {
-            cout<<"\n"<<root->name<<":"<<endl;
-            firstFun = false;
-        }
-        else {
-            cout<<"EndFun\n\n";
-            cout<<root->name<<":\n";
+    if(root->entry_type == CLASS_DECLARATION){
+        current_class_name = root->name;
+        for(int i=0;i<root->children.size();i++){
+            res+=create3ACCode(root->children[i], print);
         }
     }
-    if(root->entry_type == VARIABLE_DECLARATION){
-        // variable_declarator_id ASSIGNMENT_OP variable_initializer
-        string temp = ((VariableDeclaratorId*)root)->lex_val;
-        if(root->children.size() > 2) res+=create3ACCode(root->children[2], print);
+    else if(root->entry_type == METHOD_DECLARATION){
         if(print){
-            cout<<curr_address<<":    "<<root->name<<" = add_to_symtab(";
+            cout<<current_class_name<<"."<<root->name<<":\n";
+            cout<<"beginfunc\n";
         }
-        if(root->children.size() > 2) cout<<((Expression*)root->children[2])->createString();
-        cout<<")\n";
-        curr_address++;
-        res++;
+        vector<FormalParameter*> list = ((MethodDeclaration*)(root))->formal_parameter_list->lists;
+        vector<int> reg(list.size(), -1);
+        for(int i=0;i<list.size();i++){
+            int t = list[i]->reg_index;
+            reg[i] = t;
+            if(print){
+                cout<<to_string(curr_address)<<":    "<<"t"<<to_string(t)<<" = popparam\n";
+                curr_address++;
+            }
+            res++;
+            replaceParams(root, list[i]->variable_declarator_id->identifier, t);
+        }
+        for(int i=0;i<root->children.size();i++){
+            res+=create3ACCode(root->children[i], print);
+        }
+        if(print){
+            cout<<"endfunc\n";
+        }
+    }
+    else if(root->entry_type == VARIABLE_DECLARATION){
+        // variable_declarator_id ASSIGNMENT_OP variable_initializer
+        // string temp = ((VariableDeclaratorId*)root)->lex_val;
+        // if(((LocalVariableDeclaration*)root)->isFieldVariable == true) return res;
+        // if(root->children.size() > 2) res+=create3ACCode(root->children[2], print);
+        // if(print){
+        //     cout<<curr_address<<":    "<<root->name<<" = add_to_symtab(";
+        // }
+        // if(root->children.size() > 2) cout<<((Expression*)root->children[2])->createString();
+        // cout<<")\n";
+        // curr_address++;
+        // res++;
     }
     else if(root->entry_type == EXPRESSIONS){
         vector<int> codes = root->code;
@@ -449,7 +481,32 @@ int create3ACCode(Node* root, bool print){
         }
     }
     else if(root->entry_type == METHOD_INVOCATION){
-
+        // IDENTIFIERS  OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT
+        int n = ((ExpressionList*)(root->children[2]))->lists.size();
+        vector<int> reg(n, -1);
+        for(int i=0;i<n;i++){
+            int t = findEmptyRegistor();
+            reg[i] = t;
+            if(print){
+                cout<<to_string(curr_address)<<":    t"<<to_string(t)<<" = "<<((ExpressionList*)(root->children[2]))->lists[i]->primary_exp_val<<endl;
+                curr_address++;
+            }
+            temporary_registors_in_use[t] = true;
+            res++;
+        }
+        for(int i=0;i<n;i++){
+            if(print){
+                cout<<to_string(curr_address)<<":    pushparam "<<"t"<<to_string(reg[i])<<endl;
+                curr_address++;
+            }
+            res++;
+            temporary_registors_in_use[reg[i]] = false;
+        }
+        if(print){
+            cout<<to_string(curr_address)<<":    call "<<root->name<<endl;
+            curr_address++;
+        }
+        res++;
     }
     else if(root->entry_type == IF_THEN_STATEMENT){
         // IF_KEYWORD OP_BRCKT expression CLOSE_BRCKT statement
@@ -559,4 +616,9 @@ int create3ACCode(Node* root, bool print){
     }
 
     return res;
+}
+
+bool checkParams(string name, ExpressionList* exp_list){
+    // need to do
+    return true;
 }

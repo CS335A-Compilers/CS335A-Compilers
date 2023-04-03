@@ -67,7 +67,7 @@ const string modifierStrings[] = {"public", "protected", "private", "abstract", 
 bool LocalSymbolTable::add_entry(Node* symtab_entry){
     hashed_names.insert({symtab_entry->name, symbol_table_entries.size()});
     symbol_table_entries.push_back(symtab_entry);
-    // cout<<symtab_entry->lexeme<<" "<<symtab_entry->line_no<<" "<<symtab_entry->name<<endl;
+    // cout<<symtab_entry->lexeme<<" "<<symtab_entry->line_no<<" "<<symtab_entry->name<<global_symtab->current_level.first<<" "<<global_symtab->current_level.second<<endl;
     if(symtab_entry->entry_type == CLASS_DECLARATION){
         NormalClassDeclaration* temp = (NormalClassDeclaration*)(symtab_entry);
         // cout<<"class entry added: "<<(symtab_entry->name)<<" at level: "<<global_symtab->current_level.first<<" "<<global_symtab->current_level.second<<endl;

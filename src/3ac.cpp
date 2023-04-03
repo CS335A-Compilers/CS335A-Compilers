@@ -56,7 +56,9 @@ void print3AC(ThreeAC* inst){
 
 int findEmptyRegistor(){
     for(int i=0;i<MAX_REGISTORS;i++){
-        if(temporary_registors_in_use[i] == false) return i;
+        if(temporary_registors_in_use[i] == false) {
+            return i;
+        }
     }
     yyerror("compiler error: registor overflow!!!\n");
     return -1;

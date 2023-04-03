@@ -79,7 +79,6 @@ start_state
             {
                 $$ = $1; 
                 create3ACCode($$, true); 
-                cout<<"endFun\n"; 
                 // createAST($$, output_file);
             }
 
@@ -181,11 +180,11 @@ primary_no_new_array
                 node->addChildren({$1}); 
                 $$ = node;
             }
-     //     |   THIS_KEYWORD                                                                                                                    {Expression* node = grammar_1("primary no new array",$1, $1->isPrimary, $1->isLiteral); node->addChildren({$1}); $$ = node;}
-     //     |   type_name DOT_OP THIS_KEYWORD                                                                                                   {Node* node = createNode("primary no new array"); node->addChildren({$1,$2,$3}); $$ = node;}
-     //     |   class_literal                                                                                                                   {Node* node = createNode("primary no new array"); node->addChildren({$1}); $$ = node;}
-
-
+            // |   THIS_KEYWORD                                                                                                                    
+            // {   Expression* node = grammar_1("primary no new array",$1, $1->isPrimary, $1->isLiteral); 
+            //     node->addChildren({$1}); 
+            //     $$ = node;
+            // }
 
 field_access
             :   IDENTIFIERS DOT_OP type_name_scoping                                                                                            
@@ -226,6 +225,8 @@ method_invocation
                 Expression* node = new Expression("postfix expression", va, false, false); 
                 if(node == NULL) 
                     YYERROR; 
+                if(!checkParams($1->lexeme, $3))
+                    YYERROR;
                 node->name = temp->createString(); 
                 node->entry_type = METHOD_INVOCATION; 
                 node->addChildren({$1,$2,$3,$4}); 
@@ -247,7 +248,6 @@ method_invocation
                 node->addChildren({$1,$2,$3,$4}); 
                 $$ = node;
             }
-     //     |   SUPER_KEYWORD DOT_OP IDENTIFIERS OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT                                                 {Node* node = createNode("method invocation"); node->addChildren({$1,$2,$3,$4,$5,$6}); $$ = node;}
 
 expression
             :   assignment_expression                                                                                                           
@@ -650,14 +650,16 @@ postfix_expression
             |   IDENTIFIERS                                                                                                                     
             {
                 IdentifiersList* temp = new IdentifiersList("identifiers", "", {$1->lexeme}); 
-                if(!typenameErrorChecking(temp, global_symtab->current_level, 0)) 
+                if(!typenameErrorChecking(temp, global_symtab->current_level, -1)) 
                     YYERROR; 
                 Value* va = new Value(); 
                 va->primitivetypeIndex = ((LocalVariableDeclaration*)(get_local_symtab(global_symtab->current_level)->get_entry($1->lexeme, 0)))->type->primitivetypeIndex; 
                 Expression* node = new Expression("postfix expression", va, true, false); 
                 if(node == NULL) 
                     YYERROR; 
-                node->primary_exp_val = $1->lexeme; 
+                int t = get_local_symtab(global_symtab->current_level)->get_entry($1->lexeme, 0)->reg_index;
+                if(t != -1) node->primary_exp_val = "t" + to_string(t);
+                else node->primary_exp_val = $1->lexeme; 
                 node->isPrimary = true; 
                 node->addChildren({$1}); 
                 $$ = node;
@@ -801,13 +803,15 @@ assignment
                 Value* va = new Value(); 
                 va->primitivetypeIndex = ((LocalVariableDeclaration*)(get_local_symtab(global_symtab->current_level)->get_entry($1->lexeme, 0)))->type->primitivetypeIndex; 
                 Expression* node1 = new Expression("postfix expression", va, true, false); 
-                node1->primary_exp_val = $1->lexeme; 
+                int t = get_local_symtab(global_symtab->current_level)->get_entry($1->lexeme, 0)->reg_index;
+                if(t != -1) node1->primary_exp_val = "t" + to_string(t);
+                else node1->primary_exp_val = $1->lexeme; 
                 Expression* node = assignValue(node1, $2->children[0]->lexeme, $3, $1->lexeme);
                 if(node == NULL) 
                     YYERROR; 
                 node->addChildren({$1,$2,$3});  
                 $$ = node;
-                }           
+            }           
             // |   field_access assignment_operators expression                                                                                            
             // {   Expression* node = assignValue($1, $2->children[0]->lexeme, $3); if(node == NULL) YYERROR; 
             //     node->addChildren({$1,$2,$3});  
@@ -1383,7 +1387,11 @@ statement_expression
             node->addChildren({$1}); 
             $$ = node;
         }
-     // |  method_invocation                                                                                                                            {Expression* node = grammar_1("statement expression", $1, $1->isPrimary, $1->isLiteral); node->addChildren({$1}); $$ = node;}
+        |  method_invocation                                                                                                                            
+        {   Expression* node = grammar_1("statement expression", $1, $1->isPrimary, $1->isLiteral); 
+            node->addChildren({$1}); 
+            $$ = node;
+        }
         |  class_instance_creation_expression                                                                                                           
         {
             Expression* node = grammar_1("statement expression", $1, $1->isPrimary, $1->isLiteral); 
@@ -1834,8 +1842,12 @@ method_declaration
             node->modifiers = NULL; 
             node->addChildren({$1,$2});  
             node->entry_type = METHOD_DECLARATION; 
-            get_local_symtab(global_symtab->current_level)->add_entry(node); 
             ((LocalSymbolTable*)((global_symtab->symbol_tables)[$2->parent_level.first][$2->parent_level.second]))->level_node = (Node*)(node); 
+            for(int i=0;i<node->formal_parameter_list->lists.size();i++){
+                int t = node->formal_parameter_list->lists[i]->reg_index;
+                temporary_registors_in_use[t] = false;
+            }
+            get_local_symtab(global_symtab->current_level)->add_entry(node); 
             $$ = node;
         }
         |  modifiers_one_or_more method_header SEMICOLON_OP                                                                                             
@@ -1848,6 +1860,10 @@ method_declaration
             node->modifiers = $1; 
             node->addChildren({$1,$2,$3}); 
             node->entry_type = METHOD_DECLARATION; 
+            for(int i=0;i<node->formal_parameter_list->lists.size();i++){
+                int t = node->formal_parameter_list->lists[i]->reg_index;
+                temporary_registors_in_use[t] = false;
+            }
             get_local_symtab(global_symtab->current_level)->add_entry(node); 
             $$ = node;
         }
@@ -1861,8 +1877,12 @@ method_declaration
             node->modifiers = $1; 
             node->addChildren({$1,$2,$3}); 
             node->entry_type = METHOD_DECLARATION; 
-            get_local_symtab(global_symtab->current_level)->add_entry(node); 
             ((LocalSymbolTable*)((global_symtab->symbol_tables)[$3->parent_level.first][$3->parent_level.second]))->level_node = (Node*)(node); 
+            for(int i=0;i<node->formal_parameter_list->lists.size();i++){
+                int t = node->formal_parameter_list->lists[i]->reg_index;
+                temporary_registors_in_use[t] = false;
+            }
+            get_local_symtab(global_symtab->current_level)->add_entry(node); 
             $$ = node;
         }
         |  method_header SEMICOLON_OP                                                                                                                  
@@ -1875,6 +1895,10 @@ method_declaration
             node->modifiers = NULL; 
             node->addChildren({$1,$2});  
             node->entry_type = METHOD_DECLARATION; 
+            for(int i=0;i<node->formal_parameter_list->lists.size();i++){
+                int t = node->formal_parameter_list->lists[i]->reg_index;
+                temporary_registors_in_use[t] = false;
+            }
             get_local_symtab(global_symtab->current_level)->add_entry(node); 
             $$ = node;
         }
@@ -1943,11 +1967,23 @@ formal_parameter
         {
             FormalParameter* node = new FormalParameter("formal parameter", $1, $2, false); 
             node->addChildren({$1,$2}); 
+            node->name = $2->identifier;
+            node->entry_type = VARIABLE_DECLARATION;
+            int t = findEmptyRegistor();
+            node->reg_index = t;
+            temporary_registors_in_use[t] = true;
+            get_local_symtab(global_symtab->current_level)->add_entry(node);
             $$ = node;
         }
         |  FINAL_KEYWORD unann_type variable_declarator_id                                                                                              
         {
             FormalParameter* node = new FormalParameter("formal parameter", $2, $3, true); 
+            node->name = $3->identifier;
+            node->entry_type = VARIABLE_DECLARATION;
+            int t = findEmptyRegistor();
+            node->reg_index = t;
+            temporary_registors_in_use[t] = true;
+            get_local_symtab(global_symtab->current_level)->add_entry(node);
             node->addChildren({$1,$2,$3}); 
             $$ = node;
         }
@@ -2183,7 +2219,7 @@ OP_BRCKT
         {
             Node* temp = createNode($1); 
             temp->isTerminal = true; 
-            global_symtab->increase_level(); 
+            // global_symtab->increase_level(); 
             $$ = temp;
         }
 CLOSE_BRCKT
@@ -2191,7 +2227,7 @@ CLOSE_BRCKT
         {
             Node* temp = createNode($1); 
             temp->isTerminal = true; 
-            global_symtab->decrease_level(); 
+            // global_symtab->decrease_level(); 
             $$ = temp;
         }
 OP_SQR_BRCKT

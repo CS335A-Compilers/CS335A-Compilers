@@ -62,6 +62,9 @@
         "utility": "cpp",
         "valarray": "cpp",
         "ast.h": "c",
-        "xstring": "cpp"
+        "xstring": "cpp",
+        "ios": "cpp",
+        "string": "cpp",
+        "xmemory": "cpp"
     }
 }
