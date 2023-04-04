@@ -61,6 +61,11 @@
         "typeinfo": "cpp",
         "utility": "cpp",
         "valarray": "cpp",
-        "ast.h": "c"
+        "ast.h": "c",
+        "xstring": "cpp",
+        "ios": "cpp",
+        "string": "cpp",
+        "xmemory": "cpp",
+        "xtree": "cpp"
     }
 }

@@ -18,3 +18,4 @@ void   endBuffer(char* temp);
 char*  convertExcapeChar(char x);
 string convertCurrState(int state);
 char* spaceToUnderscore(char* word);
+void printHelpCommand();

@@ -3,7 +3,7 @@
 using namespace std;
 
 enum ModifierType {PUBLIC, PROTECTED, PRIVATE, ABSTRACT, STATIC, SEALED, NONSEALED, STRICTFP, TRANSITIVE, FINAL, VOLATILE, SYNCHRONIZED, TRANSIENT, NATIVE, };
-enum Types {CHAR, BYTE, SHORT, INT, LONG, FLOAT, DOUBLE, BOOLEAN, ARRAY, STRING, VOID, };
+enum Types {CHAR, BYTE, SHORT, INT, LONG, FLOAT, DOUBLE, BOOLEAN, STRING, VOID, };
 // symbol table entry is added whenever one of these declaration is done
 enum DeclarationType {VARIABLE_DECLARATION, CLASS_DECLARATION, METHOD_DECLARATION, METHOD_INVOCATION, IF_THEN_STATEMENT, IF_THEN_ELSE_STATEMENT, WHILE_STATEMENT, EXPRESSIONS, FOR_STATEMENT, TERNARY_EXPRESSION};
 
@@ -21,8 +21,11 @@ class Node {
         vector<int> code;
         int entry_type;
         int line_no;
+        bool is_parameter;
         pair<int, int> current_level;
         long long int id;
+        // used to store temporary registor values for local variables only
+        int reg_index;
         Node(string lex);
         pair<int,int> parent_level;
         void addChildren(vector<Node*> childrens);
@@ -159,8 +162,9 @@ class MethodDeclaration : public Node {
 class NormalClassDeclaration : public Node {
     public:
         ModifierList* modifiers_list;
-        vector<LocalVariableDeclaration*> field_variables;
+        vector<pair<LocalVariableDeclaration*, int>> field_variables;
         // ClassExtends* class_extends;
+        int object_size;
         NormalClassDeclaration(string lex, ModifierList* list, string identifier ); 
 };
 
@@ -194,5 +198,5 @@ void  createAST(Node* root, char* output_file);
 Node* createNode(string str);
 Node* cloneRoot(Node* root);
 bool typenameErrorChecking(Node* node, pair<int,int> curr_level, int entry_type);
-string createTAC(VariableDeclaratorList* list);
 int create3ACCode(Node* root, bool print);
+bool checkParams(string name, ExpressionList* exp_list);

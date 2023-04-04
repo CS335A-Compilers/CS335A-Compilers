@@ -1,9 +1,16 @@
-public private class best_class { //should throw error for public private class best_class 
-    public void main() {
-        public int a, b, sum, c; //throw error for Modifier public not allowed in field variable declaration
-        a = 8;
-        b = a + 3;
-        sum = a + b;
+class arrays {  
+
+    public int findSum(){
+        int sum = 0;
+        int arr[] = new int[5];
+        for(int i=0;i<5;i++){
+            sum += arr[i];
+        }
+        return sum;
     }
-    
+
+    public void main() {
+        int sum = findSum();
+        
+    }
 }

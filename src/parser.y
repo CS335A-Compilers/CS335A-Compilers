@@ -11,8 +11,11 @@
     extern vector<string> typeStrings;
     GlobalSymbolTable* global_symtab = new GlobalSymbolTable();
     vector<bool> temporary_registors_in_use(MAX_REGISTORS, false);
+    vector<int> typeSizes = {1, 1, 2, 4, 8, 4, 8, 1, -1, 0};
     vector<ThreeAC*> threeAC_list;
-    bool firstFun = true;
+    map<string, int> caches;
+    int stack_frame_pointer = 0;
+    NormalClassDeclaration* curr_class;
     map<string, int> method_address;
     int curr_address = 0;
     extern FILE* yyin;
@@ -56,15 +59,15 @@
 %type<node> EQ_OP GE_OP  LE_OP  NE_OP  AND_OP  OR_OP  INC_OP  DEC_OP  LEFT_OP  RIGHT_OP  BIT_RIGHT_SHFT_OP ADD_ASSIGN  SUB_ASSIGN  MUL_ASSIGN  DIV_ASSIGN  AND_ASSIGN  OR_ASSIGN  XOR_ASSIGN  MOD_ASSIGN  LEFT_ASSIGN  RIGHT_ASSIGN  BIT_RIGHT_SHFT_ASSIGN
 %type<node> IDENTIFIERS
 
-%type<node> expression_statement normal_class_declaration_statement array_access assignment_operators basic_for_statement basic_for_statement_no_short_if block block_statement block_statements block_statements_zero_or_more block_statements_zero_or_one break_statement class_body class_body_declaration class_body_declaration_zero_or_more class_body_zero_or_one class_declaration class_extends class_extends_zero_or_one compilation_unit constructor_body continue_statement dim_expr dim_exprs empty_statement explicit_constructor_invocation field_declaration for_init for_init_zero_or_one for_statement for_statement_no_short_if for_update for_update_zero_or_one identifier_zero_or_one if_then_else_statement if_then_else_statement_no_short_if if_then_statement labeled_statement labeled_statement_no_short_if local_class_or_interface_declaration local_variable_declaration local_variable_declaration_statement normal_class_declaration ordinary_compilation_unit return_statement start_state statement  statement_no_short_if statement_without_trailing_substatement static_initializer top_level_class_or_interface_declaration top_level_class_or_interface_declaration_zero_or_more while_statement while_statement_no_short_if
-%type<expression> array_creation_expression assignment LITERALS class_instance_creation_expression additive_expression and_expression assignment_expression unary_expression unary_expression_not_plus_minus statement_expression conditional_and_expression conditional_or_expression condtional_expression equality_expression exclusive_or_expression expression expression_zero_or_one inclusive_or_expression multiplicative_expression post_decrement_expression post_increment_expression postfix_expression pre_decrement_expression pre_increment_expression primary primary_no_new_array relational_expression shift_expression variable_initializer field_access method_invocation
-%type<expression_list> argument_list statement_expression_list argument_list_zero_or_one comma_expression_zero_or_more comma_statement_expression_zero_or_more variable_initializer_list_zero_or_more variable_initializer_list
+%type<node> expression_statement normal_class_declaration_statement assignment_operators basic_for_statement basic_for_statement_no_short_if block block_statement block_statements block_statements_zero_or_more block_statements_zero_or_one break_statement class_body class_body_declaration class_body_declaration_zero_or_more class_body_zero_or_one class_declaration class_extends class_extends_zero_or_one compilation_unit constructor_body continue_statement empty_statement explicit_constructor_invocation field_declaration for_init for_init_zero_or_one for_statement for_statement_no_short_if for_update for_update_zero_or_one identifier_zero_or_one if_then_else_statement if_then_else_statement_no_short_if if_then_statement labeled_statement labeled_statement_no_short_if local_class_or_interface_declaration local_variable_declaration local_variable_declaration_statement normal_class_declaration ordinary_compilation_unit return_statement start_state statement  statement_no_short_if statement_without_trailing_substatement static_initializer top_level_class_or_interface_declaration top_level_class_or_interface_declaration_zero_or_more while_statement while_statement_no_short_if
+%type<expression> array_creation_expression assignment LITERALS array_access class_instance_creation_expression additive_expression and_expression assignment_expression unary_expression unary_expression_not_plus_minus statement_expression conditional_and_expression conditional_or_expression condtional_expression equality_expression exclusive_or_expression expression expression_zero_or_one inclusive_or_expression multiplicative_expression post_decrement_expression post_increment_expression postfix_expression pre_decrement_expression pre_increment_expression primary primary_no_new_array relational_expression shift_expression variable_initializer field_access method_invocation
+%type<expression_list> argument_list statement_expression_list argument_list_zero_or_one comma_expression_zero_or_more comma_statement_expression_zero_or_more
 %type<formal_parameter> formal_parameter 
 %type<formal_parameter_list> formal_parameter_list formal_parameter_list_zero_or_one
 %type<modifier_list> modifiers_one_or_more
 %type<modifier> modifiers
 %type<type> unann_type primitive_type numeric_type
-%type<method_declaration> constructor_declaration constructor_declarator method_declaration method_header method_declarator
+%type<method_declaration> method_declaration method_declaration_statement constructor_declaration constructor_declarator method_header method_declarator
 %type<variable_declarator_id> variable_declarator_id variable_declarator
 %type<variable_declarator_list> variable_declarator_list comma_variable_declarator_zero_or_more
 %type<dims> dims dims_zero_or_one
@@ -75,16 +78,15 @@
 //  ########   COMPILATION UNIT   ########  
 
 start_state 
-            :   compilation_unit                                                                                                                
+            :   compilation_unit                                                       
             {
                 $$ = $1; 
                 create3ACCode($$, true); 
-                cout<<"endFun\n"; 
-                createAST($$, output_file);
+                // createAST($$, output_file);
             }
 
 compilation_unit
-            :   ordinary_compilation_unit                                                                                                       
+            :   ordinary_compilation_unit                                              
             {   
                 Node* node = createNode("compilation unit"); 
                 node->addChildren({$1}); 
@@ -147,6 +149,7 @@ primary_no_new_array
             {
                 Expression* node = grammar_1("primary no new array", $1, $1->isPrimary, $1->isLiteral); 
                 node->primary_exp_val = $1->lexeme; 
+                assignLiteralValue($1, node);
                 node->addChildren({$1}); 
                 $$ = node;
             }
@@ -164,7 +167,7 @@ primary_no_new_array
             }
             |   method_invocation                                                                                                               
             {
-                Expression* node = grammar_1("primary no new array", $1, false, false); 
+                Expression* node = grammar_1("primary no new array", $1, true, false); 
                 node->addChildren({$1}); 
                 $$ = node;
             }
@@ -174,80 +177,108 @@ primary_no_new_array
                 node->addChildren({$1}); 
                 $$ = node;
             }
-     //     |   array_access                                                                                                                    {Node* node = createNode("primary no new array"); node->addChildren({$1}); $$ = node;}
-     //     |   THIS_KEYWORD                                                                                                                    {Expression* node = grammar_1("primary no new array",$1, $1->isPrimary, $1->isLiteral); node->addChildren({$1}); $$ = node;}
-     //     |   type_name DOT_OP THIS_KEYWORD                                                                                                   {Node* node = createNode("primary no new array"); node->addChildren({$1,$2,$3}); $$ = node;}
-     //     |   class_literal                                                                                                                   {Node* node = createNode("primary no new array"); node->addChildren({$1}); $$ = node;}
-
-
-
-// #############  Assign proper value to field access modifier  ##############
+            |   array_access                                                                                                                    
+            {   
+                Expression* node = grammar_1("primary no new array", $1, $1->isPrimary, $1->isLiteral); 
+                node->addChildren({$1}); 
+                $$ = node;
+            }
+            // |   THIS_KEYWORD                                                                                                                    
+            // {   Expression* node = grammar_1("primary no new array",$1, $1->isPrimary, $1->isLiteral); 
+            //     node->addChildren({$1}); 
+            //     $$ = node;
+            // }
 
 field_access
             :   IDENTIFIERS DOT_OP type_name_scoping                                                                                            
             {
                 IdentifiersList* temp = new IdentifiersList("type_name", $1->lexeme, $3->identifiers); 
-                if (!typenameErrorChecking(temp, global_symtab->current_level, 0)) 
+                if(!typenameErrorChecking(temp, global_symtab->current_level, 0)) 
                     YYERROR; 
                 Value* va = new Value(); 
-                va->primitivetypeIndex = -1; 
-                Expression* node = new Expression("postfix expression", va, true, false); 
-                if (node == NULL) 
-                    YYERROR; 
-                node->primary_exp_val = temp->createString(); 
-                node->isPrimary = true; 
+                Expression* node = new Expression("postfix expression", va, true, false);
+                va->primitivetypeIndex = ((LocalVariableDeclaration*)(get_local_symtab(global_symtab->current_level)->get_entry($3->identifiers[0], 0)))->type->primitivetypeIndex;
+                node->name = $3->identifiers[0];
+                if(caches.find(temp->createString())==caches.end()){
+                    int tt = findEmptyRegistor();
+                    temporary_registors_in_use[tt] = true;
+                    LocalVariableDeclaration* temp2 = ((LocalVariableDeclaration*)(get_local_symtab(global_symtab->current_level)->get_entry($1->lexeme, 0)));
+                    int regtt = temp2->reg_index;
+                    int offset = -1;
+                    for(int i=0;i<curr_class->field_variables.size();i++){
+                        if(curr_class->field_variables[i].first->name == $3->identifiers[0]) {
+                            offset = curr_class->field_variables[i].second;
+                            break;
+                        }
+                    }
+                    ThreeAC* inst = new ThreeAC("+", "", tt, regtt, -1, "", to_string(offset), 0);
+                    node->code.push_back(threeAC_list.size());
+                    threeAC_list.push_back(inst);
+                    node->primary_exp_val = "*t" + to_string(tt); 
+                    caches.insert({temp->createString(), tt});
+                }
+                else{
+                    node->primary_exp_val = "t" + to_string(caches[temp->createString()]);
+                }
                 node->addChildren({$1,$2,$3}); 
                 $$ = node;
             }
-     //     |   SUPER_KEYWORD DOT_OP IDENTIFIERS                                                                                                {Node* node = createNode("field access"); node->addChildren({$1,$2,$3}); $$ = node;}
+            // |   THIS_KEYWORD DOT_OP IDENTIFIERS                                                                                                
+            // {   
+            //     Node* node = createNode("field access"); 
+            //     node->addChildren({$1,$2,$3}); 
+            //     $$ = node;
+            // }
 
 array_access
-            :   type_name OP_SQR_BRCKT expression CLOSE_SQR_BRCKT                                                                               
+            :   type_name_scoping OP_SQR_BRCKT expression CLOSE_SQR_BRCKT                                                                               
             {
-                Node* node = createNode("array access"); 
-                node->addChildren({$1,$2,$3,$4}); 
-                $$ = node;
-            }
-            |   primary_no_new_array OP_SQR_BRCKT expression CLOSE_SQR_BRCKT                                                                    
-            {
-                Node* node = createNode("array access"); 
+                Expression* node = getArrayAccess($1->identifiers[0], $3);
+                if(node == NULL)
+                    YYERROR;
                 node->addChildren({$1,$2,$3,$4}); 
                 $$ = node;
             }
 
 method_invocation
-            :   IDENTIFIERS  OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT                                                                    
+            :   IDENTIFIERS OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT                                                                    
             {
                 IdentifiersList* temp = new IdentifiersList("type_name", $1->lexeme, {});                                    
-                if(!typenameErrorChecking(temp, global_symtab->current_level, 2)) 
+                if(!typenameErrorChecking(temp, global_symtab->current_level, -1)) 
                     YYERROR; 
                 Value* va = new Value(); 
-                va->primitivetypeIndex = ((MethodDeclaration*)(get_local_symtab(global_symtab->current_level)->get_entry($1->lexeme, 2)))->type->primitivetypeIndex; 
+                va->primitivetypeIndex = ((MethodDeclaration*)(get_local_symtab(global_symtab->current_level)->get_entry($1->lexeme, -1)))->type->primitivetypeIndex; 
                 Expression* node = new Expression("postfix expression", va, false, false); 
                 if(node == NULL) 
                     YYERROR; 
+                if(!checkParams($1->lexeme, $3))
+                    YYERROR;
                 node->name = temp->createString(); 
                 node->entry_type = METHOD_INVOCATION; 
+                int tx = findEmptyRegistor();
+                temporary_registors_in_use[tx] = true;
+                node->reg_index = tx;
+                node->registor_index = tx;
+                node->primary_exp_val = "t" + to_string(tx);
                 node->addChildren({$1,$2,$3,$4}); 
                 $$ = node;
             }
-            |   field_access OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT                                                                    
-            {
-                IdentifiersList* temp = new IdentifiersList("type_name", "", {}); 
-                temp->addIdentifiers($1->primary_exp_val); 
-                if(!typenameErrorChecking(temp, global_symtab->current_level, 2)) 
-                    YYERROR; 
-                Value* va = new Value(); 
-                va->primitivetypeIndex = ((MethodDeclaration*)(get_local_symtab(global_symtab->current_level)->get_entry($1->lexeme, 2)))->type->primitivetypeIndex; 
-                Expression* node = new Expression("postfix expression", va, false, false); 
-                if(node == NULL) 
-                    YYERROR; 
-                node->name = temp->createString(); 
-                node->entry_type = METHOD_INVOCATION; 
-                node->addChildren({$1,$2,$3,$4}); 
-                $$ = node;
-            }
-     //     |   SUPER_KEYWORD DOT_OP IDENTIFIERS OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT                                                 {Node* node = createNode("method invocation"); node->addChildren({$1,$2,$3,$4,$5,$6}); $$ = node;}
+            // |   field_access OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT                                                                    
+            // {
+            //     IdentifiersList* temp = new IdentifiersList("type_name", "", {}); 
+            //     temp->addIdentifiers($1->primary_exp_val); 
+            //     if(!typenameErrorChecking(temp, global_symtab->current_level, -1)) 
+            //         YYERROR; 
+            //     Value* va = new Value(); 
+            //     va->primitivetypeIndex = ((MethodDeclaration*)(get_local_symtab(global_symtab->current_level)->get_entry($1->lexeme, -1)))->type->primitivetypeIndex; 
+            //     Expression* node = new Expression("postfix expression", va, false, false); 
+            //     if(node == NULL) 
+            //         YYERROR; 
+            //     node->name = temp->createString(); 
+            //     node->entry_type = METHOD_INVOCATION; 
+            //     node->addChildren({$1,$2,$3,$4}); 
+            //     $$ = node;
+            // }
 
 expression
             :   assignment_expression                                                                                                           
@@ -650,14 +681,17 @@ postfix_expression
             |   IDENTIFIERS                                                                                                                     
             {
                 IdentifiersList* temp = new IdentifiersList("identifiers", "", {$1->lexeme}); 
-                if(!typenameErrorChecking(temp, global_symtab->current_level, 0)) 
+                if(!typenameErrorChecking(temp, global_symtab->current_level, -1)) 
                     YYERROR; 
                 Value* va = new Value(); 
                 va->primitivetypeIndex = ((LocalVariableDeclaration*)(get_local_symtab(global_symtab->current_level)->get_entry($1->lexeme, 0)))->type->primitivetypeIndex; 
                 Expression* node = new Expression("postfix expression", va, true, false); 
                 if(node == NULL) 
                     YYERROR; 
-                node->primary_exp_val = $1->lexeme; 
+                int t = get_local_symtab(global_symtab->current_level)->get_entry($1->lexeme, 0)->reg_index;
+                if(t != -1) node->primary_exp_val = "t" + to_string(t);
+                else node->primary_exp_val = $1->lexeme; 
+                node->registor_index = t;
                 node->isPrimary = true; 
                 node->addChildren({$1}); 
                 $$ = node;
@@ -750,11 +784,12 @@ class_instance_creation_expression
                 if(val == NULL) 
                     YYERROR; 
                 Expression* node = new Expression("class instance creation expression", val, false, false); 
+
                 node->addChildren({$1,$2,$3,$4,$5,$6}); 
                 $$ = node;
             }
 
-// ##############  class_body is ignored for time being  ##################
+// ##############  class_body is ignored for time being  ##############
 
 class_body_zero_or_one
             :   /* empty */                                                                                                                             
@@ -801,17 +836,32 @@ assignment
                 Value* va = new Value(); 
                 va->primitivetypeIndex = ((LocalVariableDeclaration*)(get_local_symtab(global_symtab->current_level)->get_entry($1->lexeme, 0)))->type->primitivetypeIndex; 
                 Expression* node1 = new Expression("postfix expression", va, true, false); 
-                if(node1 == NULL) 
-                    YYERROR; 
-                node1->primary_exp_val = $1->lexeme; 
-                Expression* node = assignValue(node1, $2->children[0]->lexeme, $3); 
+                int t = get_local_symtab(global_symtab->current_level)->get_entry($1->lexeme, 0)->reg_index;
+                if(t != -1) node1->primary_exp_val = "t" + to_string(t);
+                else node1->primary_exp_val = $1->lexeme; 
+                node1->registor_index = t;
+                Expression* node = assignValue(node1, $2->children[0]->lexeme, $3, $1->lexeme);
                 if(node == NULL) 
                     YYERROR; 
                 node->addChildren({$1,$2,$3});  
                 $$ = node;
-                }           
-     //     |   field_access assignment_operators expression                                                                                            {Expression* node = assignValue($1, $2->children[0]->lexeme, $3); if(node == NULL) YYERROR; node->addChildren({$1,$2,$3});  $$ = node;}
-     //     |   array_access assignment_operators expression                                                                                            {Node* node = createNode("assignment"); node->addChildren({$1,$2,$3}); $$ = node;}           
+            }           
+            |   field_access assignment_operators expression                                                                                            
+            {   
+                Expression* node = assignValue($1, $2->children[0]->lexeme, $3, $1->name); 
+                if(node == NULL) 
+                    YYERROR; 
+                node->addChildren({$1,$2,$3});  
+                $$ = node;
+            }
+            |   array_access assignment_operators expression                                                                                            
+            {   
+                Expression* node = assignValue($1,  $2->children[0]->lexeme, $3, $1->name);
+                if(node == NULL) 
+                    YYERROR; 
+                node->addChildren({$1,$2,$3});
+                $$ = node;
+            }           
 
 assignment_operators 
             :   ASSIGNMENT_OP                                                                                                                           
@@ -890,16 +940,22 @@ assignment_operators
 array_creation_expression
             :   NEW_KEYWORD primitive_type OP_SQR_BRCKT expression CLOSE_SQR_BRCKT                                                                      
             {
+                if($4->value->primitivetypeIndex > LONG) {
+                    string err = "type mismatch: cannot convert from \"" + typeStrings[$4->value->primitivetypeIndex] + "\" to int";
+                    yyerror(const_cast<char*>(err.c_str()));
+                    YYERROR;
+                }
+                if($4->value->num_val.size() == 0) {
+                    yyerror("Variable must provide dimension literal only");
+                    YYERROR;
+                }
                 Value* val = new Value(); 
-                val->primitivetypeIndex = ARRAY; 
-                val->dim1_count = 0; 
+                val->primitivetypeIndex = $2->primitivetypeIndex; 
+                val->dim1_count = $4->value->num_val[0];
                 Expression* node = new Expression("array creation expression", val, false, false); 
                 node->addChildren({$1,$2,$3,$4,$5}); 
                 $$ = node;
-            }           
-     //     |   NEW_KEYWORD primitive_type dims array_initializer                                                                                       {Node* node = createNode("array creation expression"); node->addChildren({$1,$2,$3,$4}); $$ = node;}           
-     //     |   NEW_KEYWORD type_name dim_expr dim_exprs dims_zero_or_one                                                                              {Node* node = createNode("array creation expression"); node->addChildren({$1,$2,$3,$4,$5}); $$ = node;}           
-     //     |   NEW_KEYWORD type_name dims array_initializer                                                                                           {Node* node = createNode("array creation expression"); node->addChildren({$1,$2,$3,$4}); $$ = node;}           
+            }
 
 dims_zero_or_one
             :   /* empty */                                                                                                                             
@@ -915,28 +971,6 @@ dims_zero_or_one
                 $$ = node;
             }           
 
-dim_exprs
-            :   /* empty */                                                                                                                             
-            {
-                Node* node = createNode("dim exprs"); 
-                node->addChildren({}); 
-                $$ = node;
-            }           
-            |   dim_exprs dim_expr                                                                                                                      
-            {
-                Node* node = createNode("dim exprs"); 
-                node->addChildren({$1,$2}); 
-                $$ = node;
-            }           
-
-dim_expr    
-            :  OP_SQR_BRCKT expression CLOSE_SQR_BRCKT                                                                                                  
-            {
-                Node* node = createNode("dim expr"); 
-                node->addChildren({$1,$2,$3}); 
-                $$ = node;
-            }
-
 dims
             :   OP_SQR_BRCKT CLOSE_SQR_BRCKT                                                                                                            
             {
@@ -944,12 +978,6 @@ dims
                 node->addChildren({$1,$2}); 
                 $$ = node;
             }
-            |   OP_SQR_BRCKT CLOSE_SQR_BRCKT dims                                                                                                       
-            {
-                Dims* node = new Dims("dims", $3->count_dims + 1); 
-                node->addChildren({$1,$2,$3}); 
-                $$ = node;
-            } 
 
 primitive_type
             :   numeric_type                                                                                                                            
@@ -1009,37 +1037,6 @@ numeric_type
                 $$ = node;
             }
 
-// array_initializer
-//             :   OP_CURLY_BRCKT variable_initializer_list_zero_or_more CLOSE_CURLY_BRCKT                                                                 {Node* node = createNode("array initializer"); node->addChildren({$1,$2,$3}); $$ = node;}
-
-variable_initializer_list_zero_or_more
-            :   /* empty */                                                                                                                             
-            {
-                ExpressionList* node = new ExpressionList("variable initializer list zero or more", NULL, {}); 
-                node->addChildren({}); 
-                $$ = node;
-            }
-            |   variable_initializer_list                                                                                                               
-            {
-                ExpressionList* node = new ExpressionList("variable initializer list zero or more", NULL, $1->lists); 
-                node->addChildren({$1}); 
-                $$ = node;
-            }
-
-variable_initializer_list
-            :   variable_initializer                                                                                                                    
-            {
-                ExpressionList* node = new ExpressionList("variable initializer list", $1, {}); 
-                node->addChildren({$1}); 
-                $$ = node;
-            }
-            |   variable_initializer COMMA_OP variable_initializer_list                                                                                 
-            {
-                ExpressionList* node = new ExpressionList("variable initializer list", $1, $3->lists); 
-                node->addChildren({$1,$2,$3}); 
-                $$ = node;
-            }
-
 variable_initializer
             :   expression                                                                                                                              
             {
@@ -1047,7 +1044,6 @@ variable_initializer
                 node->addChildren({$1}); 
                 $$ = node;
             }
-     //     |   array_initializer                                                                                                                    {Expression* node = grammar_1("variable initializer", $1, $1->isPrimary, $1->isLiteral); node->addChildren({$1}); $$ = node;}
 
 type_name
             :   type_name_scoping                                                                                                                       
@@ -1072,8 +1068,6 @@ type_name_scoping
                 node->addChildren({$1,$2,$3}); 
                 $$ = node;
             }
-
-// ########   MODIFIERS   ########  
 
 modifiers
             :   PUBLIC_KEYWORD                                                                                                                          
@@ -1106,15 +1100,12 @@ modifiers
                 node->addChildren({$1}); 
                 $$ = node;
             }
-     //     |   SEALED_KEYWORD                                                                                                                          {Modifier* node = new Modifier(SEALED, "modifiers"); node->addChildren({$1}); $$ = node;}
-     //     |   NONSEALED_KEYWORD                                                                                                                       {Modifier* node = new Modifier(NONSEALED, "modifiers"); node->addChildren({$1}); $$ = node;}
             |   STRICTFP_KEYWORD                                                                                                                        
             {
                 Modifier* node = new Modifier(STRICTFP, "modifiers"); 
                 node->addChildren({$1}); 
                 $$ = node;
             }
-     //     |   TRANSITIVE_KEYWORD                                                                                                                      {Modifier* node = new Modifier(TRANSITIVE, "modifiers"); node->addChildren({$1}); $$ = node;}
             |   FINAL_KEYWORD                                                                                                                           
             {
                 Modifier* node = new Modifier(FINAL, "modifiers"); 
@@ -1245,7 +1236,6 @@ local_variable_declaration
             node->addChildren({$1,$2}); 
             if(!addVariablesToSymtab($1, $2, global_symtab->current_level, NULL, false)) 
                 YYERROR; 
-            node->name = createTAC($2); 
             $$ = node;
         }
 
@@ -1429,7 +1419,11 @@ statement_expression
             node->addChildren({$1}); 
             $$ = node;
         }
-     // |  method_invocation                                                                                                                            {Expression* node = grammar_1("statement expression", $1, $1->isPrimary, $1->isLiteral); node->addChildren({$1}); $$ = node;}
+        |  method_invocation                                                                                                                            
+        {   Expression* node = grammar_1("statement expression", $1, $1->isPrimary, $1->isLiteral); 
+            node->addChildren({$1}); 
+            $$ = node;
+        }
         |  class_instance_creation_expression                                                                                                           
         {
             Expression* node = grammar_1("statement expression", $1, $1->isPrimary, $1->isLiteral); 
@@ -1651,14 +1645,20 @@ identifier_zero_or_one
         }
 
 return_statement
-        :  RETURN_KEYWORD expression_zero_or_one SEMICOLON_OP                                                                                           
+        :  RETURN_KEYWORD expression SEMICOLON_OP                                                                                           
         {
             Node* node = createNode("return statement"); 
             node->addChildren({$1,$2,$3}); 
             node->entry_type = EXPRESSIONS; 
-            node->code.push_back(threeAC_list.size()); 
-            ThreeAC* temp = new ThreeAC("return", $2->primary_exp_val, -1, -1, -1, "", "", 5); 
-            threeAC_list.push_back(temp); 
+            Expression* node1 = new Expression("return_registor", NULL, true, false);
+            node1->primary_exp_val = "%rax";
+            node->code.push_back(addInstruction(node1, $2, NULL, "", 0));
+            $$ = node;
+        }
+        |   RETURN_KEYWORD SEMICOLON_OP
+        {
+            Node* node = createNode("return statement"); 
+            node->addChildren({$1,$2}); 
             $$ = node;
         }
 
@@ -1689,6 +1689,7 @@ normal_class_declaration_statement
             node->entry_type = CLASS_DECLARATION; 
             node->addChildren({$1,$2,$3}); 
             get_local_symtab(global_symtab->current_level)->add_entry(node); 
+            curr_class = node;
             $$ = node;
         }
         |  modifiers_one_or_more CLASS_KEYWORD IDENTIFIERS class_extends_zero_or_one                                                                   
@@ -1698,6 +1699,7 @@ normal_class_declaration_statement
             node->entry_type = CLASS_DECLARATION; 
             node->addChildren({$1,$2,$3,$4}); 
             get_local_symtab(global_symtab->current_level)->add_entry(node); 
+            curr_class = node;
             $$ = node;
         }
 
@@ -1791,7 +1793,6 @@ field_declaration
             if(!addVariablesToSymtab($1, $2, global_symtab->current_level, NULL, true)) 
                 YYERROR;  
             node->addChildren({$1,$2,$3});  
-            node->name = createTAC($2); 
             $$ = node;
         }
         |  modifiers_one_or_more unann_type variable_declarator_list SEMICOLON_OP                                                                      
@@ -1800,7 +1801,6 @@ field_declaration
             if(!addVariablesToSymtab($2, $3, global_symtab->current_level, $1, true)) 
                 YYERROR;  
             node->addChildren({$1,$2,$3,$4}); 
-            node->name = createTAC($3); 
             $$ = node;
         }
 
@@ -1831,7 +1831,8 @@ variable_declarator
         {
             VariableDeclaratorId* node = new VariableDeclaratorId("variable_declarator", $1->identifier, $1->num_of_dims, NULL);      
             node->entry_type = VARIABLE_DECLARATION; 
-            node->lex_val = ""; node->addChildren({$1}); 
+            node->lex_val = ""; 
+            node->addChildren({$1}); 
             $$ = node;
         }
         |  variable_declarator_id ASSIGNMENT_OP variable_initializer                                                                                    
@@ -1870,48 +1871,38 @@ unann_type
         }
 
 method_declaration
-        :  method_header block                                                                                                                          
+        :   method_declaration_statement block
         {
-            MethodDeclaration* node = new MethodDeclaration("method_declaration"); 
+            MethodDeclaration* node = new MethodDeclaration("method_declaration_statement");   
+            node->entry_type = METHOD_DECLARATION; 
             node->line_no = $1->line_no; 
             node->name = $1->name; 
             node->formal_parameter_list = $1->formal_parameter_list; 
             node->type = $1->type; 
-            node->modifiers = NULL; 
-            node->addChildren({$1,$2});  
-            node->entry_type = METHOD_DECLARATION; 
-            get_local_symtab(global_symtab->current_level)->add_entry(node); 
+            node->modifiers = $1->modifiers;
             ((LocalSymbolTable*)((global_symtab->symbol_tables)[$2->parent_level.first][$2->parent_level.second]))->level_node = (Node*)(node); 
+            for(int i=0;i<node->formal_parameter_list->lists.size();i++){
+                int t = node->formal_parameter_list->lists[i]->reg_index;
+                temporary_registors_in_use[t] = false;
+            }
+            node->addChildren({$1, $2});
             $$ = node;
         }
-        |  modifiers_one_or_more method_header SEMICOLON_OP                                                                                             
+        |   method_declaration_statement SEMICOLON_OP
         {
-            MethodDeclaration* node = new MethodDeclaration("method_declaration"); 
-            node->line_no = $2->line_no; 
-            node->name = $2->name; 
-            node->formal_parameter_list = $2->formal_parameter_list; 
-            node->type = $2->type; 
-            node->modifiers = $1; 
-            node->addChildren({$1,$2,$3}); 
+            MethodDeclaration* node = new MethodDeclaration("method_declaration_statement");   
             node->entry_type = METHOD_DECLARATION; 
-            get_local_symtab(global_symtab->current_level)->add_entry(node); 
+            node->line_no = $1->line_no; 
+            node->name = $1->name; 
+            node->formal_parameter_list = $1->formal_parameter_list; 
+            node->type = $1->type; 
+            node->modifiers = $1->modifiers;
+            node->addChildren({$1, $2});
             $$ = node;
         }
-        |  modifiers_one_or_more method_header block                                                                                                    
-        {
-            MethodDeclaration* node = new MethodDeclaration("method_declaration"); 
-            node->line_no = $2->line_no; 
-            node->name = $2->name; 
-            node->formal_parameter_list = $2->formal_parameter_list; 
-            node->type = $2->type; 
-            node->modifiers = $1; 
-            node->addChildren({$1,$2,$3}); 
-            node->entry_type = METHOD_DECLARATION; 
-            get_local_symtab(global_symtab->current_level)->add_entry(node); 
-            ((LocalSymbolTable*)((global_symtab->symbol_tables)[$3->parent_level.first][$3->parent_level.second]))->level_node = (Node*)(node); 
-            $$ = node;
-        }
-        |  method_header SEMICOLON_OP                                                                                                                  
+
+method_declaration_statement
+        :  method_header                                                                                                                          
         {
             MethodDeclaration* node = new MethodDeclaration("method_declaration"); 
             node->line_no = $1->line_no; 
@@ -1919,8 +1910,19 @@ method_declaration
             node->formal_parameter_list = $1->formal_parameter_list; 
             node->type = $1->type; 
             node->modifiers = NULL; 
-            node->addChildren({$1,$2});  
-            node->entry_type = METHOD_DECLARATION; 
+            node->addChildren({$1});  
+            get_local_symtab(global_symtab->current_level)->add_entry(node); 
+            $$ = node;
+        }
+        |  modifiers_one_or_more method_header                                                                                             
+        {
+            MethodDeclaration* node = new MethodDeclaration("method_declaration"); 
+            node->line_no = $2->line_no; 
+            node->name = $2->name; 
+            node->formal_parameter_list = $2->formal_parameter_list; 
+            node->type = $2->type; 
+            node->modifiers = $1; 
+            node->addChildren({$1,$2}); 
             get_local_symtab(global_symtab->current_level)->add_entry(node); 
             $$ = node;
         }
@@ -1955,7 +1957,6 @@ method_declarator
             node->addChildren({$1,$2,$3,$4,$5}); 
             $$ = node;
         }
-     // |  IDENTIFIERS OP_BRCKT reciever_parameter COMMA_OP formal_parameter_list_zero_or_one CLOSE_BRCKT dims_zero_or_one                              {Node* node = createNode("method declarator"); node->addChildren({$1,$2,$3,$4,$5,$6,$7}); $$ = node;}
 
 formal_parameter_list_zero_or_one
         :   /* empty */                                                                                                                                 
@@ -1990,18 +1991,34 @@ formal_parameter
         {
             FormalParameter* node = new FormalParameter("formal parameter", $1, $2, false); 
             node->addChildren({$1,$2}); 
+            node->name = $2->identifier;
+            node->entry_type = VARIABLE_DECLARATION;
+            int t = findEmptyRegistor();
+            node->reg_index = t;
+            temporary_registors_in_use[t] = true;
+            get_local_symtab(global_symtab->current_level)->add_entry(node);
             $$ = node;
         }
         |  FINAL_KEYWORD unann_type variable_declarator_id                                                                                              
         {
             FormalParameter* node = new FormalParameter("formal parameter", $2, $3, true); 
+            node->name = $3->identifier;
+            node->entry_type = VARIABLE_DECLARATION;
+            int t = findEmptyRegistor();
+            node->reg_index = t;
+            temporary_registors_in_use[t] = true;
+            get_local_symtab(global_symtab->current_level)->add_entry(node);
             node->addChildren({$1,$2,$3}); 
             $$ = node;
         }
 
 static_initializer
         :  STATIC_KEYWORD block                                                                                                                         
-        {Node* node = createNode("static initializer"); node->addChildren({$1,$2}); $$ = node;}
+        {   
+            Node* node = createNode("static initializer"); 
+            node->addChildren({$1,$2}); 
+            $$ = node;
+        }
 
 constructor_declaration
         :  constructor_declarator constructor_body                                                                                                      
@@ -2226,7 +2243,7 @@ OP_BRCKT
         {
             Node* temp = createNode($1); 
             temp->isTerminal = true; 
-            global_symtab->increase_level(); 
+            // global_symtab->increase_level(); 
             $$ = temp;
         }
 CLOSE_BRCKT
@@ -2234,7 +2251,7 @@ CLOSE_BRCKT
         {
             Node* temp = createNode($1); 
             temp->isTerminal = true; 
-            global_symtab->decrease_level(); 
+            // global_symtab->decrease_level(); 
             $$ = temp;
         }
 OP_SQR_BRCKT
@@ -2563,7 +2580,7 @@ AND_OP
         }
 
 OR_OP
-        :       OR_OP_TERMINAL                                                          
+        :       OR_OP_TERMINAL 
         {
             Node* temp = createNode($1); 
             temp->isTerminal = true; 
@@ -2571,7 +2588,7 @@ OR_OP
         }
 
 INC_OP
-        :       INC_OP_TERMINAL                                                         
+        :       INC_OP_TERMINAL
         {
             Node* temp = createNode($1); 
             temp->isTerminal = true; 
@@ -2579,7 +2596,7 @@ INC_OP
         }
 
 DEC_OP
-        :       DEC_OP_TERMINAL                                                         
+        :       DEC_OP_TERMINAL
         {
             Node* temp = createNode($1); 
             temp->isTerminal = true; 
@@ -2595,7 +2612,7 @@ LEFT_OP
         }
 
 RIGHT_OP
-        :       RIGHT_OP_TERMINAL                                                       
+        :       RIGHT_OP_TERMINAL
         {
             Node* temp = createNode($1); 
             temp->isTerminal = true; 
@@ -2603,7 +2620,7 @@ RIGHT_OP
         }
 
 BIT_RIGHT_SHFT_OP
-        :       BIT_RIGHT_SHFT_OP_TERMINAL                                              
+        :       BIT_RIGHT_SHFT_OP_TERMINAL
         {
             Node* temp = createNode($1); 
             temp->isTerminal = true; 
@@ -2611,7 +2628,7 @@ BIT_RIGHT_SHFT_OP
         }
 
 ADD_ASSIGN
-        :       ADD_ASSIGN_TERMINAL                                                     
+        :       ADD_ASSIGN_TERMINAL
         {
             Node* temp = createNode($1); 
             temp->isTerminal = true; 
@@ -2619,7 +2636,7 @@ ADD_ASSIGN
         }
 
 SUB_ASSIGN
-        :       SUB_ASSIGN_TERMINAL                                                     
+        :       SUB_ASSIGN_TERMINAL
         {
             Node* temp = createNode($1); 
             temp->isTerminal = true; 
@@ -2627,7 +2644,7 @@ SUB_ASSIGN
         }
 
 MUL_ASSIGN
-        :       MUL_ASSIGN_TERMINAL                                                     
+        :       MUL_ASSIGN_TERMINAL
         {
             Node* temp = createNode($1); 
             temp->isTerminal = true; 
@@ -2707,10 +2724,10 @@ IDENTIFIERS
         }
 
 LITERALS
-        :       NUM_LITERALS                                                            
+        :       NUM_LITERALS   
         {
             Value* va = new Value(); 
-            va->primitivetypeIndex = LONG;    
+            va->primitivetypeIndex = INT;    
             va->num_val.push_back(strtol($1, NULL, 10));      
             Expression* temp = new Expression($1, va, true, true); 
             temp->isTerminal = true; 
@@ -2737,7 +2754,7 @@ LITERALS
             temp->primary_exp_val = $1; 
             $$ = temp;
         }
-        |       CHAR_LITERALS                                                           
+        |       CHAR_LITERALS  
         {
             Value* va = new Value(); 
             va->primitivetypeIndex = CHAR;    
@@ -2762,235 +2779,20 @@ LITERALS
 
 %%
 
-string filename;
-map<string, vector<string>> csv_contents;
-/*temp->value->is_char_val = true;*/
-// use the 'fprintf' function to print the lexeme, its token and its count to a CSV file. 
-void print_to_csv() {
-    // Loop through the map and write the data to the CSV file
-   for (auto z : csv_contents) {
-      // Open the CSV file for writing
-      ofstream file("./output/" + z.first + ".csv");
-      // Loop through the vector and write each element to the CSV file
-      file << "Name,Type,Syntactic Category,Line no" << "\n";
-      for (auto v : z.second) {
-         file << v << "\n";
-      }
-   }
-}
-
-// Define an array of strings that corresponds to the type values.
-vector<string> class_name;
-int class_index = -1;
-
-void get_csv_entries(LocalSymbolTable* scope){
-    if(scope==NULL) return ;
-    vector<LocalSymbolTable*> children = scope->children;
-    // get the symbol table entries
-    vector<Node*> temp_var = scope->symbol_table_entries;
-    for (Node* variable : temp_var){
-        if (variable->isWritten ==  false){
-            // For class csv file
-            if(variable->entry_type == CLASS_DECLARATION){
-                variable->isWritten = true;
-                csv_contents.insert({variable->name, {}});
-                class_name.push_back(variable->name);
-                class_index++;
-            }
-
-            if(variable->entry_type == METHOD_DECLARATION){
-                variable->isWritten = true;
-                csv_contents.insert({variable->name, {}});
-                int dt_index = ((MethodDeclaration*)(variable))->type->primitivetypeIndex;
-                string type;
-                if (dt_index == -1){
-                }
-                else{
-                    type = typeStrings[dt_index];
-                }
-                string str = variable->name + "," + type + "," + variable->lexeme + "," + to_string(variable->line_no);
-                csv_contents[class_name[class_index]].push_back(str);
-            }
-            // For method csv file
-            if(variable->entry_type == VARIABLE_DECLARATION){
-                int dt_index = ((LocalVariableDeclaration*)(variable))->type->primitivetypeIndex;
-                string type;
-                if (dt_index == -1){
-                    type = ((LocalVariableDeclaration*)(variable))->type->class_instantiated_from->name;
-                }
-                else{
-                    type = typeStrings[dt_index];
-                }
-                string str = variable->name + "," + type + "," + variable->lexeme + "," + to_string(variable->line_no);
-                LocalSymbolTable* temp = get_local_symtab(variable->current_level);
-                while(true){
-                    if(temp==NULL) break;
-                    if(temp->level_node != NULL && temp->level_node->entry_type == METHOD_DECLARATION) {
-                        break;
-                    }
-                    else{
-                        temp = (LocalSymbolTable*)temp->parent;
-                    }
-                }
-                if(temp!=NULL && temp->level_node != NULL){
-                    variable->isWritten = true;
-                    csv_contents[temp->level_node->name].push_back(str);
-                }
-            }
-            
-        }
-        if (variable->isWritten ==  false){
-            // For class csv file
-            if(variable->entry_type == VARIABLE_DECLARATION){
-                int dt_index = ((LocalVariableDeclaration*)(variable))->type->primitivetypeIndex;
-                string type;
-                if (dt_index == -1){
-                    type = ((LocalVariableDeclaration*)(variable))->type->class_instantiated_from->name;
-                }
-                else{
-                    type = typeStrings[dt_index];
-                }
-                string str = variable->name + "," + type + "," + variable->lexeme + "," + to_string(variable->line_no);
-                LocalSymbolTable* temp = get_local_symtab(variable->current_level);
-                while(true){
-                    if(temp==NULL) break;
-                    if(temp->level_node != NULL && temp->level_node->entry_type == CLASS_DECLARATION) {
-                        break;
-                    }
-                    else{
-                        temp = (LocalSymbolTable*)temp->parent;
-                    }
-                }
-                if(temp!=NULL && temp->level_node != NULL){
-                    variable->isWritten = true;
-                    csv_contents[temp->level_node->name].push_back(str);
-                }
-            }
-        }
-    }
-    Node* level_node = scope->level_node;
-    if (level_node == NULL){
-        return;
-    }
-    if (level_node->entry_type == METHOD_DECLARATION){
-        for (LocalSymbolTable* child : children){
-            get_csv_entries(child);
-        } 
-    }
-}
-
 int main(int argc, char **argv){
     if (argc != 3){
         if(argc == 4 && strcmp(argv[3], "--verbose") == 0) {
-                yydebug = 1;        
+            yydebug = 1;        
         }
-        else if (argc == 2 && strcmp(argv[1], "--help") == 0)
-        {
-            printf("=====================================================================\n");
-            printf(" \t \t \t  AST GENERATOR \n");
-            printf("=====================================================================\n");
-            printf("\nASTGenerator is a combined scanner and parser for the JAVA 17 language, \nwhich generates an abstract syntax tree (AST) for any given input java file.\n\n");
-            printf("It takes a java file as an input, extracts the tokens from it \nand generates a dot file containing the abstract syntax tree for the input file.\n\n");
-            printf("----------------------------\n");
-            printf(" \t  SCANNER \n");
-            printf("----------------------------\n");
-            printf("The JAVA 17 Lexer (Scanner) analyzes the content of the input file and \nextracts the tokens and lexemes out of it.\n\n");
-            printf("The lexical structure given in \n\t\t'https://docs.oracle.com/javase/specs/jls/se17/html/jls-3.html' \nis followed to create the lexer ...\n\n");
-            printf("Taking an example -\n");
-            printf("\tclass Test {\n\t    int i = 5 + 5;\n\t}\n\n");
-            printf("This generates the following tokens and lexemes -\n");
-            printf("--------------------------------\n");
-            printf("  Lexeme  |   Token   |  Count  \n");
-            printf("--------------------------------\n");
-            printf("   class  |  keyword  |    1    \n");
-            printf("   Test   | identifier|    1    \n");
-            printf("     {    | separator |    1    \n");
-            printf("    int   |  keyword  |    1    \n");
-            printf("     i    | identifier|    1    \n");
-            printf("     =    |  operator |    1    \n");
-            printf("     5    |  literal  |    2    \n");
-            printf("     +    |  operator |    1    \n");
-            printf("     ;    | separator |    1    \n");
-            printf("     }    | separator |    1    \n\n\n");
-            printf("----------------------------\n");
-            printf(" \t  PARSER \n");
-            printf("----------------------------\n");
-            printf("The JAVA 17 parser uses the automated parser generator - Bison.\nIt uses the grammar given in -\n\t\thttps://docs.oracle.com/javase/specs/jls/se17/html/jls-19.html\n\n");
-            printf("The following language features are supported -\n");
-            printf("   - Primitive Data Types\n");
-            printf("   - Multidimensional arrays\n");
-            printf("   - Basic Operators\n\t- Arithmetic Operators\n\t- Pre-increment, Pre-decrement, Post-increment and Post-decrement\n\t- Relational Operators\n\t- Bitwise Operators\n\t- Logical Operators\n\t- Assignment Operators\n\t- Ternary Operators\n");
-            printf("   - Control Flow\n\t- If-else\n\t- For\n\t- While\n\t- Do-while\n\t- Switch\n");
-            printf("   - Methods and method calls\n");
-            printf("   - Classes and Objects\n");
-            printf("   - Import statements\n");
-            printf("   - Strings\n");
-            printf("   - Interfaces\n");
-            printf("   - Type Casting\n");
-            printf("   - Enums and Records\n");
-            printf("   - Constructors\n");
-            printf("   - Blocks, Statements, and Patterns\n\n");
-            printf("For the same example, the following nodes and edges will be generated ...\n");
-            printf("           top_level_class_or_interface_declaration\n");
-            printf("                              |\n");
-            printf("                              |\n");
-            printf("                  normal_class_declaration\n");
-            printf("                              /|\\\n");
-            printf("                             / | \\\n");
-            printf("                            /  |  \\\n");
-            printf("                        class test class_body\n");
-            printf("                                        /|\\\n");
-            printf("                                       / | \\\n");
-            printf("                                      /  |  \\\n");
-            printf("                                     /   |   \\\n");
-            printf("                                    /    |    \\\n");
-            printf("                                   /     |     \\\n");
-            printf("                                  /      |      \\\n");
-            printf("                                {   declaration   }\n");
-            printf("                                         |\n");
-            printf("                                         |\n");
-            printf("                                 field_declaration\n");
-            printf("                                         /\\\n");
-            printf("                                        /  \\\n");
-            printf("                                       /    \\\n");
-            printf("                                     int  variable_declarator\n");
-            printf("                                                    /\\\n");
-            printf("                                                   /  \\\n");
-            printf("                                                  /    \\\n");
-            printf("                                                id    equals_variable_initializer\n");
-            printf("                                                |              /\\\n");
-            printf("                                                |             /  \\\n");
-            printf("                                                i            = additive_expr\n");
-            printf("                                                                   /|\\\n");
-            printf("                                                                  / | \\\n");
-            printf("                                                                 5  +  5\n");
-            printf("\nUsage: ./ASTGenerator [--input=<input_file_name> --output=<output_file_name>][--verbose][--help]\n");
-            printf("\nOptions:\n");
-            printf("    --help : Describe the AST Generator\n");
-            printf("    --input : Gets the input file\n");
-            printf("    --output : The name of the output file\n");
-            printf("    --verbose : Print logs of the code\n");
-            return 0;
+        else if (argc == 2 && strcmp(argv[1], "--help") == 0){
+            printHelpCommand();
         } 
-
         else{
             printf("Usage: %s [--input=<input_file_name> --output=<output_file_name>][--verbose]\n", argv[0]);
             printf("--verbose is an optional flag ...\n");
             return 0;
         }
     }
-
-    fstream file;
-    file.open("3ac.txt", ios::out);
- 
-    // Backup streambuffers of  cout
-    streambuf* stream_buffer_cout = cout.rdbuf();
-    
-    // Get the streambuffer of the file
-    streambuf* stream_buffer_file = file.rdbuf();
- 
-    // Redirect cout to file
-    cout.rdbuf(stream_buffer_file);
 
     // Get input file
     char input_file[10000];
@@ -3028,23 +2830,23 @@ int main(int argc, char **argv){
        strcpy(output_file, token_out);
        token_out = strtok(NULL, "=");
     }
+
+//     redirecting output to 3ac file
+    fstream file;
+    file.open(output_file, ios::out);
+    streambuf* stream_buffer_cout = cout.rdbuf();
+    streambuf* stream_buffer_file = file.rdbuf();
+    cout.rdbuf(stream_buffer_file);
+
     LocalSymbolTable* locale = new LocalSymbolTable({0,0}, NULL);
     global_symtab->symbol_tables[0][0] = locale;
+
     yyparse();
-//     Value* va = ((LocalVariableDeclaration*)(get_local_symtab(global_symtab->current_level)->get_entry("x", -1)))->variable_declarator->initialized_value;
-//     cout<<va->primitivetypeIndex<<endl<<va->num_val[0];
+
+//     does not work on windows systems :(
+//     createSymbolTableCSV();
+
     fclose(yyin);
-
-//     Print the symbol table
-    for(int i = 0;i < global_symtab->symbol_tables.size(); i++){
-        for(int j = 0; j < global_symtab->symbol_tables[i].size(); j++){
-            // get the local symbol table
-            LocalSymbolTable* curr_scope = ((LocalSymbolTable*)global_symtab->symbol_tables[i][j]);
-            get_csv_entries(curr_scope);
-        }
-    }
-    print_to_csv();
-
     // Redirect cout back to screen
     cout.rdbuf(stream_buffer_cout);
     file.close();
@@ -3052,6 +2854,5 @@ int main(int argc, char **argv){
 }
 
 void yyerror (char const *s) {
-   
    printf("\nError: %s. Line number %d\n\n", s, yylineno);
 }

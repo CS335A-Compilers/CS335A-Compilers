@@ -4,8 +4,15 @@
 
 using namespace std;
 
+extern vector<string> typeStrings;
 extern void yyerror(char const*);
 extern GlobalSymbolTable* global_symtab;
+
+string filename;
+map<string, vector<string>> csv_contents;
+// Define an array of strings that corresponds to the type values.
+vector<string> class_name;
+int class_index = -1;
 
 void GlobalSymbolTable::increase_level(){
     pair<int,int> curr_level = level_stack.top();
@@ -50,6 +57,7 @@ LocalSymbolTable::LocalSymbolTable(pair<int,int> level, GlobalSymbolTable* assig
     curr_level.first = level.first;
     curr_level.second = level.second;
     parent = assign_parent;
+    children.resize(0);
 }
 
 // Define an array of strings that corresponds to the modifier types.
@@ -59,7 +67,7 @@ const string modifierStrings[] = {"public", "protected", "private", "abstract", 
 bool LocalSymbolTable::add_entry(Node* symtab_entry){
     hashed_names.insert({symtab_entry->name, symbol_table_entries.size()});
     symbol_table_entries.push_back(symtab_entry);
-    // cout<<symtab_entry->lexeme<<" "<<symtab_entry->line_no<<" "<<symtab_entry->name<<endl;
+    // cout<<symtab_entry->lexeme<<" "<<symtab_entry->line_no<<" "<<symtab_entry->name<<global_symtab->current_level.first<<" "<<global_symtab->current_level.second<<endl;
     if(symtab_entry->entry_type == CLASS_DECLARATION){
         NormalClassDeclaration* temp = (NormalClassDeclaration*)(symtab_entry);
         // cout<<"class entry added: "<<(symtab_entry->name)<<" at level: "<<global_symtab->current_level.first<<" "<<global_symtab->current_level.second<<endl;
@@ -199,7 +207,6 @@ Node* LocalSymbolTable::get_entry(string name, int entry_type){
     while(temp != NULL){
         if(temp->hashed_names.find(name)!=temp->hashed_names.end()){
             Node* res = temp->symbol_table_entries[temp->hashed_names[name]];
-            // cout<<res->name<<endl;
             if((entry_type == -1) || (entry_type == (int)(res->entry_type))) return res;
             else temp = (LocalSymbolTable*)(temp->parent);
         }
@@ -217,4 +224,127 @@ LocalSymbolTable* get_local_symtab(pair<int,int> curr_level){
         // throw compiler error;
     }
     else return ((LocalSymbolTable*)(global_symtab->symbol_tables[curr_level.first][curr_level.second]));
+}
+
+void get_csv_entries(LocalSymbolTable* scope){
+    if(scope==NULL) return ;
+    // get the symbol table entries
+    vector<Node*> temp_var(scope->symbol_table_entries);
+    for (Node* variable : temp_var){
+        if (variable->isWritten ==  false){
+            // For class csv file
+            if(variable->entry_type == CLASS_DECLARATION){
+                variable->isWritten = true;
+                csv_contents.insert({variable->name, {}});
+                class_name.push_back(variable->name);
+                class_index++;
+            }
+
+            if(variable->entry_type == METHOD_DECLARATION){
+                variable->isWritten = true;
+                csv_contents.insert({variable->name, {}});
+                int dt_index = ((MethodDeclaration*)(variable))->type->primitivetypeIndex;
+                string type;
+                if (dt_index == -1){
+                }
+                else{
+                    type = typeStrings[dt_index];
+                }
+                string str = variable->name + "," + type + "," + variable->lexeme + "," + to_string(variable->line_no);
+                csv_contents[class_name[class_index]].push_back(str);
+            }
+            // For method csv file
+            if(variable->entry_type == VARIABLE_DECLARATION){
+                int dt_index = ((LocalVariableDeclaration*)(variable))->type->primitivetypeIndex;
+                string type;
+                if (dt_index == -1){
+                    type = ((LocalVariableDeclaration*)(variable))->type->class_instantiated_from->name;
+                }
+                else{
+                    type = typeStrings[dt_index];
+                }
+                string str = variable->name + "," + type + "," + variable->lexeme + "," + to_string(variable->line_no);
+                LocalSymbolTable* temp = get_local_symtab(variable->current_level);
+                while(true){
+                    if(temp==NULL) break;
+                    if(temp->level_node != NULL && temp->level_node->entry_type == METHOD_DECLARATION) {
+                        break;
+                    }
+                    else{
+                        temp = (LocalSymbolTable*)temp->parent;
+                    }
+                }
+                if(temp!=NULL && temp->level_node != NULL){
+                    variable->isWritten = true;
+                    csv_contents[temp->level_node->name].push_back(str);
+                }
+            }
+            
+        }
+        if (variable->isWritten ==  false){
+            // For class csv file
+            if(variable->entry_type == VARIABLE_DECLARATION){
+                int dt_index = ((LocalVariableDeclaration*)(variable))->type->primitivetypeIndex;
+                string type;
+                if (dt_index == -1){
+                    type = ((LocalVariableDeclaration*)(variable))->type->class_instantiated_from->name;
+                }
+                else{
+                    type = typeStrings[dt_index];
+                }
+                string str = variable->name + "," + type + "," + variable->lexeme + "," + to_string(variable->line_no);
+                LocalSymbolTable* temp = get_local_symtab(variable->current_level);
+                while(true){
+                    if(temp==NULL) break;
+                    if(temp->level_node != NULL && temp->level_node->entry_type == CLASS_DECLARATION) {
+                        break;
+                    }
+                    else{
+                        temp = (LocalSymbolTable*)temp->parent;
+                    }
+                }
+                if(temp!=NULL && temp->level_node != NULL){
+                    variable->isWritten = true;
+                    csv_contents[temp->level_node->name].push_back(str);
+                }
+            }
+        }
+    }
+    Node* level_node = scope->level_node;
+    if (level_node == NULL){
+        return;
+    }
+    if (level_node->entry_type == METHOD_DECLARATION){
+        for(int i=0;i<scope->children.size();i++){
+            get_csv_entries((scope->children)[i]);
+        }
+    }
+    return ;
+}
+
+void print_to_csv() {
+    // Loop through the map and write the data to the CSV file
+   for (auto z : csv_contents) {
+      // Open the CSV file for writing
+    //   ofstream file("./output/" + z.first + ".csv");
+      // Loop through the vector and write each element to the CSV file
+      cout << "Name,Type,Syntactic Category,Line no" << "\n";
+      for (auto v : z.second) {
+         cout << v << "\n";
+      }
+    //   file.close();
+   }
+}
+
+void createSymbolTableCSV(){
+    // Print the symbol table
+    for(int i = 0;i < global_symtab->symbol_tables.size(); i++){
+        for(int j = 0; j < global_symtab->symbol_tables[i].size(); j++){
+            // get the local symbol table
+            LocalSymbolTable* curr_scope = ((LocalSymbolTable*)global_symtab->symbol_tables[i][j]);
+            get_csv_entries(curr_scope);
+        }
+    }
+    print_to_csv();
+    return ;
 }

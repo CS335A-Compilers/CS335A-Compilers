@@ -1,20 +1,15 @@
-
 class test {
-    double fivepointfive() 
-    {
-        return 5.5;
-    }
-    int x = 0;
     public void main(){
-        boolean y ;
-        int x;
-        double a, f;
-        y = 6 < 7;
-        x = 4 * 3;
-        if (x == 12)
-        {
-            x++;
+        int a, b, d;
+        long c, e;
+        a = ~10;
+        b = ~1 ; 
+        if (a < 0){
+            b++;
         }
-        x--;
+        else b--;
+        c = ~235l;
+        d = ~2454;
+        e = c+1;  
     }
 }

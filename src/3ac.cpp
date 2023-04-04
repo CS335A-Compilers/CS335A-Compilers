@@ -35,20 +35,17 @@ void print3AC(ThreeAC* inst){
         else cout<<inst->t2;
         cout<<endl;
     }
-    else if(inst->form == 1)
-        cout<<"goto "<<inst->r1<<endl;
-    else if(inst->form == 2){
-        cout<<"if ";
+    else if(inst->form == 1){
+        if(inst->r != -1) cout<<"t"<<inst->r;
+        else cout<<inst->t;
+        cout<<" = *(";
         if(inst->r1 != -1) cout<<"t"<<inst->r1;
-        else cout<<"t"<<inst->r1;
-        cout<<inst->t1<<" == true goto "<<inst->r2<<endl;
-    }
-    else if(inst->form == 3)
-        cout<<"param "<<inst->op<<endl;
-    else if(inst->form == 4)
-        cout<<"call "<<inst->op<<endl;
-    else if(inst->form == 5)
-        cout<<inst->op<<" "<<inst->t<<endl;
+        else cout<<inst->t1;
+        cout<<" "<<inst->op<<" ";
+        if(inst->r2 != -1) cout<<"t"<<inst->r2;
+        else cout<<inst->t2;
+        cout<<")\n";
+    }  
     else 
         yyerror("something went wrong with the compiler!!!\n");
     return ;
@@ -56,7 +53,9 @@ void print3AC(ThreeAC* inst){
 
 int findEmptyRegistor(){
     for(int i=0;i<MAX_REGISTORS;i++){
-        if(temporary_registors_in_use[i] == false) return i;
+        if(temporary_registors_in_use[i] == false) {
+            return i;
+        }
     }
     yyerror("compiler error: registor overflow!!!\n");
     return -1;

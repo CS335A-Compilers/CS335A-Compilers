@@ -32,3 +32,4 @@ class LocalSymbolTable : public GlobalSymbolTable{
 };
 
 LocalSymbolTable* get_local_symtab(pair<int,int> curr_level);
+void createSymbolTableCSV();

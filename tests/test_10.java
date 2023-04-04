@@ -1,12 +1,9 @@
-class best_class {
+class arrays {
     public void main() {
-        int a, b;
-        long k;
-        a = 8;
-        b = a + 3;
-        k = 36l | 67;
-        c = 4 ^ 2; //should throw error because of undeclared "c"
-        long z = 2.3 * 4;      
+        int arr[] = new int[10];
+        for(int i=0;i<10;i++){
+            arr[i] = i * 5;
+        }
+        return ;
     }
-    
 }
