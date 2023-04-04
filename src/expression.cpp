@@ -66,6 +66,7 @@ Expression* grammar_1(string lex,Expression* e1,bool isprimary,bool isliteral){
     obj->value = e1->value;
     obj->registor_index = e1->registor_index;
     obj->primary_exp_val = e1->primary_exp_val;
+    obj->reg_index = e1->reg_index;
     return obj;
 }
 
@@ -115,11 +116,6 @@ Expression* evalOR_AND(string lex, Expression* e1, string op, Expression* e2){
         yyerror(error.c_str());
         return NULL;
     }
-    // bool val;
-    // if (op == "||")
-    //     val = e1->value->boolean_val[0] || e2->value->boolean_val[0];
-    // else if (op=="&&")
-    //     val = e1->value->boolean_val[0] && e2->value->boolean_val[0];
 
     Value* va = new Value();
     va->primitivetypeIndex = BOOLEAN;
@@ -138,13 +134,6 @@ Expression* evalBITWISE(string lex, Expression* e1, string op, Expression* e2){
     } 
     long long int val;
     Value* va = new Value();
-    // if(op=="|")  
-    //     val=e1->value->num_val[0] | e2->value->num_val[0];
-    // else if(op=="^")
-    //     val=e1->value->num_val[0] ^ e2->value->num_val[0];
-    // else if(op=="&")
-    //     val=e1->value->num_val[0] & e2->value->num_val[0];
-    // va->num_val.push_back(val);
     va->primitivetypeIndex = max(e2->value->primitivetypeIndex, e1->value->primitivetypeIndex);
     Expression* obj=new Expression(lex,va,false,false);
     obj->code.push_back(addInstruction(obj, e1, e2, op, 0));
@@ -178,29 +167,6 @@ Expression* evalRELATIONAL(string lex, Expression* e1, string op, Expression* e2
         yyerror("Incomparable types: cannot be compared");
         return NULL;
     }
-    // bool val;
-    // if(e1->value->primitivetypeIndex == 9){
-    //     if(op==">")
-    //         val=e1->value->string_val[0] > e2->value->string_val[0];
-    //     if(op=="<")
-    //         val=e1->value->string_val[0] < e2->value->string_val[0];
-    //     if(op==">=")
-    //         val=e1->value->string_val[0] >= e2->value->string_val[0];
-    //     if(op=="<=")
-    //         val=e1->value->string_val[0] <= e2->value->string_val[0];
-    // }
-    // else{
-    //     double d1 = getValue(e1->value), d2 = getValue(e2->value);
-    //     if(op==">")
-    //         val=d1>d2;
-    //     if(op=="<")
-    //         val=d1<d2;
-    //     if(op==">=")
-    //         val=d1>=d2;
-    //     if(op=="<=")
-    //         val=d1<=d2;
-    // }
-    
     Value* va= new Value();
     va->primitivetypeIndex = 7;
     Expression* obj=new Expression(lex,va,false,false);
@@ -266,24 +232,6 @@ Expression* evalUNARY(string lex, string op, Expression* e1){
         yyerror("Bad operand types for unary operator");
         return NULL;
     }
-    // int val;
-    // if(op=="+"){   
-    //     if(e1->value->primitivetypeIndex <4)
-    //         val=e1->value->num_val[0];
-    //     else if(e1->value->primitivetypeIndex ==4)
-    //         val=e1->value->float_val[0];
-    //     else if(e1->value->primitivetypeIndex ==5)
-    //         val=e1->value->double_val[0];
-    // }
-    
-    // else if(op=="-"){
-    //     if(e1->value->primitivetypeIndex <4)
-    //         val=-e1->value->num_val[0];
-    //     else if(e1->value->primitivetypeIndex ==4)
-    //         val=-e1->value->float_val[0];
-    //     else if(e1->value->primitivetypeIndex ==5)
-    //         val=-e1->value->double_val[0];
-    // }
     Value* va= new Value();
     va->primitivetypeIndex = e1->value->primitivetypeIndex;
     Expression* obj=new Expression(lex, va, false, false);
@@ -299,11 +247,6 @@ Expression* evalIC_DC(string lex, string op, Expression* e1, bool preOperation){
         yyerror("Bad operand types for increment or decrement operator");
         return NULL;
     }
-    // int val;
-    // if(op=="++")
-    //     val=e1->value->num_val[0]+1;
-    // else if(op=="--")
-    //     val=e1->value->float_val[0]-1;
     Value* va = new Value();
     va->primitivetypeIndex = e1->value->primitivetypeIndex;
     Expression* obj = new Expression(lex, va, false, false);

@@ -1,18 +1,15 @@
 final class best_class {
-    byte b;
-    int i;
+    int i,j;
+    boolean b;
     long l;
-    boolean f, d, bool;
-    double salary;
-    public void main() {
-         b = 8;        
-         i = 2147483647 * 1; 
-         l = -9223372036854775808L; 
-         f = 3.4028235E38f < 776; 
-         d = 45 > 8;
-         salary = 1.5848 - b; 
-         bool = false;
-                 
+    best_class(int x){
+        i = x*5;
     }
-    
+    public void main() {
+        best_class tt = new best_class(5+6);
+        tt.b = true;
+        if(tt.b)
+            tt.l = tt.i;
+        else tt.l = tt.j;
+    }
 }
