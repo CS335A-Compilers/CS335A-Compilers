@@ -66,6 +66,7 @@ Expression* grammar_1(string lex,Expression* e1,bool isprimary,bool isliteral){
     obj->value = e1->value;
     obj->registor_index = e1->registor_index;
     obj->primary_exp_val = e1->primary_exp_val;
+    obj->reg_index = e1->reg_index;
     return obj;
 }
 

@@ -1,4 +1,3 @@
-
 class test {
     public void main()
     {
@@ -10,8 +9,7 @@ class test {
         m = false && true;
         j = 5 <= 9;
         check = 10.66 < 5;
-        for(int i = 0; i < 10; i++)
-        {
+        for(int i = 0; i < 10; i++){
             z++;
         }
         flag = 1;

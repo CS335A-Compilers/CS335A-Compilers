@@ -1,0 +1,23 @@
+arrays.main:
+beginfunc
+	0:	push arr
+	1:	t6 = %sp + 0
+	2:	t0 = t6
+	3:	stackpointer+0040
+	4:	push i
+	5:	t6 = %sp + 40
+	6:	t1 = *t6
+	7:	stackpointer+004
+	8:	t1 = 0
+	9:	t2 = t1 < 10
+	10:	if t2 == false goto 19
+	11:	t5 = t1 * 4
+	12:	t4 = t0 + t5
+	13:	t6 = t1 * 5
+	14:	*t4 = t6  
+	15:	t3 = t1  
+	16:	t4 = t1 + 1
+	17:	t1 = t4  
+	18:	goto 9
+	19:	return
+endfunc

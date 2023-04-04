@@ -1,17 +1,12 @@
-
-class best_class {
-    int k, z;
-    boolean a, b;
+class classss {
+    double y;
+    int x;
     public void main() {
-        
-        k = 4 * 5;
-        z = k + 7;
-        a = !true;
-        b = !false ; 
-        if (a || b)
-        {
-            z *= 10;
+        classss t = new classss();
+        t.x = 1;
+        for(int i=0;i<5;i++){
+            t.y += 1;
         }
-        k--;
+        return ;
     }
 }

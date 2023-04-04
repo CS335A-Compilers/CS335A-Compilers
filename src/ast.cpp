@@ -445,6 +445,7 @@ int create3ACCode(Node* root, bool print){
             cout<<"\t"<<to_string(curr_address)<<":\treturn\n";
             curr_address++;
             cout<<"endfunc\n";
+            stack_frame_pointer = 0;
         }
         res++;
     }
@@ -535,8 +536,10 @@ int create3ACCode(Node* root, bool print){
         if(print){
             cout<<"\t"<<to_string(curr_address)<<":\tcall "<<root->name<<endl;
             curr_address++;
+            cout<<"\t"<<to_string(curr_address)<<":\t"<<((Expression*)(root))->createString()<<" = %rax"<<endl;
+            curr_address++;
         }
-        res++;
+        res+=2;
     }
     else if(root->entry_type == IF_THEN_STATEMENT){
         // IF_KEYWORD OP_BRCKT expression CLOSE_BRCKT statement

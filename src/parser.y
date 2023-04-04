@@ -67,7 +67,7 @@
 %type<modifier_list> modifiers_one_or_more
 %type<modifier> modifiers
 %type<type> unann_type primitive_type numeric_type
-%type<method_declaration> constructor_declaration constructor_declarator method_declaration method_header method_declarator
+%type<method_declaration> method_declaration method_declaration_statement constructor_declaration constructor_declarator method_header method_declarator
 %type<variable_declarator_id> variable_declarator_id variable_declarator
 %type<variable_declarator_list> variable_declarator_list comma_variable_declarator_zero_or_more
 %type<dims> dims dims_zero_or_one
@@ -167,7 +167,7 @@ primary_no_new_array
             }
             |   method_invocation                                                                                                               
             {
-                Expression* node = grammar_1("primary no new array", $1, false, false); 
+                Expression* node = grammar_1("primary no new array", $1, true, false); 
                 node->addChildren({$1}); 
                 $$ = node;
             }
@@ -236,13 +236,13 @@ array_access
             }
 
 method_invocation
-            :   IDENTIFIERS  OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT                                                                    
+            :   IDENTIFIERS OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT                                                                    
             {
                 IdentifiersList* temp = new IdentifiersList("type_name", $1->lexeme, {});                                    
-                if(!typenameErrorChecking(temp, global_symtab->current_level, 2)) 
+                if(!typenameErrorChecking(temp, global_symtab->current_level, -1)) 
                     YYERROR; 
                 Value* va = new Value(); 
-                va->primitivetypeIndex = ((MethodDeclaration*)(get_local_symtab(global_symtab->current_level)->get_entry($1->lexeme, 2)))->type->primitivetypeIndex; 
+                va->primitivetypeIndex = ((MethodDeclaration*)(get_local_symtab(global_symtab->current_level)->get_entry($1->lexeme, -1)))->type->primitivetypeIndex; 
                 Expression* node = new Expression("postfix expression", va, false, false); 
                 if(node == NULL) 
                     YYERROR; 
@@ -250,6 +250,11 @@ method_invocation
                     YYERROR;
                 node->name = temp->createString(); 
                 node->entry_type = METHOD_INVOCATION; 
+                int tx = findEmptyRegistor();
+                temporary_registors_in_use[tx] = true;
+                node->reg_index = tx;
+                node->registor_index = tx;
+                node->primary_exp_val = "t" + to_string(tx);
                 node->addChildren({$1,$2,$3,$4}); 
                 $$ = node;
             }
@@ -257,10 +262,10 @@ method_invocation
             // {
             //     IdentifiersList* temp = new IdentifiersList("type_name", "", {}); 
             //     temp->addIdentifiers($1->primary_exp_val); 
-            //     if(!typenameErrorChecking(temp, global_symtab->current_level, 2)) 
+            //     if(!typenameErrorChecking(temp, global_symtab->current_level, -1)) 
             //         YYERROR; 
             //     Value* va = new Value(); 
-            //     va->primitivetypeIndex = ((MethodDeclaration*)(get_local_symtab(global_symtab->current_level)->get_entry($1->lexeme, 2)))->type->primitivetypeIndex; 
+            //     va->primitivetypeIndex = ((MethodDeclaration*)(get_local_symtab(global_symtab->current_level)->get_entry($1->lexeme, -1)))->type->primitivetypeIndex; 
             //     Expression* node = new Expression("postfix expression", va, false, false); 
             //     if(node == NULL) 
             //         YYERROR; 
@@ -1861,60 +1866,38 @@ unann_type
         }
 
 method_declaration
-        :  method_header block                                                                                                                          
+        :   method_declaration_statement block
         {
-            MethodDeclaration* node = new MethodDeclaration("method_declaration"); 
+            MethodDeclaration* node = new MethodDeclaration("method_declaration_statement");   
+            node->entry_type = METHOD_DECLARATION; 
             node->line_no = $1->line_no; 
             node->name = $1->name; 
             node->formal_parameter_list = $1->formal_parameter_list; 
             node->type = $1->type; 
-            node->modifiers = NULL; 
-            node->addChildren({$1,$2});  
-            node->entry_type = METHOD_DECLARATION; 
+            node->modifiers = $1->modifiers;
             ((LocalSymbolTable*)((global_symtab->symbol_tables)[$2->parent_level.first][$2->parent_level.second]))->level_node = (Node*)(node); 
             for(int i=0;i<node->formal_parameter_list->lists.size();i++){
                 int t = node->formal_parameter_list->lists[i]->reg_index;
-                // temporary_registors_in_use[t] = false;
+                temporary_registors_in_use[t] = false;
             }
-            get_local_symtab(global_symtab->current_level)->add_entry(node); 
+            node->addChildren({$1, $2});
             $$ = node;
         }
-        |  modifiers_one_or_more method_header SEMICOLON_OP                                                                                             
+        |   method_declaration_statement SEMICOLON_OP
         {
-            MethodDeclaration* node = new MethodDeclaration("method_declaration"); 
-            node->line_no = $2->line_no; 
-            node->name = $2->name; 
-            node->formal_parameter_list = $2->formal_parameter_list; 
-            node->type = $2->type; 
-            node->modifiers = $1; 
-            node->addChildren({$1,$2,$3}); 
+            MethodDeclaration* node = new MethodDeclaration("method_declaration_statement");   
             node->entry_type = METHOD_DECLARATION; 
-            for(int i=0;i<node->formal_parameter_list->lists.size();i++){
-                int t = node->formal_parameter_list->lists[i]->reg_index;
-                // temporary_registors_in_use[t] = false;
-            }
-            get_local_symtab(global_symtab->current_level)->add_entry(node); 
+            node->line_no = $1->line_no; 
+            node->name = $1->name; 
+            node->formal_parameter_list = $1->formal_parameter_list; 
+            node->type = $1->type; 
+            node->modifiers = $1->modifiers;
+            node->addChildren({$1, $2});
             $$ = node;
         }
-        |  modifiers_one_or_more method_header block                                                                                                    
-        {
-            MethodDeclaration* node = new MethodDeclaration("method_declaration"); 
-            node->line_no = $2->line_no; 
-            node->name = $2->name; 
-            node->formal_parameter_list = $2->formal_parameter_list; 
-            node->type = $2->type; 
-            node->modifiers = $1; 
-            node->addChildren({$1,$2,$3}); 
-            node->entry_type = METHOD_DECLARATION; 
-            ((LocalSymbolTable*)((global_symtab->symbol_tables)[$3->parent_level.first][$3->parent_level.second]))->level_node = (Node*)(node); 
-            for(int i=0;i<node->formal_parameter_list->lists.size();i++){
-                int t = node->formal_parameter_list->lists[i]->reg_index;
-                // temporary_registors_in_use[t] = false;
-            }
-            get_local_symtab(global_symtab->current_level)->add_entry(node); 
-            $$ = node;
-        }
-        |  method_header SEMICOLON_OP                                                                                                                  
+
+method_declaration_statement
+        :  method_header                                                                                                                          
         {
             MethodDeclaration* node = new MethodDeclaration("method_declaration"); 
             node->line_no = $1->line_no; 
@@ -1922,12 +1905,19 @@ method_declaration
             node->formal_parameter_list = $1->formal_parameter_list; 
             node->type = $1->type; 
             node->modifiers = NULL; 
-            node->addChildren({$1,$2});  
-            node->entry_type = METHOD_DECLARATION; 
-            for(int i=0;i<node->formal_parameter_list->lists.size();i++){
-                int t = node->formal_parameter_list->lists[i]->reg_index;
-                // temporary_registors_in_use[t] = false;
-            }
+            node->addChildren({$1});  
+            get_local_symtab(global_symtab->current_level)->add_entry(node); 
+            $$ = node;
+        }
+        |  modifiers_one_or_more method_header                                                                                             
+        {
+            MethodDeclaration* node = new MethodDeclaration("method_declaration"); 
+            node->line_no = $2->line_no; 
+            node->name = $2->name; 
+            node->formal_parameter_list = $2->formal_parameter_list; 
+            node->type = $2->type; 
+            node->modifiers = $1; 
+            node->addChildren({$1,$2}); 
             get_local_symtab(global_symtab->current_level)->add_entry(node); 
             $$ = node;
         }
