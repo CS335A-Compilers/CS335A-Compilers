@@ -6,7 +6,8 @@ using namespace std;
 extern void yyerror(char const*);
 extern GlobalSymbolTable* global_symtab;
 extern vector<bool> temporary_registors_in_use;
-
+extern vector<ThreeAC*> threeAC_list;
+extern vector<int> typeSizes;
 // Define an array of strings that corresponds to the type values.
 vector<string> typeStrings = {"char", "byte", "short", "int", "long", "float", "double", "boolean", "array", "string", "void"};
 
@@ -62,6 +63,7 @@ double doubleMod(double a, double b) {
 Expression* grammar_1(string lex,Expression* e1,bool isprimary,bool isliteral){
     if (e1 == NULL) return NULL;
     Expression* obj = new Expression(lex, e1->value, isprimary, isliteral);
+    obj->value = e1->value;
     obj->registor_index = e1->registor_index;
     obj->primary_exp_val = e1->primary_exp_val;
     return obj;
@@ -231,8 +233,7 @@ Expression* evalSHIFT(string lex, Expression* e1, string op, Expression* e2){
 Expression* evalARITHMETIC(string lex, string op, Expression* e1, Expression* e2){
     if(e1 == NULL || e2 == NULL)
         return NULL;
-    // wrong type checking;
-    if (e1->value->primitivetypeIndex > 6 || e2->value->primitivetypeIndex > 6){
+    if (e1->value->primitivetypeIndex > DOUBLE || e2->value->primitivetypeIndex > DOUBLE){
         yyerror("Bad operand types for arthimetic operator");
         return NULL;
     }
@@ -244,11 +245,11 @@ Expression* evalARITHMETIC(string lex, string op, Expression* e1, Expression* e2
         string convertingType = typeStrings[va->primitivetypeIndex];
         Expression* temp = new Expression("cast expression", NULL, false, false);
         if(type1 > type2){
-            obj->code.push_back(addInstruction(temp, NULL, e1, "cast_to_"+ convertingType, 0));
+            obj->code.push_back(addInstruction(temp, NULL, e1, "(" + convertingType + ")", 0));
             obj->code.push_back(addInstruction(obj, temp, e2, op ,0));
         }
         else {
-            obj->code.push_back(addInstruction(temp, NULL, e2, "cast_to_"+ convertingType, 0));
+            obj->code.push_back(addInstruction(temp, NULL, e2, "("+ convertingType + ")", 0));
             obj->code.push_back(addInstruction(obj, temp, e1, op ,0));
         }
     }
@@ -341,7 +342,6 @@ Expression* evalTL(string lex, Expression* e1){
     Expression* obj=new Expression(lex, va, false, false);
     obj->code.push_back(addInstruction(obj, NULL, e1, "~", 0));
     return obj; 
-
 }
 
 Expression* evalEX(string lex, Expression* e1){
@@ -356,29 +356,41 @@ Expression* evalEX(string lex, Expression* e1){
     Expression* obj = new Expression(lex, va, false, false);
     obj->code.push_back(addInstruction(obj, NULL, e1, "!", 0));
     return obj; 
-
 }
 
-Expression* assignValue(Expression* type_name, string op, Expression* exp){
-    LocalVariableDeclaration* name = (LocalVariableDeclaration*)(get_local_symtab(global_symtab->current_level)->get_entry(type_name->primary_exp_val, -1));
-    if(name == NULL){
-        yyerror("use of undeclared variable");
-        return NULL;
-    }
+Expression* assignValue(Expression* type_name, string op, Expression* exp, string ident){
+    LocalVariableDeclaration* name = (LocalVariableDeclaration*)(get_local_symtab(global_symtab->current_level)->get_entry(ident, -1));
+    // if(name == NULL){
+    //     yyerror("use of undeclared variable");
+    //     return NULL;
+    // }
     Expression* obj = new Expression("assignment", NULL, false, false);
     if(name->entry_type == VARIABLE_DECLARATION){
-            int name_type = name->type->primitivetypeIndex;
-            int exp_type = exp->value->primitivetypeIndex;
-            if((name_type <= LONG && exp_type <= LONG) || (name_type == FLOAT && exp_type == FLOAT || name_type == DOUBLE && exp_type == DOUBLE) || (name_type == exp_type) || (exp_type <= LONG && (name_type == FLOAT || name_type == DOUBLE))) {
+        int name_type = name->type->primitivetypeIndex;
+        int exp_type = exp->value->primitivetypeIndex;
+        if((name_type >= exp_type) || op.length() > 1) {
             if(op == "="){
-                // name->variable_declarator->initialized_value = exp->value;
-                obj->code.push_back(addInstruction(type_name, exp, NULL, "", 0));
+                if(name_type != exp_type){
+                    Expression* temp = new Expression("cast expression", NULL, false, false);
+                    obj->code.push_back(addInstruction(temp, NULL, exp, "(" + typeStrings[name_type] + ")", 0));
+                    obj->code.push_back(addInstruction(type_name, temp, NULL, "", 0));
+                }
+                else{
+                    obj->code.push_back(addInstruction(type_name, exp, NULL, "", 0));
+                }
             }
             else{
                 int pos = op.find('=');
                 string fin_op = op.substr(0, pos);
                 Expression* temp = new Expression("typename", NULL, false, false);
-                obj->code.push_back(addInstruction(temp, type_name, exp, fin_op, 0));
+                if(name_type == exp_type){
+                    obj->code.push_back(addInstruction(temp, type_name, exp, fin_op, 0));
+                }
+                else{
+                    Expression* temp1 = new Expression("cast expression", NULL, false, false);
+                    obj->code.push_back(addInstruction(temp1, NULL, exp, "(" + typeStrings[name_type] +")", 0));
+                    obj->code.push_back(addInstruction(temp, type_name, temp1, fin_op, 0));
+                }
                 obj->code.push_back(addInstruction(type_name, temp, NULL, "", 0));
             }
             // obj->value = exp->value;
@@ -389,11 +401,46 @@ Expression* assignValue(Expression* type_name, string op, Expression* exp){
             yyerror(const_cast<char*>(err.c_str()));
             return NULL;
         }
-        
     }
     else{
         string err = "type mismatch, cannot assign value to \"" + name->name + "\"";
         yyerror(const_cast<char*>(err.c_str()));
         return NULL;
     }
+}
+
+void assignLiteralValue(Expression* literal, Expression* e){
+    int type = literal->value->primitivetypeIndex;
+    if(type == INT) e->value->num_val.push_back(literal->value->num_val[0]);
+    else if(type == FLOAT) e->value->float_val.push_back(literal->value->float_val[0]);
+    else if(type == BOOLEAN) e->value->boolean_val.push_back(literal->value->boolean_val[0]);
+    else if(type == DOUBLE) e->value->double_val.push_back(literal->value->double_val[0]);
+    return ;
+}
+
+Expression* getArrayAccess(string ident, Expression* e){
+    Value* val = new Value();
+    LocalVariableDeclaration* temp = (LocalVariableDeclaration*)(get_local_symtab(global_symtab->current_level)->get_entry(ident, 0)) ;
+    if(temp == NULL){
+        string err = "use of undeclared variable \"" + ident + "\"";
+        yyerror(const_cast<char*>(err.c_str()));
+        return NULL;
+    }
+    val->primitivetypeIndex = temp->type->primitivetypeIndex;
+    Expression* node = new Expression("array_access", val, false, false);
+    node->name = ident;
+    int t = get_local_symtab(global_symtab->current_level)->get_entry(ident, 0)->reg_index;
+    int new_t = findEmptyRegistor();
+    temporary_registors_in_use[new_t] = true;
+    node->registor_index = new_t;
+    Expression* temp1 = new Expression("array_access", NULL, false, false);
+    Expression* size_exp = new Expression("size_expression", NULL, true, false);
+    size_exp->primary_exp_val = to_string(typeSizes[temp->type->primitivetypeIndex]);
+    node->code.push_back(addInstruction(temp1, e, size_exp, "*", 0));
+    ThreeAC* inst = new ThreeAC("+", "", new_t, t, temp1->registor_index, "", "", 1);
+    node->code.push_back(threeAC_list.size());
+    node->primary_exp_val = "t" + to_string(new_t);
+    node->isPrimary = true;
+    threeAC_list.push_back(inst);
+    return node;   
 }

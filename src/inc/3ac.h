@@ -3,7 +3,7 @@
 
 #include "expression.h"
 
-#define MAX_REGISTORS 8
+#define MAX_REGISTORS 100000
 
 class ThreeAC {
     public:
@@ -18,11 +18,7 @@ class ThreeAC {
         string t1, t2;
         // 3ac form:
         // 0 represent simple expression of type x = a op b, where a and b can be string or register index
-        // 1 represent uncondition jump with r1 consisting of the address to jump
-        // 2 represent condition jumps with r1/t1 consisting the expression to be trued, r2 represent the goto address;
-        // 3 represent adding params to funtion, op consisting the param name
-        // 4 represent method call, op consisting of name of the call, t1 represent the address of the method definition
-        // 5 represent statements like return x; t contains the val of expression, op contains the keywords (like return);
+        // 1 represent same expression as above but with referencing the variable with *
         int address;
         int form;
         ThreeAC(string operand, string t, int r, int r1, int r2, string t1, string t2, int form);
