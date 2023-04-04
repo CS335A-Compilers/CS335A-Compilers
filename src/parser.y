@@ -1796,8 +1796,8 @@ field_declaration
         }
         |  modifiers_one_or_more unann_type variable_declarator_list SEMICOLON_OP                                                                      
         {
-            Node* node = createNode("field declaration"); i
-            f(!addVariablesToSymtab($2, $3, global_symtab->current_level, $1, true)) 
+            Node* node = createNode("field declaration");
+            if(!addVariablesToSymtab($2, $3, global_symtab->current_level, $1, true)) 
                 YYERROR;  
             node->addChildren({$1,$2,$3,$4}); 
             node->name = createTAC($3); 
