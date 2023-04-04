@@ -11,7 +11,7 @@
     extern vector<string> typeStrings;
     GlobalSymbolTable* global_symtab = new GlobalSymbolTable();
     vector<bool> temporary_registors_in_use(MAX_REGISTORS, false);
-    vector<int> typeSizes = {1, 1, 2, 4, 8, 4, 8, 1, -1, 0, };
+    vector<int> typeSizes = {1, 1, 2, 4, 8, 4, 8, 1, -1, 0};
     vector<ThreeAC*> threeAC_list;
     int stack_frame_pointer = 0;
     bool firstFun = true;
@@ -662,6 +662,7 @@ postfix_expression
                 int t = get_local_symtab(global_symtab->current_level)->get_entry($1->lexeme, 0)->reg_index;
                 if(t != -1) node->primary_exp_val = "t" + to_string(t);
                 else node->primary_exp_val = $1->lexeme; 
+                node->registor_index = t;
                 node->isPrimary = true; 
                 node->addChildren({$1}); 
                 $$ = node;
@@ -808,6 +809,7 @@ assignment
                 int t = get_local_symtab(global_symtab->current_level)->get_entry($1->lexeme, 0)->reg_index;
                 if(t != -1) node1->primary_exp_val = "t" + to_string(t);
                 else node1->primary_exp_val = $1->lexeme; 
+                node1->registor_index = t;
                 Expression* node = assignValue(node1, $2->children[0]->lexeme, $3, $1->lexeme);
                 if(node == NULL) 
                     YYERROR; 
@@ -821,11 +823,7 @@ assignment
             // }
             |   array_access assignment_operators expression                                                                                            
             {   
-                Value* va = new Value(); 
-                va->primitivetypeIndex = ((LocalVariableDeclaration*)(get_local_symtab(global_symtab->current_level)->get_entry($1->name, 0)))->type->primitivetypeIndex; 
-                Expression* temp = new Expression("array_access", va, true, false);
-                temp->primary_exp_val = $1->primary_exp_val;
-                Expression* node = assignValue(temp,  $2->children[0]->lexeme, $3, $1->name);
+                Expression* node = assignValue($1,  $2->children[0]->lexeme, $3, $1->name);
                 if(node == NULL) 
                     YYERROR; 
                 node->addChildren({$1,$2,$3});

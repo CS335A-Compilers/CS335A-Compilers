@@ -24,6 +24,7 @@ class Node {
         bool is_parameter;
         pair<int, int> current_level;
         long long int id;
+        // used to store temporary registor values for local variables only
         int reg_index;
         Node(string lex);
         pair<int,int> parent_level;

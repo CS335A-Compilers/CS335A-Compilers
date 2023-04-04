@@ -461,21 +461,26 @@ int create3ACCode(Node* root, bool print){
         }
         res++;
         if(print){
-            cout<<"\t"<<to_string(curr_address)<<":\tt"<<to_string(var->reg_index)<<" = *t"<<to_string(t2)<<endl;
+            if(var->variable_declarator->initialized_value != NULL && var->variable_declarator->initialized_value->dim1_count > 0)
+                cout<<"\t"<<to_string(curr_address)<<":\tt"<<to_string(var->reg_index)<<" = t"<<to_string(t2)<<endl;
+            else 
+                cout<<"\t"<<to_string(curr_address)<<":\tt"<<to_string(var->reg_index)<<" = *t"<<to_string(t2)<<endl;
             curr_address++;
         }
         res++;
         if(print){
+            if(var->variable_declarator->initialized_value != NULL && var->variable_declarator->initialized_value->dim1_count > 0)
+                x = (x)*(var->variable_declarator->initialized_value->dim1_count);
+            stack_frame_pointer+=x;
             cout<<"\t"<<to_string(curr_address)<<":\tstackpointer+00"<<to_string(x)<<endl;
             curr_address++;
         }
         res++;
-        if(var->variable_declarator->initialized_value != NULL){
+        if(var->variable_declarator->initialized_value != NULL && var->variable_declarator->initialized_value->dim1_count == 0){
             cout<<"\t"<<to_string(curr_address)<<":\tt"<<to_string(var->reg_index)<<" = "<<((Expression*)root->children[2])->createString()<<endl;
             curr_address++;
         }
         res++;
-        stack_frame_pointer+=4;
     }
     else if(root->entry_type == EXPRESSIONS){
         vector<int> codes = root->code;
@@ -498,8 +503,10 @@ int create3ACCode(Node* root, bool print){
         for(int i=0;i<n;i++){
             int t = findEmptyRegistor();
             reg[i] = t;
+            Expression* temp = ((ExpressionList*)(root->children[2]))->lists[i];
+            res+=create3ACCode(temp, print);
             if(print){
-                cout<<"\t"<<to_string(curr_address)<<":\tt"<<to_string(t)<<" = "<<((ExpressionList*)(root->children[2]))->lists[i]->primary_exp_val<<endl;
+                cout<<"\t"<<to_string(curr_address)<<":\tt"<<to_string(t)<<" = "<<temp->createString()<<endl;
                 curr_address++;
             }
             temporary_registors_in_use[t] = true;

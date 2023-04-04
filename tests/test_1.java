@@ -3,9 +3,17 @@ class test {
         a = b*5 + a;
     }
     public void main(){
-        int z ;
-        int y = z*5 + 6;
-        // do_some(z, y);
-        z = y;
+        int z = 1, x;
+        int a[] = new int[5];
+        do_some(z*x, z);
+        z = z + 2;
+        x = x +z;
+        // if(a[2] == 1+2*6) ;
+        // x = x + 2;
+        // x += 3;
+        // x = z;
+        // z = x* 6 + x;
+        // z = 2;
+        // z = y;
     }
 }

@@ -6,7 +6,8 @@ using namespace std;
 extern void yyerror(char const*);
 extern GlobalSymbolTable* global_symtab;
 extern vector<bool> temporary_registors_in_use;
-
+extern vector<ThreeAC*> threeAC_list;
+extern vector<int> typeSizes;
 // Define an array of strings that corresponds to the type values.
 vector<string> typeStrings = {"char", "byte", "short", "int", "long", "float", "double", "boolean", "array", "string", "void"};
 
@@ -427,9 +428,19 @@ Expression* getArrayAccess(string ident, Expression* e){
     }
     val->primitivetypeIndex = temp->type->primitivetypeIndex;
     Expression* node = new Expression("array_access", val, false, false);
-    e->primary_exp_val = temp->name + "[" + e->primary_exp_val + "]";
-    node->primary_exp_val = e->primary_exp_val;
-    node->name = temp->name;
-    node->code.push_back(addInstruction(node, e, NULL, "", 0));
+    node->name = ident;
+    int t = get_local_symtab(global_symtab->current_level)->get_entry(ident, 0)->reg_index;
+    int new_t = findEmptyRegistor();
+    temporary_registors_in_use[new_t] = true;
+    node->registor_index = new_t;
+    Expression* temp1 = new Expression("array_access", NULL, false, false);
+    Expression* size_exp = new Expression("size_expression", NULL, true, false);
+    size_exp->primary_exp_val = to_string(typeSizes[temp->type->primitivetypeIndex]);
+    node->code.push_back(addInstruction(temp1, e, size_exp, "*", 0));
+    ThreeAC* inst = new ThreeAC("+", "", new_t, t, temp1->registor_index, "", "", 1);
+    node->code.push_back(threeAC_list.size());
+    node->primary_exp_val = "t" + to_string(new_t);
+    node->isPrimary = true;
+    threeAC_list.push_back(inst);
     return node;   
 }
