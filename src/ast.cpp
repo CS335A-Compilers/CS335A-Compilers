@@ -12,10 +12,10 @@ extern int yylineno;
 extern void yyerror(char const*);
 extern GlobalSymbolTable* global_symtab;
 extern vector<ThreeAC*> threeAC_list;
-extern bool firstFun; 
 extern vector<bool> temporary_registors_in_use;
 extern vector<int> typeSizes;
 extern int stack_frame_pointer;
+extern NormalClassDeclaration* curr_class;
 extern vector<string> typeStrings;
 extern int curr_address;
 
@@ -183,6 +183,7 @@ NormalClassDeclaration::NormalClassDeclaration(string lex, ModifierList* list, s
     : Node(lex){
     modifiers_list = list;
     name = identifier;
+    object_size = 0;
 }
 
 Dims::Dims(string lex, int num)
@@ -232,23 +233,27 @@ bool typenameErrorChecking(Node* node, pair<int,int> curr_level, int entry_type)
         }
     }
     else{
-        for(int i=0;i<n-1;i++){
-            LocalVariableDeclaration* obj = (LocalVariableDeclaration*)(get_local_symtab(curr_level)->get_entry(lists->identifiers[i], 0));
-            if(obj == NULL) {
-                string entry = (entry_type == -1) ? entryTypeStrings[0] : entryTypeStrings[entry_type];
-                string err = "use of undeclared " + entry + " \"" + lists->identifiers[0] + "\"";
-                yyerror(const_cast<char*>(err.c_str()));
-                return false;
-            }
-            if(obj->type->primitivetypeIndex != -1) {
-                string err = "primitive data type \"" + typeStrings[obj->type->primitivetypeIndex] + "\" does not have field named \"" + lists->identifiers[i+1] + "\"";
-                yyerror(const_cast<char*>(err.c_str()));
-                return false;
-            }
-            // check if the identifiers[i+1] field variable is present in the obj identifiers[0];
+        LocalVariableDeclaration* obj = (LocalVariableDeclaration*)(get_local_symtab(curr_level)->get_entry(lists->identifiers[0], 0));
+        // check in obj.field, obj is declared variable or not
+        if(obj == NULL) {
+            string entry = (entry_type == -1) ? entryTypeStrings[0] : entryTypeStrings[entry_type];
+            string err = "use of undeclared " + entry + " \"" + lists->identifiers[0] + "\"";
+            yyerror(const_cast<char*>(err.c_str()));
+            return false;
         }
-        // find if the final entry is valid or not
-        return true;
+        // check in obj.field, is obj an object or not
+        if(obj->type->primitivetypeIndex != -1) {
+            string err = "primitive data type \"" + typeStrings[obj->type->primitivetypeIndex] + "\" does not have field named \"" + lists->identifiers[1] + "\"";
+            yyerror(const_cast<char*>(err.c_str()));
+            return false;
+        }
+        // check if the field variable is present in the obj;
+        for(int i=0;i<obj->type->class_instantiated_from->field_variables.size();i++){
+            if(obj->type->class_instantiated_from->field_variables[i].first->name == lists->identifiers[1]) return true;
+        }
+        string err = "the field variable \"" + lists->identifiers[1] + "\" not present in class \"" + obj->type->class_instantiated_from->name + "\"";
+        yyerror(const_cast<char*>(err.c_str()));
+        return false;
     }
     string entry = (entry_type == -1) ? entryTypeStrings[0] : entryTypeStrings[entry_type];
     string err = "use of undeclared " + entry + " \"" + lists->identifiers[0] + "\"";
@@ -278,17 +283,17 @@ bool addVariablesToSymtab(Type* t, VariableDeclaratorList* declarator_list, pair
         }
         // cout<<declarator_list->lists[i]->num_of_dims<<endl;
         LocalVariableDeclaration* locale = new LocalVariableDeclaration("local_variable_declaration", t, declarator_list->lists[i], modif_lists);
-        int t = findEmptyRegistor();
-        locale->reg_index = t;
-        temporary_registors_in_use[t] = true;
+        int tt = findEmptyRegistor();
+        locale->reg_index = tt;
+        temporary_registors_in_use[tt] = true;
         locale->isFieldVariable = is_field_variable;
         locale->entry_type = VARIABLE_DECLARATION;
         locale->name = declarator_list->lists[i]->identifier;
-        get_local_symtab(global_symtab->current_level)->add_entry(locale);
-        if(is_field_variable){
-            // NormalClassDeclaration* instantiating_class = (NormalClassDeclaration*)(get_local_symtab(global_symtab->current_level)->level_node);
-            // instantiating_class->field_variables.push_back(locale);
+        if(is_field_variable == true){
+            curr_class->field_variables.push_back({locale, curr_class->object_size});
+            curr_class->object_size += typeSizes[t->primitivetypeIndex];
         }
+        get_local_symtab(global_symtab->current_level)->add_entry(locale);
     }
     return true;
 }
@@ -437,22 +442,29 @@ int create3ACCode(Node* root, bool print){
             res+=create3ACCode(root->children[i], print);
         }
         if(print){
+            cout<<"\t"<<to_string(curr_address)<<":\treturn\n";
+            curr_address++;
             cout<<"endfunc\n";
         }
+        res++;
     }
     else if(root->entry_type == VARIABLE_DECLARATION){
         // variable_declarator_id ASSIGNMENT_OP variable_initializer
         // ignore the declaration if it is a formal parameter declaration
         if(root->is_parameter) return res;
-        if(root->children.size() > 2) res+=create3ACCode(root->children[2], print);
         LocalVariableDeclaration* var = (LocalVariableDeclaration*)(get_local_symtab(root->current_level)->get_entry(root->name, 0));
+        // ignoring for field variables
+        if(var->isFieldVariable) return res;
+        if(root->children.size() > 2) res+=create3ACCode(root->children[2], print);
         if(print){
             cout<<"\t"<<to_string(curr_address)<<":\tpush "<<root->name<<endl;
             curr_address++;
         }
         res++;
-        int t = ((LocalVariableDeclaration*)(get_local_symtab(root->current_level)->get_entry(root->name, -1)))->type->primitivetypeIndex;
-        int x = typeSizes[t];
+        int t = var->type->primitivetypeIndex;
+        int x = (t != -1) ? typeSizes[t] : var->type->class_instantiated_from->object_size;
+        // cout<<"stack value : "<<x<<endl;
+        // if(t == -1) cout<<var->type->class_instantiated_from<<endl;
         int t2 = findEmptyRegistor();
         // getting the offset of the variable declared on the stack
         if(print){
@@ -461,7 +473,7 @@ int create3ACCode(Node* root, bool print){
         }
         res++;
         if(print){
-            if(var->variable_declarator->initialized_value != NULL && var->variable_declarator->initialized_value->dim1_count > 0)
+            if(var->variable_declarator->initialized_value != NULL && (var->variable_declarator->initialized_value->dim1_count > 0 || var->type->primitivetypeIndex == -1))
                 cout<<"\t"<<to_string(curr_address)<<":\tt"<<to_string(var->reg_index)<<" = t"<<to_string(t2)<<endl;
             else 
                 cout<<"\t"<<to_string(curr_address)<<":\tt"<<to_string(var->reg_index)<<" = *t"<<to_string(t2)<<endl;
@@ -476,7 +488,7 @@ int create3ACCode(Node* root, bool print){
             curr_address++;
         }
         res++;
-        if(var->variable_declarator->initialized_value != NULL && var->variable_declarator->initialized_value->dim1_count == 0){
+        if(var->variable_declarator->initialized_value != NULL && var->variable_declarator->initialized_value->dim1_count == 0 && var->type->primitivetypeIndex != -1){
             cout<<"\t"<<to_string(curr_address)<<":\tt"<<to_string(var->reg_index)<<" = "<<((Expression*)root->children[2])->createString()<<endl;
             curr_address++;
         }

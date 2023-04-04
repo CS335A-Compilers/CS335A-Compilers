@@ -1,16 +1,19 @@
 class test {
-    public void do_some(int a, int b){
-        a = b*5 + a;
-    }
+    double add = 1;
+    float sub = 5;
+    // public int do_some(int a, int b){
+    //     a = b*5 + a;
+    //     return a*5;
+    // }
     public void main(){
-        int z = 1, x;
         int a[] = new int[5];
-        do_some(z*x, z);
-        z = z + 2;
-        x = x +z;
-        // if(a[2] == 1+2*6) ;
-        // x = x + 2;
-        // x += 3;
-        // x = z;
+        // do_some(z*x, z);
+        a[1] = a[0];
+        // test t = new test();
+        // for(int i=0;i<5;++i){
+        //     t.add = t.sub + 5 ; 
+        //     // a[i] = i*5;
+        // }
+        // if(t.add > 5);
     }
 }

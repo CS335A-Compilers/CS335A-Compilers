@@ -437,9 +437,9 @@ Expression* getArrayAccess(string ident, Expression* e){
     Expression* size_exp = new Expression("size_expression", NULL, true, false);
     size_exp->primary_exp_val = to_string(typeSizes[temp->type->primitivetypeIndex]);
     node->code.push_back(addInstruction(temp1, e, size_exp, "*", 0));
-    ThreeAC* inst = new ThreeAC("+", "", new_t, t, temp1->registor_index, "", "", 1);
+    ThreeAC* inst = new ThreeAC("+", "", new_t, t, temp1->registor_index, "", "", 0);
     node->code.push_back(threeAC_list.size());
-    node->primary_exp_val = "t" + to_string(new_t);
+    node->primary_exp_val = "*t" + to_string(new_t);
     node->isPrimary = true;
     threeAC_list.push_back(inst);
     return node;   
