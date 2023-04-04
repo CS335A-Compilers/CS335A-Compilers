@@ -223,7 +223,12 @@ field_access
                 node->addChildren({$1,$2,$3}); 
                 $$ = node;
             }
-        //  |   SUPER_KEYWORD DOT_OP IDENTIFIERS                                                                                                {Node* node = createNode("field access"); node->addChildren({$1,$2,$3}); $$ = node;}
+            // |   THIS_KEYWORD DOT_OP IDENTIFIERS                                                                                                
+            // {   
+            //     Node* node = createNode("field access"); 
+            //     node->addChildren({$1,$2,$3}); 
+            //     $$ = node;
+            // }
 
 array_access
             :   type_name_scoping OP_SQR_BRCKT expression CLOSE_SQR_BRCKT                                                                               

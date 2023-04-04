@@ -6,5 +6,4 @@ class arrays {
         }
         return ;
     }
-    
 }
