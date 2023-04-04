@@ -21,6 +21,7 @@ class Node {
         vector<int> code;
         int entry_type;
         int line_no;
+        bool is_parameter;
         pair<int, int> current_level;
         long long int id;
         int reg_index;
@@ -195,6 +196,5 @@ void  createAST(Node* root, char* output_file);
 Node* createNode(string str);
 Node* cloneRoot(Node* root);
 bool typenameErrorChecking(Node* node, pair<int,int> curr_level, int entry_type);
-string createTAC(VariableDeclaratorList* list);
 int create3ACCode(Node* root, bool print);
 bool checkParams(string name, ExpressionList* exp_list);

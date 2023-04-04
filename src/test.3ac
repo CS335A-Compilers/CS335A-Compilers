@@ -1,25 +1,23 @@
 test.do_some:
 beginfunc
-0:    t0 = popparam
-1:    t1 = popparam
-2:    t2 = t1 * 5
-3:    t3 = t2 + 2
-4:    x = t3  
-5:    t2 = t0 + 1
-6:    t0 = t2  
+	0:	t0 = popparam
+	1:	t1 = popparam
+	2:	t2 = t1 * 5
+	3:	t3 = t2 + t0
+	4:	t0 = t3  
 endfunc
 test.main:
 beginfunc
-7:    t0 = x  
-8:    t1 = x + 1
-9:    x = t1  
-10:    t1 = 5
-11:    t2 = 6
-12:    pushparam t1
-13:    pushparam t2
-14:    call do_some
-15:    t1 = 6 * 9
-16:    t2 = 5 + t1
-17:    t1 = t2 + 6
-18:    x = t1  
+	5:	push z
+	6:	t5 = %sp + 0
+	7:	t2 = *t5
+	8:	stackpointer+004
+	9:	t3 = t2 * 5
+	10:	t4 = t3 + 6
+	11:	push y
+	12:	t5 = %sp + 4
+	13:	t3 = *t5
+	14:	stackpointer+004
+	15:	t3 = t4
+	16:	t2 = t3
 endfunc

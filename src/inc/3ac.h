@@ -3,7 +3,7 @@
 
 #include "expression.h"
 
-#define MAX_REGISTORS 8
+#define MAX_REGISTORS 100000
 
 class ThreeAC {
     public:

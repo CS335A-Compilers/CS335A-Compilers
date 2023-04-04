@@ -14,6 +14,8 @@ extern GlobalSymbolTable* global_symtab;
 extern vector<ThreeAC*> threeAC_list;
 extern bool firstFun; 
 extern vector<bool> temporary_registors_in_use;
+extern vector<int> typeSizes;
+extern int stack_frame_pointer;
 extern vector<string> typeStrings;
 extern int curr_address;
 
@@ -32,8 +34,10 @@ Node::Node(string lex){
     id = node_id;
     entry_type = -1;
     isWritten = false;
+    current_level = global_symtab->current_level;
     line_no = yylineno;
     reg_index = -1;
+    is_parameter = false;
 }
 
 void Node::addChildren(vector<Node*> childrens){
@@ -107,6 +111,7 @@ FormalParameter::FormalParameter(string lex, Type* type, VariableDeclaratorId* v
     : Node(lex) {
     isFinal = isFinal;
     param_type = type;
+    is_parameter = true;
     variable_declarator_id = variable_dec_id;
 }
 
@@ -220,7 +225,6 @@ bool typenameErrorChecking(Node* node, pair<int,int> curr_level, int entry_type)
         Node* temp = get_local_symtab(curr_level)->get_entry(lists->identifiers[0], entry_type);
         if(temp != NULL) return true;
         else{
-            cout<<"err $$$ here\n";
             string entry = (entry_type == -1) ? entryTypeStrings[0] : entryTypeStrings[entry_type];
             string err = "use of undeclared " + entry + " \"" + lists->identifiers[0] + "\"";
             yyerror(const_cast<char*>(err.c_str()));
@@ -262,7 +266,6 @@ bool addVariablesToSymtab(Type* t, VariableDeclaratorList* declarator_list, pair
                 yyerror(const_cast<char*>(err.c_str()));
                 return false;
             }
-            // type casting 3ac generate
         }
         if(declarator_list->lists[i]->initialized_value != NULL && declarator_list->lists[i]->num_of_dims > 0){
             int exp_type = t->primitivetypeIndex;
@@ -275,6 +278,9 @@ bool addVariablesToSymtab(Type* t, VariableDeclaratorList* declarator_list, pair
         }
         // cout<<declarator_list->lists[i]->num_of_dims<<endl;
         LocalVariableDeclaration* locale = new LocalVariableDeclaration("local_variable_declaration", t, declarator_list->lists[i], modif_lists);
+        int t = findEmptyRegistor();
+        locale->reg_index = t;
+        temporary_registors_in_use[t] = true;
         locale->isFieldVariable = is_field_variable;
         locale->entry_type = VARIABLE_DECLARATION;
         locale->name = declarator_list->lists[i]->identifier;
@@ -402,24 +408,6 @@ void createAST(Node* root, char* output_file){
     return ;
 }
 
-string createTAC(VariableDeclaratorList* list){
-    string res = "";
-    for(int i=0;i<list->lists.size();i++){
-        res+=list->lists[i]->identifier;
-        if(i+1 < list->lists.size()) res+=", ";
-    }
-    return res;
-}
-
-void replaceParams(Node* root, string name, int reg){
-    if(root->entry_type == EXPRESSIONS && ((Expression*)(root))->primary_exp_val == name){
-        ((Expression*)(root))->primary_exp_val = "t"+to_string(reg);
-    }
-    for(int i=0;i<root->children.size();i++){
-        replaceParams(root->children[i], name, reg);
-    }
-}
-
 int create3ACCode(Node* root, bool print){
     int res = 0;
     if(root == NULL) return res;
@@ -440,11 +428,10 @@ int create3ACCode(Node* root, bool print){
             int t = list[i]->reg_index;
             reg[i] = t;
             if(print){
-                cout<<to_string(curr_address)<<":    "<<"t"<<to_string(t)<<" = popparam\n";
+                cout<<"\t"<<to_string(curr_address)<<":\t"<<"t"<<to_string(t)<<" = popparam\n";
                 curr_address++;
             }
             res++;
-            replaceParams(root, list[i]->variable_declarator_id->identifier, t);
         }
         for(int i=0;i<root->children.size();i++){
             res+=create3ACCode(root->children[i], print);
@@ -455,16 +442,40 @@ int create3ACCode(Node* root, bool print){
     }
     else if(root->entry_type == VARIABLE_DECLARATION){
         // variable_declarator_id ASSIGNMENT_OP variable_initializer
-        // string temp = ((VariableDeclaratorId*)root)->lex_val;
-        // if(((LocalVariableDeclaration*)root)->isFieldVariable == true) return res;
-        // if(root->children.size() > 2) res+=create3ACCode(root->children[2], print);
-        // if(print){
-        //     cout<<curr_address<<":    "<<root->name<<" = add_to_symtab(";
-        // }
-        // if(root->children.size() > 2) cout<<((Expression*)root->children[2])->createString();
-        // cout<<")\n";
-        // curr_address++;
-        // res++;
+        // ignore the declaration if it is a formal parameter declaration
+        if(root->is_parameter) return res;
+        if(root->children.size() > 2) res+=create3ACCode(root->children[2], print);
+        LocalVariableDeclaration* var = (LocalVariableDeclaration*)(get_local_symtab(root->current_level)->get_entry(root->name, 0));
+        if(print){
+            cout<<"\t"<<to_string(curr_address)<<":\tpush "<<root->name<<endl;
+            curr_address++;
+        }
+        res++;
+        int t = ((LocalVariableDeclaration*)(get_local_symtab(root->current_level)->get_entry(root->name, -1)))->type->primitivetypeIndex;
+        int x = typeSizes[t];
+        int t2 = findEmptyRegistor();
+        // getting the offset of the variable declared on the stack
+        if(print){
+            cout<<"\t"<<to_string(curr_address)<<":\tt"<<to_string(t2)<<" = %sp + "<<stack_frame_pointer<<endl;
+            curr_address++;
+        }
+        res++;
+        if(print){
+            cout<<"\t"<<to_string(curr_address)<<":\tt"<<to_string(var->reg_index)<<" = *t"<<to_string(t2)<<endl;
+            curr_address++;
+        }
+        res++;
+        if(print){
+            cout<<"\t"<<to_string(curr_address)<<":\tstackpointer+00"<<to_string(x)<<endl;
+            curr_address++;
+        }
+        res++;
+        if(var->variable_declarator->initialized_value != NULL){
+            cout<<"\t"<<to_string(curr_address)<<":\tt"<<to_string(var->reg_index)<<" = "<<((Expression*)root->children[2])->createString()<<endl;
+            curr_address++;
+        }
+        res++;
+        stack_frame_pointer+=4;
     }
     else if(root->entry_type == EXPRESSIONS){
         vector<int> codes = root->code;
@@ -474,7 +485,7 @@ int create3ACCode(Node* root, bool print){
         for(int i=0;i<codes.size();i++){
             res++;
             if(print) {
-                cout<<curr_address<<":    ";
+                cout<<"\t"<<to_string(curr_address)<<":\t";
                 print3AC(threeAC_list[codes[i]]);
                 curr_address++;
             }
@@ -488,7 +499,7 @@ int create3ACCode(Node* root, bool print){
             int t = findEmptyRegistor();
             reg[i] = t;
             if(print){
-                cout<<to_string(curr_address)<<":    t"<<to_string(t)<<" = "<<((ExpressionList*)(root->children[2]))->lists[i]->primary_exp_val<<endl;
+                cout<<"\t"<<to_string(curr_address)<<":\tt"<<to_string(t)<<" = "<<((ExpressionList*)(root->children[2]))->lists[i]->primary_exp_val<<endl;
                 curr_address++;
             }
             temporary_registors_in_use[t] = true;
@@ -496,14 +507,14 @@ int create3ACCode(Node* root, bool print){
         }
         for(int i=0;i<n;i++){
             if(print){
-                cout<<to_string(curr_address)<<":    pushparam "<<"t"<<to_string(reg[i])<<endl;
+                cout<<"\t"<<to_string(curr_address)<<":\tpushparam "<<"t"<<to_string(reg[i])<<endl;
                 curr_address++;
             }
             res++;
             temporary_registors_in_use[reg[i]] = false;
         }
         if(print){
-            cout<<to_string(curr_address)<<":    call "<<root->name<<endl;
+            cout<<"\t"<<to_string(curr_address)<<":\tcall "<<root->name<<endl;
             curr_address++;
         }
         res++;
@@ -513,7 +524,7 @@ int create3ACCode(Node* root, bool print){
         Expression* temp = (Expression*)root->children[2];
         res+=create3ACCode(temp, print);
         int gotoL1 = create3ACCode(root->children[4], false) + curr_address;
-        string str = to_string(curr_address) + ":    if t"+ to_string(temp->registor_index) + " == false goto " + to_string(gotoL1+1);
+        string str = "\t" + to_string(curr_address) + ":\tif t"+ to_string(temp->registor_index) + " == false goto " + to_string(gotoL1+1);
         if(print) {
             cout<<str<<endl;
             curr_address++;
@@ -526,7 +537,7 @@ int create3ACCode(Node* root, bool print){
         Expression* temp = (Expression*)root->children[2];
         res+=create3ACCode(temp, print);
         int gotoL1 = create3ACCode(root->children[4], false) + curr_address;
-        string str = to_string(curr_address) + ":    if t"+ to_string(temp->registor_index) + " == false goto " + to_string(gotoL1+2);
+        string str = "\t" + to_string(curr_address) + ":\tif t"+ to_string(temp->registor_index) + " == false goto " + to_string(gotoL1+2);
         if(print) {
             cout<<str<<endl;
             curr_address++;
@@ -534,7 +545,7 @@ int create3ACCode(Node* root, bool print){
         res++;
         res+=create3ACCode(root->children[4], print);
         int gotoL2 = create3ACCode(root->children[6], false) + curr_address;
-        string str2 = to_string(curr_address) + ":    goto " + to_string(gotoL2+1);
+        string str2 = "\t" + to_string(curr_address) + ":\tgoto " + to_string(gotoL2+1);
         if(print){
             cout<<str2<<endl;
             curr_address++;
@@ -548,14 +559,14 @@ int create3ACCode(Node* root, bool print){
         int loop_posn = curr_address;
         res+=create3ACCode(temp, print);
         int gotoL1 = create3ACCode(root->children[4], false) + curr_address;
-        string str = to_string(curr_address) + ":    if t"+ to_string(temp->registor_index) + " == false goto " + to_string(gotoL1+2);
+        string str = "\t" + to_string(curr_address) + ":\tif t"+ to_string(temp->registor_index) + " == false goto " + to_string(gotoL1+2);
         if(print) {
             cout<<str<<endl;
             curr_address++;
         }
         res++;
         res+=create3ACCode(root->children[4], print);
-        string str2 = to_string(curr_address) + ":    goto " + to_string(loop_posn);
+        string str2 = "\t" + to_string(curr_address) + ":\tgoto " + to_string(loop_posn);
         if(print) {
             cout<<str2<<endl;
             curr_address++;
@@ -570,7 +581,7 @@ int create3ACCode(Node* root, bool print){
         res+=create3ACCode(root->children[4], print);
         int gotoL1 = create3ACCode(root->children[8], false) + curr_address + create3ACCode(root->children[6], false);
         // if(temp->registor_index != -1){
-            string str = to_string(curr_address) + ":    if t"+ to_string(temp->registor_index) + " == false goto " + to_string(gotoL1+2);
+            string str = "\t" + to_string(curr_address) + ":\tif t"+ to_string(temp->registor_index) + " == false goto " + to_string(gotoL1+2);
             if(print) {
                 cout<<str<<endl;
                 curr_address++;
@@ -579,7 +590,7 @@ int create3ACCode(Node* root, bool print){
         // }
         res+=create3ACCode(root->children[8], print);
         res+=create3ACCode(root->children[6], print);
-        string str2 = to_string(curr_address) + ":    goto " + to_string(loop_posn);
+        string str2 = "\t" + to_string(curr_address) + ":\tgoto " + to_string(loop_posn);
         if(print) {
             cout<<str2<<endl;
             curr_address++;
@@ -592,7 +603,7 @@ int create3ACCode(Node* root, bool print){
         res+=create3ACCode(temp, print);
         res+=create3ACCode(root->children[2], true);
         int gotoL1 = create3ACCode(root->children[2], false) + curr_address;
-        string str = to_string(curr_address) + ":    if t"+ to_string(temp->registor_index) + " == false goto " + to_string(gotoL1+2);
+        string str = "\t" + to_string(curr_address) + ":\tif t"+ to_string(temp->registor_index) + " == false goto " + to_string(gotoL1+2);
         if(print) {
             cout<<str<<endl;
             curr_address++;
@@ -600,7 +611,7 @@ int create3ACCode(Node* root, bool print){
         res++;
         res+=create3ACCode(root->children[2], print);
         int gotoL2 = create3ACCode(root->children[4], false) + curr_address;
-        string str2 = to_string(curr_address) + ":    goto " + to_string(gotoL2+1);
+        string str2 = "\t" + to_string(curr_address) + ":\tgoto " + to_string(gotoL2+1);
         if(print){
             cout<<str2<<endl;
             curr_address++;

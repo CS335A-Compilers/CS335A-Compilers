@@ -11,7 +11,9 @@
     extern vector<string> typeStrings;
     GlobalSymbolTable* global_symtab = new GlobalSymbolTable();
     vector<bool> temporary_registors_in_use(MAX_REGISTORS, false);
+    vector<int> typeSizes = {1, 1, 2, 4, 8, 4, 8, 1, -1, 0, };
     vector<ThreeAC*> threeAC_list;
+    int stack_frame_pointer = 0;
     bool firstFun = true;
     map<string, int> method_address;
     int curr_address = 0;
@@ -1203,7 +1205,6 @@ local_variable_declaration
             node->addChildren({$1,$2}); 
             if(!addVariablesToSymtab($1, $2, global_symtab->current_level, NULL, false)) 
                 YYERROR; 
-            node->name = createTAC($2); 
             $$ = node;
         }
 
@@ -1753,7 +1754,6 @@ field_declaration
             if(!addVariablesToSymtab($1, $2, global_symtab->current_level, NULL, true)) 
                 YYERROR;  
             node->addChildren({$1,$2,$3});  
-            node->name = createTAC($2); 
             $$ = node;
         }
         |  modifiers_one_or_more unann_type variable_declarator_list SEMICOLON_OP                                                                      
@@ -1762,7 +1762,6 @@ field_declaration
             if(!addVariablesToSymtab($2, $3, global_symtab->current_level, $1, true)) 
                 YYERROR;  
             node->addChildren({$1,$2,$3,$4}); 
-            node->name = createTAC($3); 
             $$ = node;
         }
 
@@ -1793,7 +1792,8 @@ variable_declarator
         {
             VariableDeclaratorId* node = new VariableDeclaratorId("variable_declarator", $1->identifier, $1->num_of_dims, NULL);      
             node->entry_type = VARIABLE_DECLARATION; 
-            node->lex_val = ""; node->addChildren({$1}); 
+            node->lex_val = ""; 
+            node->addChildren({$1}); 
             $$ = node;
         }
         |  variable_declarator_id ASSIGNMENT_OP variable_initializer                                                                                    
@@ -1845,7 +1845,7 @@ method_declaration
             ((LocalSymbolTable*)((global_symtab->symbol_tables)[$2->parent_level.first][$2->parent_level.second]))->level_node = (Node*)(node); 
             for(int i=0;i<node->formal_parameter_list->lists.size();i++){
                 int t = node->formal_parameter_list->lists[i]->reg_index;
-                temporary_registors_in_use[t] = false;
+                // temporary_registors_in_use[t] = false;
             }
             get_local_symtab(global_symtab->current_level)->add_entry(node); 
             $$ = node;
@@ -1862,7 +1862,7 @@ method_declaration
             node->entry_type = METHOD_DECLARATION; 
             for(int i=0;i<node->formal_parameter_list->lists.size();i++){
                 int t = node->formal_parameter_list->lists[i]->reg_index;
-                temporary_registors_in_use[t] = false;
+                // temporary_registors_in_use[t] = false;
             }
             get_local_symtab(global_symtab->current_level)->add_entry(node); 
             $$ = node;
@@ -1880,7 +1880,7 @@ method_declaration
             ((LocalSymbolTable*)((global_symtab->symbol_tables)[$3->parent_level.first][$3->parent_level.second]))->level_node = (Node*)(node); 
             for(int i=0;i<node->formal_parameter_list->lists.size();i++){
                 int t = node->formal_parameter_list->lists[i]->reg_index;
-                temporary_registors_in_use[t] = false;
+                // temporary_registors_in_use[t] = false;
             }
             get_local_symtab(global_symtab->current_level)->add_entry(node); 
             $$ = node;
@@ -1897,7 +1897,7 @@ method_declaration
             node->entry_type = METHOD_DECLARATION; 
             for(int i=0;i<node->formal_parameter_list->lists.size();i++){
                 int t = node->formal_parameter_list->lists[i]->reg_index;
-                temporary_registors_in_use[t] = false;
+                // temporary_registors_in_use[t] = false;
             }
             get_local_symtab(global_symtab->current_level)->add_entry(node); 
             $$ = node;

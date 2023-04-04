@@ -65,6 +65,7 @@
         "xstring": "cpp",
         "ios": "cpp",
         "string": "cpp",
-        "xmemory": "cpp"
+        "xmemory": "cpp",
+        "xtree": "cpp"
     }
 }
