@@ -16,7 +16,6 @@
     map<string, int> caches;
     int stack_frame_pointer = 0;
     NormalClassDeclaration* curr_class;
-    map<string, int> method_address;
     int curr_address = 0;
     extern FILE* yyin;
     char output_file[10000];

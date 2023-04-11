@@ -6,7 +6,6 @@ using namespace std;
 extern void yyerror(char const*);
 extern vector<bool> temporary_registors_in_use;
 extern vector<ThreeAC*> threeAC_list;
-extern map<string, int> method_address;
 
 // std::ofstream out("3ac.txt");
 // std::streambuf* coutbuf = std::cout.rdbuf();

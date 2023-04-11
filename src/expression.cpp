@@ -174,7 +174,6 @@ Expression* evalRELATIONAL(string lex, Expression* e1, string op, Expression* e2
     return obj;
 }
 
-// Segmentation fault on character eg : a = 'k' >> 8;
 Expression* evalSHIFT(string lex, Expression* e1, string op, Expression* e2){
     if(e1 == NULL || e2 == NULL)
         return NULL;
@@ -182,13 +181,6 @@ Expression* evalSHIFT(string lex, Expression* e1, string op, Expression* e2){
         yyerror("Incompatible types: cannot be conveted");
         return NULL;
     }
-    // int val;
-    // if(op=="<<")
-    //     val=e1->value->num_val[0]<<e2->value->num_val[0];
-    // else if(op==">>")
-    //     val=e1->value->num_val[0]>>e2->value->num_val[0];
-    // else if(op==">>>")
-    //     val=(unsigned int)e1->value->num_val[0] >> (unsigned int)e2->value->num_val[0];
     Value* va= new Value();
     va->primitivetypeIndex = 4;
     Expression* obj=new Expression(lex, va, false, false);
