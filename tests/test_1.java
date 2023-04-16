@@ -1,15 +1,10 @@
 class test {
     public void main(){
-        int a, b, d;
-        long c, e;
-        a = ~10;
-        b = ~1 ; 
-        if (a < 0){
-            b++;
-        }
-        else b--;
-        c = ~235l;
-        d = ~2454;
-        e = c+1;  
+        int a=6,b=5;
+        a = a*b ;
+        // printf("%d", a);
+        // a = add(a,b);
+        // printf("%d", a);
+        return ;
     }
 }
