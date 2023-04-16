@@ -2844,12 +2844,12 @@ int main(int argc, char **argv){
     yyparse();
 
 //     does not work on windows systems :(
-//     createSymbolTableCSV();
 
     fclose(yyin);
     // Redirect cout back to screen
     cout.rdbuf(stream_buffer_cout);
     file.close();
+    // createSymbolTableCSV();
     return 0;
 }
 
