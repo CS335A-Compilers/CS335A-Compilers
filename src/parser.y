@@ -14,6 +14,7 @@
     vector<int> typeSizes = {1, 1, 2, 4, 8, 4, 8, 1, -1, 0};
     vector<string> calleeSavedRegistors = {"%r12", "%rbx", "%r10", "%r13", "%r14", "%r15"};
     vector<bool> calleeSavedInUse(calleeSavedRegistors.size(), false);
+    vector<bool> calleeGlobalCalled(calleeSavedRegistors.size(), false);
     vector<string> argumentRegistors = {"%rdi", "%rsi", "%rdx", "%rcx", "%r8", "%r9"};
     vector<ThreeAC*> threeAC_list;
     map<string, int> caches;
@@ -157,7 +158,10 @@ primary_no_new_array
                 int n = findEmptyCalleeSavedRegistor();
                 node->calleeSavedRegistorIndex = n;
                 calleeSavedInUse[n] = true;
-                node->x86_64.push_back("movq\t$" + $1->lexeme + "," + calleeSavedRegistors[n]);
+                if($1->value->primitivetypeIndex == BOOLEAN)
+                    node->x86_64.push_back("movq\t$" + to_string($1->value->boolean_val[0]) + "," + calleeSavedRegistors[n]);
+                else
+                    node->x86_64.push_back("movq\t$" + $1->lexeme + "," + calleeSavedRegistors[n]);
                 $$ = node;
             }
             |   class_instance_creation_expression                                                                                              
@@ -1666,6 +1670,8 @@ return_statement
             Expression* node1 = new Expression("return_registor", NULL, true, false);
             node1->primary_exp_val = "%rax";
             node->code.push_back(addInstruction(node1, $2, NULL, "", 0));
+            node->x86_64.push_back("movq\t" + calleeSavedRegistors[$2->calleeSavedRegistorIndex] + ", %rax");
+            calleeSavedInUse[$2->calleeSavedRegistorIndex] = false;
             $$ = node;
         }
         |   RETURN_KEYWORD SEMICOLON_OP
@@ -1901,6 +1907,11 @@ method_declaration
             node->addChildren({$1, $2});
             node->local_variables_size = 16*((functionOffset/16) + 1);
             functionOffset = 8;
+            int nn = calleeGlobalCalled.size();
+            for(int i=0;i<nn;i++) {
+                if(calleeGlobalCalled[i] == true) node->calleeRegCalled.push_back(i);    
+                calleeGlobalCalled[i] = false;
+            }
             $$ = node;
         }
         |   method_declaration_statement SEMICOLON_OP
@@ -1915,6 +1926,11 @@ method_declaration
             node->addChildren({$1, $2});
             node->local_variables_size = 16*((functionOffset/16) + 1);
             functionOffset = 8;
+            int nn = calleeGlobalCalled.size();
+            for(int i=0;i<nn;i++) {
+                if(calleeGlobalCalled[i] == true) node->calleeRegCalled.push_back(i);    
+                calleeGlobalCalled[i] = false;
+            }
             $$ = node;
         }
 

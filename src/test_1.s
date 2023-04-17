@@ -1,14 +1,13 @@
-8    a
-16    b
 main:
 	pushq	%rbp
 	movq	%rsp, %rbp
+	pushq %r12
 	movq	$1,%r12
 	movq	%r12, -8(%rbp)
-	movq	$2,%r12
+	movq	$0,%r12
 	movq	%r12, -16(%rbp)
-	movq	-16(%rbp),%r12
-	movq	$3,%rbx
-	addq	%rbx, %r12
-	addq	%r12, -8(rbp)
+	movq	$5,%r12
+	movq	%r12, %rax
+	popq  %r12
+	popq	%rbp
 	ret

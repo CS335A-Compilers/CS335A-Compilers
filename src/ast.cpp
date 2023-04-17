@@ -20,6 +20,7 @@ extern NormalClassDeclaration* curr_class;
 extern vector<bool> calleeSavedInUse;
 extern vector<string> typeStrings;
 extern int functionOffset;
+extern vector<bool> calleeGlobalCalled;
 extern int curr_address;
 
 vector<string> entryTypeStrings = {"variable", "class", "method"};
@@ -296,7 +297,6 @@ bool addVariablesToSymtab(Type* t, VariableDeclaratorList* declarator_list, pair
         locale->isFieldVariable = is_field_variable;
         locale->entry_type = VARIABLE_DECLARATION;
         locale->name = declarator_list->lists[i]->identifier;
-        cout<<locale->offset<<"    "<<locale->name<<endl;
         if(is_field_variable == true){
             curr_class->field_variables.push_back({locale, curr_class->object_size});
             curr_class->object_size += typeSizes[t->primitivetypeIndex];
@@ -667,7 +667,10 @@ bool checkParams(string name, ExpressionList* exp_list){
 int findEmptyCalleeSavedRegistor(){
     int n = calleeSavedInUse.size();
     for(int i=0;i<n;i++){
-        if(calleeSavedInUse[i] == false) return i;
+        if(calleeSavedInUse[i] == false) {
+            calleeGlobalCalled[i] = true;
+            return i;
+        }
     }
     return -1;
 }
@@ -696,6 +699,10 @@ void createAsm(Node* root){
         cout<<"\tpushq\t%rbp"<<endl;
 	    cout<<"\tmovq\t%rsp, %rbp"<<endl;
         vector<FormalParameter*> list = ((MethodDeclaration*)(root))->formal_parameter_list->lists;
+        vector<int> registors = ((MethodDeclaration*)(root))->calleeRegCalled;
+        for(int i=0;i<registors.size();i++){
+            cout<<"\tpushq "<<calleeSavedRegistors[registors[i]]<<endl;
+        }
         for(int i=0;i<list.size();i++){
             // int off = get_local_symtab(root->current_level)->get_entry(list[i]->variable_declarator_id->identifier, VARIABLE_DECLARATION)->offset;
             // pop param
@@ -703,6 +710,10 @@ void createAsm(Node* root){
         for(int i=0;i<root->children.size();i++){
             createAsm(root->children[i]);
         }
+        for(int i=registors.size()-1;i>=0;i--){
+            cout<<"\tpopq\t"<<calleeSavedRegistors[registors[i]]<<endl;
+        }
+        cout<<"\tpopq\t%rbp"<<endl;
         cout<<"\tret"<<endl;
     }
     else if(root->entry_type == VARIABLE_DECLARATION){
@@ -732,6 +743,7 @@ void createAsm(Node* root){
     }
     else if(root->entry_type == IF_THEN_STATEMENT){
         // IF_KEYWORD OP_BRCKT expression CLOSE_BRCKT statement
+
     }
     else if(root->entry_type == IF_THEN_ELSE_STATEMENT){
         // IF_KEYWORD  OP_BRCKT expression CLOSE_BRCKT statement_no_short_if ELSE_KEYWORD statement
@@ -748,6 +760,9 @@ void createAsm(Node* root){
     else{
         for(int i=0;i<root->children.size();i++){
             createAsm(root->children[i]);
+        }
+        for(int i=0;i<root->x86_64.size();i++){
+            cout<<"\t"<<root->x86_64[i]<<endl;
         }
     }
     return ;

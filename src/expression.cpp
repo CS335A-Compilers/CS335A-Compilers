@@ -125,7 +125,7 @@ Expression* evalOR_AND(string lex, Expression* e1, string op, Expression* e2){
     va->primitivetypeIndex = BOOLEAN;
     Expression *obj = new Expression(lex, va, false, false);
     obj->code.push_back(addInstruction(obj, e1, e2, op, 0));
-    // addInstruction(obj, e1, e2, op, 0);
+    
     return obj;  
 }
 
@@ -141,6 +141,9 @@ Expression* evalBITWISE(string lex, Expression* e1, string op, Expression* e2){
     va->primitivetypeIndex = max(e2->value->primitivetypeIndex, e1->value->primitivetypeIndex);
     Expression* obj=new Expression(lex,va,false,false);
     obj->code.push_back(addInstruction(obj, e1, e2, op, 0));
+    obj->calleeSavedRegistorIndex = e1->calleeSavedRegistorIndex;
+    calleeSavedInUse[e2->calleeSavedRegistorIndex] = false;
+    obj->x86_64.push_back(convertOperator(op) + "\t" + calleeSavedRegistors[e2->calleeSavedRegistorIndex] + ", " + calleeSavedRegistors[e1->calleeSavedRegistorIndex]);
     return obj; 
 }
 
@@ -189,6 +192,9 @@ Expression* evalSHIFT(string lex, Expression* e1, string op, Expression* e2){
     va->primitivetypeIndex = 4;
     Expression* obj=new Expression(lex, va, false, false);
     obj->code.push_back(addInstruction(obj, e1, e2, op, 0));
+    obj->calleeSavedRegistorIndex = e1->calleeSavedRegistorIndex;
+    calleeSavedInUse[e2->calleeSavedRegistorIndex] = false;
+    obj->x86_64.push_back(convertOperator(op) + "\t" + calleeSavedRegistors[e2->calleeSavedRegistorIndex] + ", " + calleeSavedRegistors[e1->calleeSavedRegistorIndex]);
     return obj;   
 }
 
@@ -322,7 +328,7 @@ Expression* assignValue(Expression* type_name, string op, Expression* exp, strin
                 else{
                     obj->code.push_back(addInstruction(type_name, exp, NULL, "", 0));
                 }
-                obj->x86_64.push_back("movq\t" + calleeSavedRegistors[exp_index] + ", -" + to_string(off) + "(rbp)");
+                obj->x86_64.push_back("movq\t" + calleeSavedRegistors[exp_index] + ", -" + to_string(off) + "(%rbp)");
             }
             else{
                 int pos = op.find('=');
@@ -340,10 +346,10 @@ Expression* assignValue(Expression* type_name, string op, Expression* exp, strin
                 if(fin_op[0] == '>' || fin_op[0] == '<'){
                     // use CL registor to store the exp value
                     obj->x86_64.push_back("movq\t" + calleeSavedRegistors[exp_index] + ", %rcx");
-                    obj->x86_64.push_back(convertOperator(fin_op) + "\t" + "%rcx" + ", -" + to_string(off) + "(rbp)");
+                    obj->x86_64.push_back(convertOperator(fin_op) + "\t" + "%rcx" + ", -" + to_string(off) + "(%rbp)");
                 }
                 else
-                    obj->x86_64.push_back(convertOperator(fin_op) + "\t" + calleeSavedRegistors[exp_index] + ", -" + to_string(off) + "(rbp)");
+                    obj->x86_64.push_back(convertOperator(fin_op) + "\t" + calleeSavedRegistors[exp_index] + ", -" + to_string(off) + "(%rbp)");
             }
             // obj->value = exp->value;
             return obj;

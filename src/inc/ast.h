@@ -160,6 +160,8 @@ class MethodDeclaration : public Node {
         // stores the total size of the function to allocate to the stack
         int local_variables_size;
         bool isConstructor;
+        // stores the index of callee saved registors which are used by the compiler for the given function
+        vector<int> calleeRegCalled;
         // ReceiverParameter* receiver_parameter;
         // contructor
         MethodDeclaration(string lex);
