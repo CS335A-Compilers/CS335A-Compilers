@@ -291,7 +291,7 @@ bool addVariablesToSymtab(Type* t, VariableDeclaratorList* declarator_list, pair
         int tt = findEmptyRegistor();
         locale->reg_index = tt;
         locale->offset = functionOffset;
-        functionOffset += typeSizes[t->primitivetypeIndex];
+        functionOffset += 8;    // always increasing by 8 bytes, so that mera dimag kharab na ho :(
         temporary_registors_in_use[tt] = true;
         locale->isFieldVariable = is_field_variable;
         locale->entry_type = VARIABLE_DECLARATION;
@@ -677,6 +677,11 @@ string convertOperator(string op){
     else if(op == "-") return "subq";
     else if(op == "*") return "imulq";
     else if(op == "/") return "idivq";
+    else if(op == "&") return "andq";
+    else if(op == "|") return "orq";
+    else if(op == "^") return "xorq";
+    else if(op == ">>") return "shrq";
+    else if(op == "<<") return "shlq";
 }
 
 void createAsm(Node* root){

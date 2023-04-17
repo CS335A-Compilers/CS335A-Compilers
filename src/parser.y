@@ -6,7 +6,7 @@
     #define YYDEBUG 1
     int yylex(void);
     void yyerror(char const*);
-    int functionOffset = 4;
+    int functionOffset = 8;
     extern int yylineno;
     extern vector<string> typeStrings;
     GlobalSymbolTable* global_symtab = new GlobalSymbolTable();
@@ -1900,7 +1900,7 @@ method_declaration
             }
             node->addChildren({$1, $2});
             node->local_variables_size = 16*((functionOffset/16) + 1);
-            functionOffset = 4;
+            functionOffset = 8;
             $$ = node;
         }
         |   method_declaration_statement SEMICOLON_OP
@@ -1914,7 +1914,7 @@ method_declaration
             node->modifiers = $1->modifiers;
             node->addChildren({$1, $2});
             node->local_variables_size = 16*((functionOffset/16) + 1);
-            functionOffset = 4;
+            functionOffset = 8;
             $$ = node;
         }
 
@@ -2013,7 +2013,7 @@ formal_parameter
             int t = findEmptyRegistor();
             node->reg_index = t;
             node->offset = functionOffset;
-            functionOffset += typeSizes[$1->primitivetypeIndex];
+            functionOffset += 8;
             temporary_registors_in_use[t] = true;
             get_local_symtab(global_symtab->current_level)->add_entry(node);
             $$ = node;
@@ -2026,7 +2026,7 @@ formal_parameter
             int t = findEmptyRegistor();
             node->reg_index = t;
             node->offset = functionOffset;
-            functionOffset += typeSizes[$2->primitivetypeIndex];
+            functionOffset += 8;
             temporary_registors_in_use[t] = true;
             get_local_symtab(global_symtab->current_level)->add_entry(node);
             node->addChildren({$1,$2,$3}); 

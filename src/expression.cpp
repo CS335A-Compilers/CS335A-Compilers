@@ -310,6 +310,9 @@ Expression* assignValue(Expression* type_name, string op, Expression* exp, strin
         int name_type = name->type->primitivetypeIndex;
         int exp_type = exp->value->primitivetypeIndex;
         if((name_type >= exp_type) || op.length() > 1) {
+            int off = get_local_symtab(global_symtab->current_level)->get_entry(ident, -1)->offset;
+            int exp_index = exp->calleeSavedRegistorIndex;
+            calleeSavedInUse[exp_index] = false;
             if(op == "="){
                 if(name_type != exp_type){
                     Expression* temp = new Expression("cast expression", NULL, false, false);
@@ -319,6 +322,7 @@ Expression* assignValue(Expression* type_name, string op, Expression* exp, strin
                 else{
                     obj->code.push_back(addInstruction(type_name, exp, NULL, "", 0));
                 }
+                obj->x86_64.push_back("movq\t" + calleeSavedRegistors[exp_index] + ", -" + to_string(off) + "(rbp)");
             }
             else{
                 int pos = op.find('=');
@@ -333,6 +337,13 @@ Expression* assignValue(Expression* type_name, string op, Expression* exp, strin
                     obj->code.push_back(addInstruction(temp, type_name, temp1, fin_op, 0));
                 }
                 obj->code.push_back(addInstruction(type_name, temp, NULL, "", 0));
+                if(fin_op[0] == '>' || fin_op[0] == '<'){
+                    // use CL registor to store the exp value
+                    obj->x86_64.push_back("movq\t" + calleeSavedRegistors[exp_index] + ", %rcx");
+                    obj->x86_64.push_back(convertOperator(fin_op) + "\t" + "%rcx" + ", -" + to_string(off) + "(rbp)");
+                }
+                else
+                    obj->x86_64.push_back(convertOperator(fin_op) + "\t" + calleeSavedRegistors[exp_index] + ", -" + to_string(off) + "(rbp)");
             }
             // obj->value = exp->value;
             return obj;
