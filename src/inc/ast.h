@@ -7,6 +7,10 @@ enum Types {CHAR, BYTE, SHORT, INT, LONG, FLOAT, DOUBLE, BOOLEAN, STRING, VOID, 
 // symbol table entry is added whenever one of these declaration is done
 enum DeclarationType {VARIABLE_DECLARATION, CLASS_DECLARATION, METHOD_DECLARATION, METHOD_INVOCATION, IF_THEN_STATEMENT, IF_THEN_ELSE_STATEMENT, WHILE_STATEMENT, EXPRESSIONS, FOR_STATEMENT, TERNARY_EXPRESSION};
 
+#define RAX "%rax";
+#define RSP "%rsp";
+#define RIP "%rip";
+
 class Node {
 
     public:
@@ -19,6 +23,12 @@ class Node {
         bool isWritten;
         // stores the index of threeAC_list containing the instruction;
         vector<int> code;
+        // stores the actual x86 instruction for the given expression
+        vector<string> x86_64; 
+        // stores the offset of any variable, field_variable or parameter relative to the function
+        int offset;
+        // denotes the callee saved registor number where the expression's value is stored
+        int calleeSavedRegistorIndex;
         int entry_type;
         int line_no;
         bool is_parameter;
@@ -147,6 +157,8 @@ class MethodDeclaration : public Node {
         ModifierList* modifiers;
         Type* type;
         FormalParameterList* formal_parameter_list;
+        // stores the total size of the function to allocate to the stack
+        int local_variables_size;
         bool isConstructor;
         // ReceiverParameter* receiver_parameter;
         // contructor
@@ -199,4 +211,7 @@ Node* createNode(string str);
 Node* cloneRoot(Node* root);
 bool typenameErrorChecking(Node* node, pair<int,int> curr_level, int entry_type);
 int create3ACCode(Node* root, bool print);
+void createAsm(Node* root);
 bool checkParams(string name, ExpressionList* exp_list);
+int findEmptyCalleeSavedRegistor();
+string convertOperator(string op);

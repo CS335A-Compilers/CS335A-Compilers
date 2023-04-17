@@ -4,14 +4,17 @@
     #include "inc/helper.h"
     #include "inc/3ac.h"
     #define YYDEBUG 1
-
     int yylex(void);
     void yyerror(char const*);
+    int functionOffset = 4;
     extern int yylineno;
     extern vector<string> typeStrings;
     GlobalSymbolTable* global_symtab = new GlobalSymbolTable();
     vector<bool> temporary_registors_in_use(MAX_REGISTORS, false);
     vector<int> typeSizes = {1, 1, 2, 4, 8, 4, 8, 1, -1, 0};
+    vector<string> calleeSavedRegistors = {"%r12", "%rbx", "%r10", "%r13", "%r14", "%r15"};
+    vector<bool> calleeSavedInUse(calleeSavedRegistors.size(), false);
+    vector<string> argumentRegistors = {"%rdi", "%rsi", "%rdx", "%rcx", "%r8", "%r9"};
     vector<ThreeAC*> threeAC_list;
     map<string, int> caches;
     int stack_frame_pointer = 0;
@@ -80,7 +83,8 @@ start_state
             :   compilation_unit                                                       
             {
                 $$ = $1; 
-                create3ACCode($$, true); 
+                // create3ACCode($$, true); 
+                createAsm($$);
                 // createAST($$, output_file);
             }
 
@@ -150,6 +154,10 @@ primary_no_new_array
                 node->primary_exp_val = $1->lexeme; 
                 assignLiteralValue($1, node);
                 node->addChildren({$1}); 
+                int n = findEmptyCalleeSavedRegistor();
+                node->calleeSavedRegistorIndex = n;
+                calleeSavedInUse[n] = true;
+                node->x86_64.push_back("movq\t$" + $1->lexeme + "," + calleeSavedRegistors[n]);
                 $$ = node;
             }
             |   class_instance_creation_expression                                                                                              
@@ -526,7 +534,7 @@ additive_expression
                     YYERROR; 
                 node->addChildren({$1}); 
                 $$ = node;
-            }           
+            }
             |   additive_expression PLUS_OP multiplicative_expression                                                                           
             {
                 Expression* node = evalARITHMETIC("additive expression","+",$1,$3);
@@ -693,6 +701,11 @@ postfix_expression
                 node->registor_index = t;
                 node->isPrimary = true; 
                 node->addChildren({$1}); 
+                int n = findEmptyCalleeSavedRegistor();
+                node->calleeSavedRegistorIndex = n;
+                calleeSavedInUse[n] = true;
+                int posn = ((LocalVariableDeclaration*)(get_local_symtab(global_symtab->current_level)->get_entry($1->lexeme, 0)))->offset;
+                node->x86_64.push_back("movq\t-" + to_string(posn) + "(%rbp)," + calleeSavedRegistors[n]);
                 $$ = node;
             }           
             |   post_increment_expression                                                                                                       
@@ -1040,6 +1053,7 @@ variable_initializer
             :   expression                                                                                                                              
             {
                 Expression* node = grammar_1("variable initializer", $1, $1->isPrimary, $1->isLiteral); 
+                calleeSavedInUse[node->calleeSavedRegistorIndex] = false;
                 node->addChildren({$1}); 
                 $$ = node;
             }
@@ -1877,7 +1891,7 @@ method_declaration
             node->line_no = $1->line_no; 
             node->name = $1->name; 
             node->formal_parameter_list = $1->formal_parameter_list; 
-            node->type = $1->type; 
+            node->type = $1->type;
             node->modifiers = $1->modifiers;
             ((LocalSymbolTable*)((global_symtab->symbol_tables)[$2->parent_level.first][$2->parent_level.second]))->level_node = (Node*)(node); 
             for(int i=0;i<node->formal_parameter_list->lists.size();i++){
@@ -1885,6 +1899,8 @@ method_declaration
                 temporary_registors_in_use[t] = false;
             }
             node->addChildren({$1, $2});
+            node->local_variables_size = 16*((functionOffset/16) + 1);
+            functionOffset = 4;
             $$ = node;
         }
         |   method_declaration_statement SEMICOLON_OP
@@ -1897,6 +1913,8 @@ method_declaration
             node->type = $1->type; 
             node->modifiers = $1->modifiers;
             node->addChildren({$1, $2});
+            node->local_variables_size = 16*((functionOffset/16) + 1);
+            functionOffset = 4;
             $$ = node;
         }
 
@@ -1994,6 +2012,8 @@ formal_parameter
             node->entry_type = VARIABLE_DECLARATION;
             int t = findEmptyRegistor();
             node->reg_index = t;
+            node->offset = functionOffset;
+            functionOffset += typeSizes[$1->primitivetypeIndex];
             temporary_registors_in_use[t] = true;
             get_local_symtab(global_symtab->current_level)->add_entry(node);
             $$ = node;
@@ -2005,6 +2025,8 @@ formal_parameter
             node->entry_type = VARIABLE_DECLARATION;
             int t = findEmptyRegistor();
             node->reg_index = t;
+            node->offset = functionOffset;
+            functionOffset += typeSizes[$2->primitivetypeIndex];
             temporary_registors_in_use[t] = true;
             get_local_symtab(global_symtab->current_level)->add_entry(node);
             node->addChildren({$1,$2,$3}); 

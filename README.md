@@ -81,10 +81,10 @@ Firstly, you have to change the current working directory.
   make 
   ```
 
-In order to evaluate the code on some java file (with path "../tests/test_1.java") and output the ast in some dot file (with path "./test_1.dot"), use the following command.
+In order to evaluate the code on some java file (with path "../tests/test_1.java") and output the ast in assembly file (with path "./test_1.s"), use the following command.
 
   ```sh
-  ./milestone3 --input=../tests/test_1.java --output=./test_1.3ac
+  ./java-assembler --input=../tests/test_1.java --output=./test_1.s
   ```
 
 This will generate .csv files containing the symbol table for each method and the whole class as a whole. It will also generate a dump of the 3AC instructions in the file - `3ac.txt`
@@ -98,13 +98,13 @@ In order to vizualize the dot file in svg format, run the following command.
 If you want to use help flag, you can simply use the following command.
 
   ```sh
-  ./milestone3 --help
+  ./java-assembler --help
   ```
 
 If one wants to see how the stack contents are changing and which particular production rule is being used, one can use the following command. (Remeber that verbose command will work only when you give some input and output file to it.)
 
   ```sh
-  ./milestone3 --input=../tests/test_1.java --output=test_1.dot --verbose
+  ./java-assembler --input=../tests/test_1.java --output=test_1.dot --verbose
   ```
 
 ### Note
@@ -112,12 +112,12 @@ If one wants to see how the stack contents are changing and which particular pro
 If the makefile does not compile properly, use the following commands,
 
   ```sh
-	g++ lex.yy.c parser.tab.c -o milestone3
+	g++ lex.yy.c parser.tab.c ast.cpp helper.cpp symtab.cpp expression.cpp 3ac.cpp -o java-assembler
   ```
 instead of 
 
   ```sh
-	g++ -std=c++17 lex.yy.c parser.tab.c -o milestone3
+	g++ lex.yy.c parser.tab.c ast.cpp helper.cpp symtab.cpp expression.cpp 3ac.cpp -o java-assembler
   ```
 
 in the Makefile

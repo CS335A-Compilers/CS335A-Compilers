@@ -15,8 +15,11 @@ extern vector<ThreeAC*> threeAC_list;
 extern vector<bool> temporary_registors_in_use;
 extern vector<int> typeSizes;
 extern int stack_frame_pointer;
+extern vector<string> calleeSavedRegistors;
 extern NormalClassDeclaration* curr_class;
+extern vector<bool> calleeSavedInUse;
 extern vector<string> typeStrings;
+extern int functionOffset;
 extern int curr_address;
 
 vector<string> entryTypeStrings = {"variable", "class", "method"};
@@ -37,6 +40,7 @@ Node::Node(string lex){
     current_level = global_symtab->current_level;
     line_no = yylineno;
     reg_index = -1;
+    offset = -1;
     is_parameter = false;
 }
 
@@ -124,6 +128,7 @@ Type::Type(string lex, int primitivetype)
 MethodDeclaration::MethodDeclaration(string lex)
     : Node(lex) {
     isConstructor = false;
+    local_variables_size = 0;
 }
 
 MethodDeclaration::MethodDeclaration(const MethodDeclaration* obj)
@@ -285,10 +290,13 @@ bool addVariablesToSymtab(Type* t, VariableDeclaratorList* declarator_list, pair
         LocalVariableDeclaration* locale = new LocalVariableDeclaration("local_variable_declaration", t, declarator_list->lists[i], modif_lists);
         int tt = findEmptyRegistor();
         locale->reg_index = tt;
+        locale->offset = functionOffset;
+        functionOffset += typeSizes[t->primitivetypeIndex];
         temporary_registors_in_use[tt] = true;
         locale->isFieldVariable = is_field_variable;
         locale->entry_type = VARIABLE_DECLARATION;
         locale->name = declarator_list->lists[i]->identifier;
+        cout<<locale->offset<<"    "<<locale->name<<endl;
         if(is_field_variable == true){
             curr_class->field_variables.push_back({locale, curr_class->object_size});
             curr_class->object_size += typeSizes[t->primitivetypeIndex];
@@ -652,6 +660,90 @@ int create3ACCode(Node* root, bool print){
 }
 
 bool checkParams(string name, ExpressionList* exp_list){
-    // need to do
+    // need to do;
     return true;
+}
+
+int findEmptyCalleeSavedRegistor(){
+    int n = calleeSavedInUse.size();
+    for(int i=0;i<n;i++){
+        if(calleeSavedInUse[i] == false) return i;
+    }
+    return -1;
+}
+
+string convertOperator(string op){
+    if(op == "+") return "addq";
+    else if(op == "-") return "subq";
+    else if(op == "*") return "imulq";
+    else if(op == "/") return "idivq";
+}
+
+void createAsm(Node* root){
+    if(root == NULL) return ;
+    if(root->entry_type == CLASS_DECLARATION){
+        for(int i=0;i<root->children.size();i++){
+            createAsm(root->children[i]);
+        }
+    }
+    else if(root->entry_type == METHOD_DECLARATION){
+        cout<<root->name<<":\n";
+        cout<<"\tpushq\t%rbp"<<endl;
+	    cout<<"\tmovq\t%rsp, %rbp"<<endl;
+        vector<FormalParameter*> list = ((MethodDeclaration*)(root))->formal_parameter_list->lists;
+        for(int i=0;i<list.size();i++){
+            // int off = get_local_symtab(root->current_level)->get_entry(list[i]->variable_declarator_id->identifier, VARIABLE_DECLARATION)->offset;
+            // pop param
+        }
+        for(int i=0;i<root->children.size();i++){
+            createAsm(root->children[i]);
+        }
+        cout<<"\tret"<<endl;
+    }
+    else if(root->entry_type == VARIABLE_DECLARATION){
+        // variable_declarator_id ASSIGNMENT_OP variable_initializer
+        // ignore the declaration if it is a formal parameter declaration
+        if(root->is_parameter) return ;
+        LocalVariableDeclaration* var = (LocalVariableDeclaration*)(get_local_symtab(root->current_level)->get_entry(root->name, 0));
+        // ignoring for field variables
+        if(var->isFieldVariable) return ;
+        if(root->children.size() > 2) createAsm(root->children[2]);
+        if(root->children.size() == 1)
+            cout<<"\tmovq\t$0, -"<<var->offset<<"(%rbp)\n";
+        else 
+            cout<<"\tmovq\t"<<calleeSavedRegistors[root->children[2]->calleeSavedRegistorIndex]<<", -"<<var->offset<<"(%rbp)\n";
+    }
+    else if(root->entry_type == EXPRESSIONS){
+        // vector<int> codes = root->code;
+        for(int i=0;i<root->children.size();i++){
+            createAsm(root->children[i]);
+        }
+        for(int i=0;i<root->x86_64.size();i++){
+            cout<<"\t"<<root->x86_64[i]<<endl;
+        }
+    }
+    else if(root->entry_type == METHOD_INVOCATION){
+        // IDENTIFIERS  OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT
+    }
+    else if(root->entry_type == IF_THEN_STATEMENT){
+        // IF_KEYWORD OP_BRCKT expression CLOSE_BRCKT statement
+    }
+    else if(root->entry_type == IF_THEN_ELSE_STATEMENT){
+        // IF_KEYWORD  OP_BRCKT expression CLOSE_BRCKT statement_no_short_if ELSE_KEYWORD statement
+    }
+    else if(root->entry_type == WHILE_STATEMENT){
+        // WHILE_KEYWORD OP_BRCKT expression CLOSE_BRCKT statement
+    }
+    else if(root->entry_type == FOR_STATEMENT){
+        // FOR_KEYWORD OP_BRCKT for_init_zero_or_one SEMICOLON_OP expression_zero_or_one SEMICOLON_OP for_update_zero_or_one CLOSE_BRCKT statement
+    }
+    else if(root->entry_type == TERNARY_EXPRESSION){
+        // conditional_or_expression QN_OP expression COLON_OP condtional_expression
+    }
+    else{
+        for(int i=0;i<root->children.size();i++){
+            createAsm(root->children[i]);
+        }
+    }
+    return ;
 }
