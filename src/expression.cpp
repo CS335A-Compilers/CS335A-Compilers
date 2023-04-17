@@ -8,6 +8,8 @@ extern GlobalSymbolTable* global_symtab;
 extern vector<bool> temporary_registors_in_use;
 extern vector<ThreeAC*> threeAC_list;
 extern vector<int> typeSizes;
+extern vector<string> calleeSavedRegistors;
+extern vector<bool> calleeSavedInUse;
 // Define an array of strings that corresponds to the type values.
 vector<string> typeStrings = {"char", "byte", "short", "int", "long", "float", "double", "boolean", "array", "string", "void"};
 
@@ -67,6 +69,8 @@ Expression* grammar_1(string lex,Expression* e1,bool isprimary,bool isliteral){
     obj->registor_index = e1->registor_index;
     obj->primary_exp_val = e1->primary_exp_val;
     obj->reg_index = e1->reg_index;
+    obj->calleeSavedRegistorIndex = e1->calleeSavedRegistorIndex;
+    obj->offset = e1->offset;
     return obj;
 }
 
@@ -212,10 +216,12 @@ Expression* evalARITHMETIC(string lex, string op, Expression* e1, Expression* e2
         }
     }
     else obj->code.push_back(addInstruction(obj, e1, e2, op, 0));
+    obj->calleeSavedRegistorIndex = e1->calleeSavedRegistorIndex;
+    calleeSavedInUse[e2->calleeSavedRegistorIndex] = false;
+    obj->x86_64.push_back(convertOperator(op) + "\t" + calleeSavedRegistors[e2->calleeSavedRegistorIndex] + ", " + calleeSavedRegistors[e1->calleeSavedRegistorIndex]);
     return obj;
 }
 
-// Segmentation fault on characters
 Expression* evalUNARY(string lex, string op, Expression* e1){
     //don't know how to do this
     if(e1 == NULL)
