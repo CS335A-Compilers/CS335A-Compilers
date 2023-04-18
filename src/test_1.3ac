@@ -1,0 +1,76 @@
+.LC0:
+	.text
+	.string	"%lld\n"
+	.globl main
+main:
+	pushq	%rbp
+	movq	%rsp, %rbp
+	subq	$16, %rsp
+	pushq %r12
+	pushq %rbx
+	pushq %r10
+	pushq %r13
+	pushq %r14
+	movq	$3,%r12
+	movq	%r12, -8(%rbp)
+	movq	-8(%rbp),%r12
+	movq	$2,%rbx
+	cmpq	%rbx, %r12
+	setleq	%r12
+	cmpq	$1, %r12
+	je	.L1
+	movq	$1,%rbx
+	movq	%rbx, %rsi
+	leaq	.LC0(%rip), %rdi
+	movq $0, %rax
+	call	printf
+	jmp .L2
+.L1:
+	movq	-8(%rbp),%rbx
+	movq	$2,%r10
+	cmpq	%r10, %rbx
+	setneq	%rbx
+	cmpq	$1, %rbx
+	je	.L3
+	movq	$2,%r10
+	movq	%r10, %rsi
+	leaq	.LC0(%rip), %rdi
+	movq $0, %rax
+	call	printf
+	jmp .L4
+.L3:
+	movq	-8(%rbp),%r10
+	movq	$2,%r13
+	cmpq	%r13, %r10
+	setgeq	%r10
+	cmpq	$1, %r10
+	je	.L5
+	movq	-8(%rbp),%r13
+	movq	$1,%r14
+	cmpq	%r14, %r13
+	setneq	%r13
+	cmpq	$1, %r13
+	je	.L6
+	movq	$3,%r14
+	movq	%r14, %rsi
+	leaq	.LC0(%rip), %rdi
+	movq $0, %rax
+	call	printf
+	jmp .L7
+.L6:
+	movq	$4,%r14
+	movq	%r14, %rsi
+	leaq	.LC0(%rip), %rdi
+	movq $0, %rax
+	call	printf
+.L7:
+.L7:
+.L4:
+.L2:
+	popq	%r14
+	popq	%r13
+	popq	%r10
+	popq	%rbx
+	popq	%r12
+	leave
+	ret

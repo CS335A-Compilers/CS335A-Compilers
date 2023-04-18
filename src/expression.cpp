@@ -9,6 +9,7 @@ extern vector<bool> temporary_registors_in_use;
 extern vector<ThreeAC*> threeAC_list;
 extern vector<int> typeSizes;
 extern vector<string> calleeSavedRegistors;
+extern vector<string> smallCalleeSavedRegistors;
 extern int label_count;
 extern vector<bool> calleeSavedInUse;
 // Define an array of strings that corresponds to the type values.
@@ -71,7 +72,6 @@ Expression* grammar_1(string lex,Expression* e1,bool isprimary,bool isliteral){
     obj->name = e1->name;
     obj->primary_exp_val = e1->primary_exp_val;
     obj->reg_index = e1->reg_index;
-    obj->label_number = e1->label_number;
     obj->calleeSavedRegistorIndex = e1->calleeSavedRegistorIndex;
     obj->offset = e1->offset;
     return obj;
@@ -128,9 +128,9 @@ Expression* evalOR_AND(string lex, Expression* e1, string op, Expression* e2){
     va->primitivetypeIndex = BOOLEAN;
     Expression *obj = new Expression(lex, va, false, false);
     obj->code.push_back(addInstruction(obj, e1, e2, op, 0));
-    obj->calleeSavedRegistorIndex = e1->calleeSavedRegistorIndex;
     calleeSavedInUse[e2->calleeSavedRegistorIndex] = false;
     obj->x86_64.push_back(convertOperator(op) + "\t" + calleeSavedRegistors[e2->calleeSavedRegistorIndex] + ", " + calleeSavedRegistors[e1->calleeSavedRegistorIndex]);
+    obj->calleeSavedRegistorIndex = e1->calleeSavedRegistorIndex;
     return obj;  
 }
 
@@ -168,11 +168,11 @@ Expression* evalEQ(string lex,Expression* e1,string op,Expression* e2){
     va->primitivetypeIndex = 7;
     Expression *obj = new Expression(lex, va, false, false);
     obj->code.push_back(addInstruction(obj, e1, e2, op, 0));
-    obj->x86_64.push_back("cmpq\t" + calleeSavedRegistors[e2->calleeSavedRegistorIndex] + ", " + calleeSavedRegistors[e1->calleeSavedRegistorIndex]);
     calleeSavedInUse[e2->calleeSavedRegistorIndex] = false;
-    calleeSavedInUse[e1->calleeSavedRegistorIndex] = false;
-    obj->x86_64.push_back(convertOperator(op) + "\t.L" + to_string(label_count++));
-    obj->label_number = label_count-1;
+    obj->x86_64.push_back("cmpq\t" + calleeSavedRegistors[e2->calleeSavedRegistorIndex] + ", " + calleeSavedRegistors[e1->calleeSavedRegistorIndex]);
+    obj->x86_64.push_back(convertOperator(op) + "\t" + smallCalleeSavedRegistors[e1->calleeSavedRegistorIndex]);
+    obj->x86_64.push_back("movzbq\t" + smallCalleeSavedRegistors[e1->calleeSavedRegistorIndex] + ", " + calleeSavedRegistors[e1->calleeSavedRegistorIndex]);
+    obj->calleeSavedRegistorIndex = e1->calleeSavedRegistorIndex;
     return obj;
 }
 
@@ -188,11 +188,11 @@ Expression* evalRELATIONAL(string lex, Expression* e1, string op, Expression* e2
     va->primitivetypeIndex = 7;
     Expression* obj=new Expression(lex,va,false,false);
     obj->code.push_back(addInstruction(obj, e1, e2, op, 0));
-    obj->x86_64.push_back("cmpq\t" + calleeSavedRegistors[e2->calleeSavedRegistorIndex] + ", " + calleeSavedRegistors[e1->calleeSavedRegistorIndex]);
     calleeSavedInUse[e2->calleeSavedRegistorIndex] = false;
-    calleeSavedInUse[e1->calleeSavedRegistorIndex] = false;
-    obj->x86_64.push_back(convertOperator(op) + "\t.L" + to_string(label_count++));
-    obj->label_number = label_count-1;
+    obj->x86_64.push_back("cmpq\t" + calleeSavedRegistors[e2->calleeSavedRegistorIndex] + ", " + calleeSavedRegistors[e1->calleeSavedRegistorIndex]);
+    obj->x86_64.push_back(convertOperator(op) + "\t" + smallCalleeSavedRegistors[e1->calleeSavedRegistorIndex]);
+    obj->x86_64.push_back("movzbq\t" + smallCalleeSavedRegistors[e1->calleeSavedRegistorIndex] + ", " + calleeSavedRegistors[e1->calleeSavedRegistorIndex]);
+    obj->calleeSavedRegistorIndex = e1->calleeSavedRegistorIndex;
     return obj;
 }
 
@@ -237,9 +237,22 @@ Expression* evalARITHMETIC(string lex, string op, Expression* e1, Expression* e2
         }
     }
     else obj->code.push_back(addInstruction(obj, e1, e2, op, 0));
-    obj->calleeSavedRegistorIndex = e1->calleeSavedRegistorIndex;
+    if(op != "/" && op != "%"){
+        obj->x86_64.push_back(convertOperator(op) + "\t" + calleeSavedRegistors[e2->calleeSavedRegistorIndex] + ", " + calleeSavedRegistors[e1->calleeSavedRegistorIndex]);
+    }
+    else {
+        obj->x86_64.push_back("movq\t" + calleeSavedRegistors[e1->calleeSavedRegistorIndex] + ", %rax");
+        obj->x86_64.push_back("cqo");
+        obj->x86_64.push_back("idivq\t" + calleeSavedRegistors[e2->calleeSavedRegistorIndex]);
+        if(op == "/"){
+            obj->x86_64.push_back("movq\t%rax, " + calleeSavedRegistors[e1->calleeSavedRegistorIndex]);
+        }
+        else{
+            obj->x86_64.push_back("movq\t%rdx, " + calleeSavedRegistors[e1->calleeSavedRegistorIndex]);
+        }
+    }
     calleeSavedInUse[e2->calleeSavedRegistorIndex] = false;
-    obj->x86_64.push_back(convertOperator(op) + "\t" + calleeSavedRegistors[e2->calleeSavedRegistorIndex] + ", " + calleeSavedRegistors[e1->calleeSavedRegistorIndex]);
+    obj->calleeSavedRegistorIndex = e1->calleeSavedRegistorIndex;
     return obj;
 }
 
@@ -313,7 +326,11 @@ Expression* evalTL(string lex, Expression* e1){
     Value* va= new Value();
     va->primitivetypeIndex = e1->value->primitivetypeIndex;
     Expression* obj=new Expression(lex, va, false, false);
+    int off = get_local_symtab(global_symtab->current_level)->get_entry(e1->name, VARIABLE_DECLARATION)->offset;
     obj->code.push_back(addInstruction(obj, NULL, e1, "~", 0));
+    obj->x86_64.push_back("notq\t" + calleeSavedRegistors[e1->calleeSavedRegistorIndex]);
+    obj->x86_64.push_back("movq\t" + calleeSavedRegistors[e1->calleeSavedRegistorIndex] + ", -" + to_string(off) + "(%rbp)");
+    obj->calleeSavedRegistorIndex = e1->calleeSavedRegistorIndex;
     return obj; 
 }
 
@@ -321,13 +338,16 @@ Expression* evalEX(string lex, Expression* e1){
     if(e1 == NULL)
         return NULL;
     if(e1->value->primitivetypeIndex != 7){
-        yyerror("Bad operand type for unary operator '!'");
+        string err = "Bad operand type for unary operator '!', expected boolean, given " + typeStrings[e1->value->primitivetypeIndex];
+        yyerror(const_cast<char*>(err.c_str()));
         return NULL;
     }
     Value* va = new Value();
     va->primitivetypeIndex = 7;
     Expression* obj = new Expression(lex, va, false, false);
     obj->code.push_back(addInstruction(obj, NULL, e1, "!", 0));
+    obj->x86_64.push_back("xorq\t$1, " + calleeSavedRegistors[e1->calleeSavedRegistorIndex]);
+    obj->calleeSavedRegistorIndex = e1->calleeSavedRegistorIndex;
     return obj; 
 }
 
