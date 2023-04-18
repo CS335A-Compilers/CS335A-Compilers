@@ -14,11 +14,12 @@ class test {
     //     return x*2;
     // }
 
-    public static void main(){
-        // c = a | b;
+    public static void main(String[] args){
         // int x = 9, y =1;
         // while(x > 0){
+            // int a = "sdf";
             // int a = 5, b = 2;
+            
         //     if(x>2){
         //         System.out.println(x);
         //     }
@@ -27,37 +28,5 @@ class test {
         //     }
         //     x--;
         // }
-            
-        // }
-
-        // for(int i=0;i<6;i++){
-        //     if(i % 2 == 0){
-        //         continue ;
-        //     }
-        //     System.out.println(i);
-        // }
-        int x=0;
-        do{
-            x++;
-            if(x > 9) break;
-            System.out.println(x);
-        }
-        while(true);
-
-        // for(int x=0;x<5;x++){
-        //     // for(int y=0;y<5;y++){
-        //         if(x%2 == 0) continue;
-        //         System.out.println(x);
-        //     // }
-        // }
-        // x= (y=x);        
-        // x = ++y;
-        // a  <<=b;
-        // return ;
-        // while(a < 5){
-        // }
-        // return 5;
-        // b = a++;
-        
     }
 }

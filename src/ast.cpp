@@ -727,10 +727,12 @@ void createAsm(Node* root){
         for(int i=0;i<registors.size();i++){
             cout<<"\tpushq "<<calleeSavedRegistors[registors[i]]<<endl;
         }
-        for(int i=0;i<list.size();i++){
-            // for arguments less than 6
-            int off = get_local_symtab(root->current_level)->get_entry(list[i]->variable_declarator_id->identifier, VARIABLE_DECLARATION)->offset;
-            cout<<"\tmovq\t"<<argumentRegistors[i]<<", -"<<to_string(off)<<"(%rbp)"<<endl;
+        if(root->name != "main"){
+            for(int i=0;i<list.size();i++){
+                // for arguments less than 6
+                int off = get_local_symtab(root->current_level)->get_entry(list[i]->variable_declarator_id->identifier, VARIABLE_DECLARATION)->offset;
+                cout<<"\tmovq\t"<<argumentRegistors[i]<<", -"<<to_string(off)<<"(%rbp)"<<endl;
+            }
         }
         for(int i=0;i<root->children.size();i++){
             createAsm(root->children[i]);

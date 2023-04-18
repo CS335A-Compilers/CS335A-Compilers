@@ -80,9 +80,9 @@ TEXT_BLOCK_CHAR             [^\\]|{ESCAPE_SEQUENCE}|{LINE_TERMINATOR}
 ESCAPE_SEQUENCE             \\b|\\t|\\f|\\r|[\\][\"]|\\'|[\\][\\]|\\n|{OCTAL_EXCAPE}
 OCTAL_EXCAPE                \\{OCTAL_DIGIT}|\\{OCTAL_DIGIT}{OCTAL_DIGIT}|\\[0-3]{OCTAL_DIGIT}{OCTAL_DIGIT}
 
-
 %%
 
+"String"                {char* temp = strdup(yytext); yylval.lex_val = temp; return(string_keyword_terminal);}
 "System"                {char* temp = strdup(yytext); yylval.lex_val = temp; return(system_keyword_terminal);}
 "out"                   {char* temp = strdup(yytext); yylval.lex_val = temp; return(out_keyword_terminal);}
 "println"               {char* temp = strdup(yytext); yylval.lex_val = temp; return(println_keyword_terminal);}
