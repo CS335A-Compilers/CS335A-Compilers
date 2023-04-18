@@ -16,6 +16,7 @@ extern vector<bool> temporary_registors_in_use;
 extern vector<int> typeSizes;
 extern int stack_frame_pointer;
 extern vector<string> calleeSavedRegistors;
+extern vector<string> argumentRegistors;
 extern NormalClassDeclaration* curr_class;
 extern vector<bool> calleeSavedInUse;
 extern vector<string> typeStrings;
@@ -685,6 +686,8 @@ string convertOperator(string op){
     else if(op == "^") return "xorq";
     else if(op == ">>") return "shrq";
     else if(op == "<<") return "shlq";
+    else if(op == "&&") return "andq";
+    else if(op == "||") return "orq";
 }
 
 void createAsm(Node* root){
@@ -698,14 +701,15 @@ void createAsm(Node* root){
         cout<<root->name<<":\n";
         cout<<"\tpushq\t%rbp"<<endl;
 	    cout<<"\tmovq\t%rsp, %rbp"<<endl;
+        cout<<"\tsubq\t$"<<to_string(((MethodDeclaration*)(root))->local_variables_size)<<", %rsp"<<endl;
         vector<FormalParameter*> list = ((MethodDeclaration*)(root))->formal_parameter_list->lists;
         vector<int> registors = ((MethodDeclaration*)(root))->calleeRegCalled;
         for(int i=0;i<registors.size();i++){
             cout<<"\tpushq "<<calleeSavedRegistors[registors[i]]<<endl;
         }
         for(int i=0;i<list.size();i++){
-            // int off = get_local_symtab(root->current_level)->get_entry(list[i]->variable_declarator_id->identifier, VARIABLE_DECLARATION)->offset;
-            // pop param
+            int off = get_local_symtab(root->current_level)->get_entry(list[i]->variable_declarator_id->identifier, VARIABLE_DECLARATION)->offset;
+            cout<<"\tmovq\t"<<argumentRegistors[i]<<", -"<<to_string(off)<<"(%rbp)"<<endl;
         }
         for(int i=0;i<root->children.size();i++){
             createAsm(root->children[i]);

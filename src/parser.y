@@ -292,7 +292,7 @@ method_invocation
             // }
 
 expression
-            :   assignment_expression                                                                                                           
+            :   assignment_expression
             {
                 Expression* node =grammar_1("expression", $1, $1->isPrimary, $1->isLiteral);
                 if(node == NULL) 
@@ -302,14 +302,14 @@ expression
             }           
 
 assignment_expression
-            :   condtional_expression                                                                                                           
+            :   condtional_expression
             {
                 Expression* node = grammar_1("assignment expression",$1, $1->isPrimary, $1->isLiteral);
                 if(node == NULL) 
                     YYERROR; 
                 node->addChildren({$1}); 
                 $$ = node;
-            }           
+            }
             |   assignment                                                                                                                      
             {
                 Expression* node = grammar_1("assignment expression",$1, $1->isPrimary, $1->isLiteral);
@@ -317,7 +317,7 @@ assignment_expression
                     YYERROR; 
                 node->addChildren({$1}); 
                 $$ = node;
-            }           
+            }
 
 condtional_expression
             :   conditional_or_expression                                                                                                       
@@ -703,6 +703,7 @@ postfix_expression
                 if(t != -1) node->primary_exp_val = "t" + to_string(t);
                 else node->primary_exp_val = $1->lexeme; 
                 node->registor_index = t;
+                node->name = $1->lexeme;
                 node->isPrimary = true; 
                 node->addChildren({$1}); 
                 int n = findEmptyCalleeSavedRegistor();
@@ -814,7 +815,7 @@ class_body_zero_or_one
                 node->addChildren({}); 
                 $$ = node;
             }           
-            |   class_body                                                                                                                              
+            |   class_body
             {
                 Node* node = createNode("class body zero or one"); 
                 node->addChildren({$1}); 
@@ -822,7 +823,7 @@ class_body_zero_or_one
             }           
 
 argument_list
-            :   expression comma_expression_zero_or_more                                                                                                
+            :   expression comma_expression_zero_or_more
             {
                 ExpressionList* node = new ExpressionList("argument list", $1, $2->lists); 
                 node->addChildren({$1, $2}); 
@@ -830,7 +831,7 @@ argument_list
             }           
 
 comma_expression_zero_or_more
-            :   /* empty */                                                                                                                             
+            :   /* empty */
             {
                 ExpressionList* node = new ExpressionList("comma expression zero or more", NULL, {}); 
                 node->addChildren({}); 
@@ -1402,6 +1403,7 @@ expression_statement
         {
             Node* node = createNode("expression statement"); 
             node->addChildren({$1,$2}); 
+            calleeSavedInUse[node->calleeSavedRegistorIndex] = false;
             $$ = node;
         }
 
@@ -1905,7 +1907,7 @@ method_declaration
                 temporary_registors_in_use[t] = false;
             }
             node->addChildren({$1, $2});
-            node->local_variables_size = 16*((functionOffset/16) + 1);
+            node->local_variables_size = (functionOffset%16 == 0) ? 16*((functionOffset/16)) : 16*((functionOffset/16) + 1);
             functionOffset = 8;
             int nn = calleeGlobalCalled.size();
             for(int i=0;i<nn;i++) {

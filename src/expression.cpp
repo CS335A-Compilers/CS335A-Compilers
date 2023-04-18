@@ -67,6 +67,7 @@ Expression* grammar_1(string lex,Expression* e1,bool isprimary,bool isliteral){
     Expression* obj = new Expression(lex, e1->value, isprimary, isliteral);
     obj->value = e1->value;
     obj->registor_index = e1->registor_index;
+    obj->name = e1->name;
     obj->primary_exp_val = e1->primary_exp_val;
     obj->reg_index = e1->reg_index;
     obj->calleeSavedRegistorIndex = e1->calleeSavedRegistorIndex;
@@ -125,7 +126,9 @@ Expression* evalOR_AND(string lex, Expression* e1, string op, Expression* e2){
     va->primitivetypeIndex = BOOLEAN;
     Expression *obj = new Expression(lex, va, false, false);
     obj->code.push_back(addInstruction(obj, e1, e2, op, 0));
-    
+    obj->calleeSavedRegistorIndex = e1->calleeSavedRegistorIndex;
+    calleeSavedInUse[e2->calleeSavedRegistorIndex] = false;
+    obj->x86_64.push_back(convertOperator(op) + "\t" + calleeSavedRegistors[e2->calleeSavedRegistorIndex] + ", " + calleeSavedRegistors[e1->calleeSavedRegistorIndex]);
     return obj;  
 }
 
@@ -262,18 +265,29 @@ Expression* evalIC_DC(string lex, string op, Expression* e1, bool preOperation){
     Expression* one = new Expression("one value", val, true, true);
     one->primary_exp_val = "1";
     string new_op = op.substr(0,1);
+    int off = get_local_symtab(global_symtab->current_level)->get_entry(e1->name, VARIABLE_DECLARATION)->offset;
     if(preOperation){
         obj->code.push_back(addInstruction(temp1, e1, one, new_op, 0));
         obj->code.push_back(addInstruction(e1, temp1, NULL, "", 0));
         obj->registor_index = temp1->registor_index;
+        obj->x86_64.push_back(convertOperator(new_op)  + "\t$1, " + calleeSavedRegistors[e1->calleeSavedRegistorIndex]);
+        obj->x86_64.push_back("movq\t" + calleeSavedRegistors[e1->calleeSavedRegistorIndex] + ", -" +  to_string(off) + "(%rbp)");
+        obj->calleeSavedRegistorIndex = e1->calleeSavedRegistorIndex;
     }
     else{
         obj->code.push_back(addInstruction(temp, e1, NULL, "", 0));
         obj->code.push_back(addInstruction(temp1, e1, one, new_op, 0));
         obj->code.push_back(addInstruction(e1, temp1, NULL, "", 0));
         obj->registor_index = temp->registor_index;
+        int new_reg = findEmptyCalleeSavedRegistor();
+        // cout<<"new reg: "<<new_reg<<endl;
+        calleeSavedInUse[new_reg] = true;
+        obj->x86_64.push_back("movq\t" + calleeSavedRegistors[e1->calleeSavedRegistorIndex] + ", " + calleeSavedRegistors[new_reg]);
+        obj->calleeSavedRegistorIndex = new_reg;
+        obj->x86_64.push_back(convertOperator(new_op)  + "\t$1, " + calleeSavedRegistors[e1->calleeSavedRegistorIndex]);
+        obj->x86_64.push_back("movq\t" + calleeSavedRegistors[e1->calleeSavedRegistorIndex] + ", -" +  to_string(off) + "(%rbp)");
+        calleeSavedInUse[e1->calleeSavedRegistorIndex] = false;
     }
-    // obj->code.push_back(addInstruction(obj, NULL, e1, op, 0));
     return obj;
 }
 
@@ -318,7 +332,6 @@ Expression* assignValue(Expression* type_name, string op, Expression* exp, strin
         if((name_type >= exp_type) || op.length() > 1) {
             int off = get_local_symtab(global_symtab->current_level)->get_entry(ident, -1)->offset;
             int exp_index = exp->calleeSavedRegistorIndex;
-            calleeSavedInUse[exp_index] = false;
             if(op == "="){
                 if(name_type != exp_type){
                     Expression* temp = new Expression("cast expression", NULL, false, false);
@@ -348,9 +361,12 @@ Expression* assignValue(Expression* type_name, string op, Expression* exp, strin
                     obj->x86_64.push_back("movq\t" + calleeSavedRegistors[exp_index] + ", %rcx");
                     obj->x86_64.push_back(convertOperator(fin_op) + "\t" + "%rcx" + ", -" + to_string(off) + "(%rbp)");
                 }
-                else
+                else{
                     obj->x86_64.push_back(convertOperator(fin_op) + "\t" + calleeSavedRegistors[exp_index] + ", -" + to_string(off) + "(%rbp)");
+                }
+                obj->x86_64.push_back("movq\t-" + to_string(off) + "(%rbp), " + calleeSavedRegistors[exp_index]);
             }
+            obj->calleeSavedRegistorIndex = exp_index;
             // obj->value = exp->value;
             return obj;
         }
