@@ -15,6 +15,7 @@ extern vector<ThreeAC*> threeAC_list;
 extern vector<bool> temporary_registors_in_use;
 extern vector<int> typeSizes;
 extern int stack_frame_pointer;
+extern vector<string> argumentRegistors;
 extern vector<string> calleeSavedRegistors;
 extern vector<string> argumentRegistors;
 extern NormalClassDeclaration* curr_class;
@@ -726,6 +727,7 @@ void createAsm(Node* root){
             cout<<"\tpushq "<<calleeSavedRegistors[registors[i]]<<endl;
         }
         for(int i=0;i<list.size();i++){
+            // for arguments less than 6
             int off = get_local_symtab(root->current_level)->get_entry(list[i]->variable_declarator_id->identifier, VARIABLE_DECLARATION)->offset;
             cout<<"\tmovq\t"<<argumentRegistors[i]<<", -"<<to_string(off)<<"(%rbp)"<<endl;
         }
@@ -733,7 +735,8 @@ void createAsm(Node* root){
             createAsm(root->children[i]);
         }
         for(int i=registors.size()-1;i>=0;i--){
-            cout<<"\tpopq\t"<<calleeSavedRegistors[registors[i]]<<endl;
+            if(registors[i] != 6)
+                cout<<"\tpopq\t"<<calleeSavedRegistors[registors[i]]<<endl;
         }
         cout<<"\tleave"<<endl;
         cout<<"\tret"<<endl;
@@ -762,6 +765,18 @@ void createAsm(Node* root){
     }
     else if(root->entry_type == METHOD_INVOCATION){
         // IDENTIFIERS  OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT
+        int n = ((ExpressionList*)(root->children[2]))->lists.size();
+        for(int i=0;i<n;i++){
+            if(argumentRegistors.size() > i){
+                Expression* temp = ((ExpressionList*)(root->children[2]))->lists[i];
+                createAsm(temp);
+                cout<<"\tmovq\t"<<calleeSavedRegistors[temp->calleeSavedRegistorIndex]<<", "<<argumentRegistors[i]<<endl;
+            }
+        }
+        cout<<"\tcall\t"<<root->children[0]->name<<endl;
+        for(int i=0;i<root->x86_64.size();i++){
+            cout<<"\t"<<root->x86_64[i]<<endl;
+        }
     }
     else if(root->entry_type == IF_THEN_STATEMENT){
         // IF_KEYWORD OP_BRCKT expression CLOSE_BRCKT statement

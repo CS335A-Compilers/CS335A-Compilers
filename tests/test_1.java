@@ -4,10 +4,10 @@ class test {
     //     return a+b*2;
     // }
 
-    // public static int sub(int a, int b){
-    //     int c = a - b;
-    //     return c*2;
-    // }
+    public static int sub(int a, int b, int c,int d, int e){
+        c = a - b;
+        return 2*c;
+    }
 
     // public int add(int x){
     //     this.x=1;
@@ -16,7 +16,7 @@ class test {
 
     public static void main(){
         // c = a | b;
-        // int x = 5, y =1;
+        // int x = 9, y =1;
         // while(x > 0){
         //     if(x>2){
         //         System.out.println(x);
@@ -26,11 +26,16 @@ class test {
         //     }
         //     x--;
         // }
-        for(int x=0;x<5;x++){
-            for(int y=0;y<5;y++){
-                System.out.println(x+y);
-            }
-        }
+        // if((x<5) && (x<5) && (x<5) && (x<5) && (x<5) && (x<5) && (x<5) ){
+            // System.out.println(x);
+
+        // }
+        System.out.println(sub(1*5,6*6,8*5,0,9));
+        // for(int x=0;;x++){
+        //     // for(int y=0;y<5;y++){
+        //         System.out.println(x);
+        //     // }
+        // }
         // x= (y=x);        
         // x = ++y;
         // a  <<=b;

@@ -7,5 +7,6 @@ class recursives {
 
     public void main() {
         int f = fib(6);
+        System.out.println(f);
     }
 }
