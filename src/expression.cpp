@@ -9,6 +9,7 @@ extern vector<bool> temporary_registors_in_use;
 extern vector<ThreeAC*> threeAC_list;
 extern vector<int> typeSizes;
 extern vector<string> calleeSavedRegistors;
+extern int label_count;
 extern vector<bool> calleeSavedInUse;
 // Define an array of strings that corresponds to the type values.
 vector<string> typeStrings = {"char", "byte", "short", "int", "long", "float", "double", "boolean", "array", "string", "void"};
@@ -67,8 +68,10 @@ Expression* grammar_1(string lex,Expression* e1,bool isprimary,bool isliteral){
     Expression* obj = new Expression(lex, e1->value, isprimary, isliteral);
     obj->value = e1->value;
     obj->registor_index = e1->registor_index;
+    obj->name = e1->name;
     obj->primary_exp_val = e1->primary_exp_val;
     obj->reg_index = e1->reg_index;
+    obj->label_number = e1->label_number;
     obj->calleeSavedRegistorIndex = e1->calleeSavedRegistorIndex;
     obj->offset = e1->offset;
     return obj;
@@ -125,7 +128,9 @@ Expression* evalOR_AND(string lex, Expression* e1, string op, Expression* e2){
     va->primitivetypeIndex = BOOLEAN;
     Expression *obj = new Expression(lex, va, false, false);
     obj->code.push_back(addInstruction(obj, e1, e2, op, 0));
-    // addInstruction(obj, e1, e2, op, 0);
+    obj->calleeSavedRegistorIndex = e1->calleeSavedRegistorIndex;
+    calleeSavedInUse[e2->calleeSavedRegistorIndex] = false;
+    obj->x86_64.push_back(convertOperator(op) + "\t" + calleeSavedRegistors[e2->calleeSavedRegistorIndex] + ", " + calleeSavedRegistors[e1->calleeSavedRegistorIndex]);
     return obj;  
 }
 
@@ -141,6 +146,9 @@ Expression* evalBITWISE(string lex, Expression* e1, string op, Expression* e2){
     va->primitivetypeIndex = max(e2->value->primitivetypeIndex, e1->value->primitivetypeIndex);
     Expression* obj=new Expression(lex,va,false,false);
     obj->code.push_back(addInstruction(obj, e1, e2, op, 0));
+    obj->calleeSavedRegistorIndex = e1->calleeSavedRegistorIndex;
+    calleeSavedInUse[e2->calleeSavedRegistorIndex] = false;
+    obj->x86_64.push_back(convertOperator(op) + "\t" + calleeSavedRegistors[e2->calleeSavedRegistorIndex] + ", " + calleeSavedRegistors[e1->calleeSavedRegistorIndex]);
     return obj; 
 }
 
@@ -160,6 +168,11 @@ Expression* evalEQ(string lex,Expression* e1,string op,Expression* e2){
     va->primitivetypeIndex = 7;
     Expression *obj = new Expression(lex, va, false, false);
     obj->code.push_back(addInstruction(obj, e1, e2, op, 0));
+    obj->x86_64.push_back("cmpq\t" + calleeSavedRegistors[e2->calleeSavedRegistorIndex] + ", " + calleeSavedRegistors[e1->calleeSavedRegistorIndex]);
+    calleeSavedInUse[e2->calleeSavedRegistorIndex] = false;
+    calleeSavedInUse[e1->calleeSavedRegistorIndex] = false;
+    obj->x86_64.push_back(convertOperator(op) + "\t.L" + to_string(label_count++));
+    obj->label_number = label_count-1;
     return obj;
 }
 
@@ -175,6 +188,11 @@ Expression* evalRELATIONAL(string lex, Expression* e1, string op, Expression* e2
     va->primitivetypeIndex = 7;
     Expression* obj=new Expression(lex,va,false,false);
     obj->code.push_back(addInstruction(obj, e1, e2, op, 0));
+    obj->x86_64.push_back("cmpq\t" + calleeSavedRegistors[e2->calleeSavedRegistorIndex] + ", " + calleeSavedRegistors[e1->calleeSavedRegistorIndex]);
+    calleeSavedInUse[e2->calleeSavedRegistorIndex] = false;
+    calleeSavedInUse[e1->calleeSavedRegistorIndex] = false;
+    obj->x86_64.push_back(convertOperator(op) + "\t.L" + to_string(label_count++));
+    obj->label_number = label_count-1;
     return obj;
 }
 
@@ -189,6 +207,9 @@ Expression* evalSHIFT(string lex, Expression* e1, string op, Expression* e2){
     va->primitivetypeIndex = 4;
     Expression* obj=new Expression(lex, va, false, false);
     obj->code.push_back(addInstruction(obj, e1, e2, op, 0));
+    obj->calleeSavedRegistorIndex = e1->calleeSavedRegistorIndex;
+    calleeSavedInUse[e2->calleeSavedRegistorIndex] = false;
+    obj->x86_64.push_back(convertOperator(op) + "\t" + calleeSavedRegistors[e2->calleeSavedRegistorIndex] + ", " + calleeSavedRegistors[e1->calleeSavedRegistorIndex]);
     return obj;   
 }
 
@@ -256,18 +277,29 @@ Expression* evalIC_DC(string lex, string op, Expression* e1, bool preOperation){
     Expression* one = new Expression("one value", val, true, true);
     one->primary_exp_val = "1";
     string new_op = op.substr(0,1);
+    int off = get_local_symtab(global_symtab->current_level)->get_entry(e1->name, VARIABLE_DECLARATION)->offset;
     if(preOperation){
         obj->code.push_back(addInstruction(temp1, e1, one, new_op, 0));
         obj->code.push_back(addInstruction(e1, temp1, NULL, "", 0));
         obj->registor_index = temp1->registor_index;
+        obj->x86_64.push_back(convertOperator(new_op)  + "\t$1, " + calleeSavedRegistors[e1->calleeSavedRegistorIndex]);
+        obj->x86_64.push_back("movq\t" + calleeSavedRegistors[e1->calleeSavedRegistorIndex] + ", -" +  to_string(off) + "(%rbp)");
+        obj->calleeSavedRegistorIndex = e1->calleeSavedRegistorIndex;
     }
     else{
         obj->code.push_back(addInstruction(temp, e1, NULL, "", 0));
         obj->code.push_back(addInstruction(temp1, e1, one, new_op, 0));
         obj->code.push_back(addInstruction(e1, temp1, NULL, "", 0));
         obj->registor_index = temp->registor_index;
+        int new_reg = findEmptyCalleeSavedRegistor();
+        // cout<<"new reg: "<<new_reg<<endl;
+        calleeSavedInUse[new_reg] = true;
+        obj->x86_64.push_back("movq\t" + calleeSavedRegistors[e1->calleeSavedRegistorIndex] + ", " + calleeSavedRegistors[new_reg]);
+        obj->calleeSavedRegistorIndex = new_reg;
+        obj->x86_64.push_back(convertOperator(new_op)  + "\t$1, " + calleeSavedRegistors[e1->calleeSavedRegistorIndex]);
+        obj->x86_64.push_back("movq\t" + calleeSavedRegistors[e1->calleeSavedRegistorIndex] + ", -" +  to_string(off) + "(%rbp)");
+        calleeSavedInUse[e1->calleeSavedRegistorIndex] = false;
     }
-    // obj->code.push_back(addInstruction(obj, NULL, e1, op, 0));
     return obj;
 }
 
@@ -310,6 +342,8 @@ Expression* assignValue(Expression* type_name, string op, Expression* exp, strin
         int name_type = name->type->primitivetypeIndex;
         int exp_type = exp->value->primitivetypeIndex;
         if((name_type >= exp_type) || op.length() > 1) {
+            int off = get_local_symtab(global_symtab->current_level)->get_entry(ident, -1)->offset;
+            int exp_index = exp->calleeSavedRegistorIndex;
             if(op == "="){
                 if(name_type != exp_type){
                     Expression* temp = new Expression("cast expression", NULL, false, false);
@@ -319,6 +353,7 @@ Expression* assignValue(Expression* type_name, string op, Expression* exp, strin
                 else{
                     obj->code.push_back(addInstruction(type_name, exp, NULL, "", 0));
                 }
+                obj->x86_64.push_back("movq\t" + calleeSavedRegistors[exp_index] + ", -" + to_string(off) + "(%rbp)");
             }
             else{
                 int pos = op.find('=');
@@ -333,7 +368,17 @@ Expression* assignValue(Expression* type_name, string op, Expression* exp, strin
                     obj->code.push_back(addInstruction(temp, type_name, temp1, fin_op, 0));
                 }
                 obj->code.push_back(addInstruction(type_name, temp, NULL, "", 0));
+                if(fin_op[0] == '>' || fin_op[0] == '<'){
+                    // use CL registor to store the exp value
+                    obj->x86_64.push_back("movq\t" + calleeSavedRegistors[exp_index] + ", %rcx");
+                    obj->x86_64.push_back(convertOperator(fin_op) + "\t" + "%rcx" + ", -" + to_string(off) + "(%rbp)");
+                }
+                else{
+                    obj->x86_64.push_back(convertOperator(fin_op) + "\t" + calleeSavedRegistors[exp_index] + ", -" + to_string(off) + "(%rbp)");
+                }
+                obj->x86_64.push_back("movq\t-" + to_string(off) + "(%rbp), " + calleeSavedRegistors[exp_index]);
             }
+            obj->calleeSavedRegistorIndex = exp_index;
             // obj->value = exp->value;
             return obj;
         }

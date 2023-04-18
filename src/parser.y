@@ -6,7 +6,7 @@
     #define YYDEBUG 1
     int yylex(void);
     void yyerror(char const*);
-    int functionOffset = 4;
+    int functionOffset = 8;
     extern int yylineno;
     extern vector<string> typeStrings;
     GlobalSymbolTable* global_symtab = new GlobalSymbolTable();
@@ -14,8 +14,11 @@
     vector<int> typeSizes = {1, 1, 2, 4, 8, 4, 8, 1, -1, 0};
     vector<string> calleeSavedRegistors = {"%r12", "%rbx", "%r10", "%r13", "%r14", "%r15"};
     vector<bool> calleeSavedInUse(calleeSavedRegistors.size(), false);
+    vector<bool> calleeGlobalCalled(calleeSavedRegistors.size(), false);
     vector<string> argumentRegistors = {"%rdi", "%rsi", "%rdx", "%rcx", "%r8", "%r9"};
     vector<ThreeAC*> threeAC_list;
+    int label_count = 1;
+    int for_label_count = 1111;
     map<string, int> caches;
     int stack_frame_pointer = 0;
     NormalClassDeclaration* curr_class;
@@ -45,7 +48,7 @@
 
 // type == nonterminal, token = terminal
 
-%token<lex_val> goto_keyword_terminal const_keyword_terminal __keyword_terminal abstract_keyword_terminal continue_keyword_terminal for_keyword_terminal new_keyword_terminal default_keyword_terminal if_keyword_terminal boolean_keyword_terminal private_keyword_terminal this_keyword_terminal break_keyword_terminal double_keyword_terminal implements_keyword_terminal protected_keyword_terminal byte_keyword_terminal else_keyword_terminal public_keyword_terminal return_keyword_terminal transient_keyword_terminal extends_keyword_terminal int_keyword_terminal short_keyword_terminal char_keyword_terminal final_keyword_terminal static_keyword_terminal void_keyword_terminal class_keyword_terminal long_keyword_terminal strictfp_keyword_terminal volatile_keyword_terminal float_keyword_terminal native_keyword_terminal super_keyword_terminal while_keyword_terminal record_keyword_terminal
+%token<lex_val> goto_keyword_terminal const_keyword_terminal __keyword_terminal system_keyword_terminal out_keyword_terminal println_keyword_terminal abstract_keyword_terminal continue_keyword_terminal for_keyword_terminal new_keyword_terminal default_keyword_terminal if_keyword_terminal boolean_keyword_terminal private_keyword_terminal this_keyword_terminal break_keyword_terminal double_keyword_terminal implements_keyword_terminal protected_keyword_terminal byte_keyword_terminal else_keyword_terminal public_keyword_terminal return_keyword_terminal transient_keyword_terminal extends_keyword_terminal int_keyword_terminal short_keyword_terminal char_keyword_terminal final_keyword_terminal static_keyword_terminal void_keyword_terminal class_keyword_terminal long_keyword_terminal strictfp_keyword_terminal volatile_keyword_terminal float_keyword_terminal native_keyword_terminal super_keyword_terminal while_keyword_terminal record_keyword_terminal
 %token<lex_val> '=' '>' '<' '!' '~' '?' ':' '+' '-' '*' '/' '&' '|' '^' '%' ',' '.' ';' '(' ')' '[' ']' '{' '}' '@'
 %token<lex_val> EQ_OP_TERMINAL GE_OP_TERMINAL LE_OP_TERMINAL NE_OP_TERMINAL AND_OP_TERMINAL OR_OP_TERMINAL INC_OP_TERMINAL DEC_OP_TERMINAL LEFT_OP_TERMINAL RIGHT_OP_TERMINAL BIT_RIGHT_SHFT_OP_TERMINAL ADD_ASSIGN_TERMINAL SUB_ASSIGN_TERMINAL MUL_ASSIGN_TERMINAL DIV_ASSIGN_TERMINAL AND_ASSIGN_TERMINAL OR_ASSIGN_TERMINAL XOR_ASSIGN_TERMINAL MOD_ASSIGN_TERMINAL LEFT_ASSIGN_TERMINAL RIGHT_ASSIGN_TERMINAL BIT_RIGHT_SHFT_ASSIGN_TERMINAL
 %token<lex_val> IDENTIFIERS_TERMINAL NUM_LITERALS DOUBLE_LITERALS STRING_LITERALS CHAR_LITERALS BOOLEAN_LITERALS
@@ -56,12 +59,12 @@
 %left RIGHT_OP_TERMINAL LEFT_OP_TERMINAL
 %left INC_OP_TERMINAL DEC_OP_TERMINAL
 
-%type<node> ABSTRACT_KEYWORD CONTINUE_KEYWORD FOR_KEYWORD NEW_KEYWORD IF_KEYWORD BOOLEAN_KEYWORD PRIVATE_KEYWORD THIS_KEYWORD BREAK_KEYWORD DOUBLE_KEYWORD PROTECTED_KEYWORD EXTENDS_KEYWORD BYTE_KEYWORD ELSE_KEYWORD PUBLIC_KEYWORD RETURN_KEYWORD TRANSIENT_KEYWORD INT_KEYWORD SHORT_KEYWORD CHAR_KEYWORD FINAL_KEYWORD STATIC_KEYWORD VOID_KEYWORD CLASS_KEYWORD LONG_KEYWORD STRICTFP_KEYWORD VOLATILE_KEYWORD FLOAT_KEYWORD NATIVE_KEYWORD SUPER_KEYWORD WHILE_KEYWORD
+%type<node> SYSTEM_KEYWORD OUT_KEYWORD PRINTLN_KEYWORD ABSTRACT_KEYWORD CONTINUE_KEYWORD FOR_KEYWORD NEW_KEYWORD IF_KEYWORD BOOLEAN_KEYWORD PRIVATE_KEYWORD THIS_KEYWORD BREAK_KEYWORD DOUBLE_KEYWORD PROTECTED_KEYWORD EXTENDS_KEYWORD BYTE_KEYWORD ELSE_KEYWORD PUBLIC_KEYWORD RETURN_KEYWORD TRANSIENT_KEYWORD INT_KEYWORD SHORT_KEYWORD CHAR_KEYWORD FINAL_KEYWORD STATIC_KEYWORD VOID_KEYWORD CLASS_KEYWORD LONG_KEYWORD STRICTFP_KEYWORD VOLATILE_KEYWORD FLOAT_KEYWORD NATIVE_KEYWORD SUPER_KEYWORD WHILE_KEYWORD
 %type<node> ASSIGNMENT_OP GT_OP LT_OP EX_OP TL_OP QN_OP COLON_OP PLUS_OP MINUS_OP STAR_OP DIV_OP ND_OP BAR_OP RAISE_OP PCNT_OP COMMA_OP DOT_OP SEMICOLON_OP OP_BRCKT CLOSE_BRCKT OP_SQR_BRCKT CLOSE_SQR_BRCKT OP_CURLY_BRCKT CLOSE_CURLY_BRCKT
 %type<node> EQ_OP GE_OP  LE_OP  NE_OP  AND_OP  OR_OP  INC_OP  DEC_OP  LEFT_OP  RIGHT_OP  BIT_RIGHT_SHFT_OP ADD_ASSIGN  SUB_ASSIGN  MUL_ASSIGN  DIV_ASSIGN  AND_ASSIGN  OR_ASSIGN  XOR_ASSIGN  MOD_ASSIGN  LEFT_ASSIGN  RIGHT_ASSIGN  BIT_RIGHT_SHFT_ASSIGN
 %type<node> IDENTIFIERS
 
-%type<node> expression_statement normal_class_declaration_statement assignment_operators basic_for_statement basic_for_statement_no_short_if block block_statement block_statements block_statements_zero_or_more block_statements_zero_or_one break_statement class_body class_body_declaration class_body_declaration_zero_or_more class_body_zero_or_one class_declaration class_extends class_extends_zero_or_one compilation_unit constructor_body continue_statement empty_statement explicit_constructor_invocation field_declaration for_init for_init_zero_or_one for_statement for_statement_no_short_if for_update for_update_zero_or_one identifier_zero_or_one if_then_else_statement if_then_else_statement_no_short_if if_then_statement labeled_statement labeled_statement_no_short_if local_class_or_interface_declaration local_variable_declaration local_variable_declaration_statement normal_class_declaration ordinary_compilation_unit return_statement start_state statement  statement_no_short_if statement_without_trailing_substatement static_initializer top_level_class_or_interface_declaration top_level_class_or_interface_declaration_zero_or_more while_statement while_statement_no_short_if
+%type<node> print_statement expression_statement normal_class_declaration_statement assignment_operators basic_for_statement basic_for_statement_no_short_if block block_statement block_statements block_statements_zero_or_more block_statements_zero_or_one break_statement class_body class_body_declaration class_body_declaration_zero_or_more class_body_zero_or_one class_declaration class_extends class_extends_zero_or_one compilation_unit constructor_body continue_statement empty_statement explicit_constructor_invocation field_declaration for_init for_init_zero_or_one for_statement for_statement_no_short_if for_update for_update_zero_or_one identifier_zero_or_one if_then_else_statement if_then_else_statement_no_short_if if_then_statement labeled_statement labeled_statement_no_short_if local_class_or_interface_declaration local_variable_declaration local_variable_declaration_statement normal_class_declaration ordinary_compilation_unit return_statement start_state statement  statement_no_short_if statement_without_trailing_substatement static_initializer top_level_class_or_interface_declaration top_level_class_or_interface_declaration_zero_or_more while_statement while_statement_no_short_if
 %type<expression> array_creation_expression assignment LITERALS array_access class_instance_creation_expression additive_expression and_expression assignment_expression unary_expression unary_expression_not_plus_minus statement_expression conditional_and_expression conditional_or_expression condtional_expression equality_expression exclusive_or_expression expression expression_zero_or_one inclusive_or_expression multiplicative_expression post_decrement_expression post_increment_expression postfix_expression pre_decrement_expression pre_increment_expression primary primary_no_new_array relational_expression shift_expression variable_initializer field_access method_invocation
 %type<expression_list> argument_list statement_expression_list argument_list_zero_or_one comma_expression_zero_or_more comma_statement_expression_zero_or_more
 %type<formal_parameter> formal_parameter 
@@ -84,6 +87,9 @@ start_state
             {
                 $$ = $1; 
                 // create3ACCode($$, true); 
+                cout<<".LC0:\n";
+                cout<<"\t.text\n";
+                cout<<"\t.string\t\"%lld\\n\"\n";
                 createAsm($$);
                 // createAST($$, output_file);
             }
@@ -157,7 +163,10 @@ primary_no_new_array
                 int n = findEmptyCalleeSavedRegistor();
                 node->calleeSavedRegistorIndex = n;
                 calleeSavedInUse[n] = true;
-                node->x86_64.push_back("movq\t$" + $1->lexeme + "," + calleeSavedRegistors[n]);
+                if($1->value->primitivetypeIndex == BOOLEAN)
+                    node->x86_64.push_back("movq\t$" + to_string($1->value->boolean_val[0]) + "," + calleeSavedRegistors[n]);
+                else
+                    node->x86_64.push_back("movq\t$" + $1->lexeme + "," + calleeSavedRegistors[n]);
                 $$ = node;
             }
             |   class_instance_creation_expression                                                                                              
@@ -288,7 +297,7 @@ method_invocation
             // }
 
 expression
-            :   assignment_expression                                                                                                           
+            :   assignment_expression
             {
                 Expression* node =grammar_1("expression", $1, $1->isPrimary, $1->isLiteral);
                 if(node == NULL) 
@@ -298,14 +307,14 @@ expression
             }           
 
 assignment_expression
-            :   condtional_expression                                                                                                           
+            :   condtional_expression
             {
                 Expression* node = grammar_1("assignment expression",$1, $1->isPrimary, $1->isLiteral);
                 if(node == NULL) 
                     YYERROR; 
                 node->addChildren({$1}); 
                 $$ = node;
-            }           
+            }
             |   assignment                                                                                                                      
             {
                 Expression* node = grammar_1("assignment expression",$1, $1->isPrimary, $1->isLiteral);
@@ -313,7 +322,7 @@ assignment_expression
                     YYERROR; 
                 node->addChildren({$1}); 
                 $$ = node;
-            }           
+            }
 
 condtional_expression
             :   conditional_or_expression                                                                                                       
@@ -699,6 +708,7 @@ postfix_expression
                 if(t != -1) node->primary_exp_val = "t" + to_string(t);
                 else node->primary_exp_val = $1->lexeme; 
                 node->registor_index = t;
+                node->name = $1->lexeme;
                 node->isPrimary = true; 
                 node->addChildren({$1}); 
                 int n = findEmptyCalleeSavedRegistor();
@@ -810,7 +820,7 @@ class_body_zero_or_one
                 node->addChildren({}); 
                 $$ = node;
             }           
-            |   class_body                                                                                                                              
+            |   class_body
             {
                 Node* node = createNode("class body zero or one"); 
                 node->addChildren({$1}); 
@@ -818,7 +828,7 @@ class_body_zero_or_one
             }           
 
 argument_list
-            :   expression comma_expression_zero_or_more                                                                                                
+            :   expression comma_expression_zero_or_more
             {
                 ExpressionList* node = new ExpressionList("argument list", $1, $2->lists); 
                 node->addChildren({$1, $2}); 
@@ -826,7 +836,7 @@ argument_list
             }           
 
 comma_expression_zero_or_more
-            :   /* empty */                                                                                                                             
+            :   /* empty */
             {
                 ExpressionList* node = new ExpressionList("comma expression zero or more", NULL, {}); 
                 node->addChildren({}); 
@@ -1362,12 +1372,32 @@ statement_without_trailing_substatement
             node->addChildren({$1}); 
             $$ = node;
         }
+        |   print_statement
+        {
+            Node* node = createNode("statement without trailing substatement"); 
+            node->addChildren({$1}); 
+            $$ = node;
+        }
+
+print_statement 
+        :    SYSTEM_KEYWORD DOT_OP OUT_KEYWORD DOT_OP PRINTLN_KEYWORD OP_BRCKT expression CLOSE_BRCKT
+        {
+            Node* node = createNode("print_statement"); 
+            node->addChildren({$1}); 
+            node->x86_64.push_back("movq\t" + calleeSavedRegistors[$7->calleeSavedRegistorIndex] + ", %rsi");
+            node->x86_64.push_back("leaq\t.LC0(%rip), %rdi");
+            node->x86_64.push_back("movq $0, %rax");
+            node->x86_64.push_back("call\tprintf");
+            calleeSavedInUse[$7->calleeSavedRegistorIndex] = false;
+            node->addChildren({$1, $2, $3, $4, $5, $6, $7, $8});
+            $$ = node;
+        }
 
 // switch_statement
-//         :   switch_expression                                                                                                                           {Node* node = createNode("switch statement"); node->addChildren({$1}); $$ = node;}
+//      :   switch_expression                                                                                                                           {Node* node = createNode("switch statement"); node->addChildren({$1}); $$ = node;}
 
 // do_statememt
-//         :   DO_KEYWORD statement WHILE_KEYWORD OP_BRCKT expression CLOSE_BRCKT SEMICOLON_OP                                                             {Node* node = createNode("do statement"); node->addChildren({$1,$2,$3,$4,$5,$6,$7}); $$ = node;}
+//      :   DO_KEYWORD statement WHILE_KEYWORD OP_BRCKT expression CLOSE_BRCKT SEMICOLON_OP                                                             {Node* node = createNode("do statement"); node->addChildren({$1,$2,$3,$4,$5,$6,$7}); $$ = node;}
 
 empty_statement
         :   SEMICOLON_OP                                                                                                                                
@@ -1398,6 +1428,7 @@ expression_statement
         {
             Node* node = createNode("expression statement"); 
             node->addChildren({$1,$2}); 
+            calleeSavedInUse[$1->calleeSavedRegistorIndex] = false;
             $$ = node;
         }
 
@@ -1666,6 +1697,8 @@ return_statement
             Expression* node1 = new Expression("return_registor", NULL, true, false);
             node1->primary_exp_val = "%rax";
             node->code.push_back(addInstruction(node1, $2, NULL, "", 0));
+            node->x86_64.push_back("movq\t" + calleeSavedRegistors[$2->calleeSavedRegistorIndex] + ", %rax");
+            calleeSavedInUse[$2->calleeSavedRegistorIndex] = false;
             $$ = node;
         }
         |   RETURN_KEYWORD SEMICOLON_OP
@@ -1899,8 +1932,13 @@ method_declaration
                 temporary_registors_in_use[t] = false;
             }
             node->addChildren({$1, $2});
-            node->local_variables_size = 16*((functionOffset/16) + 1);
-            functionOffset = 4;
+            node->local_variables_size = (functionOffset%16 == 0) ? 16*((functionOffset/16)) : 16*((functionOffset/16) + 1);
+            functionOffset = 8;
+            int nn = calleeGlobalCalled.size();
+            for(int i=0;i<nn;i++) {
+                if(calleeGlobalCalled[i] == true) node->calleeRegCalled.push_back(i);    
+                calleeGlobalCalled[i] = false;
+            }
             $$ = node;
         }
         |   method_declaration_statement SEMICOLON_OP
@@ -1914,7 +1952,12 @@ method_declaration
             node->modifiers = $1->modifiers;
             node->addChildren({$1, $2});
             node->local_variables_size = 16*((functionOffset/16) + 1);
-            functionOffset = 4;
+            functionOffset = 8;
+            int nn = calleeGlobalCalled.size();
+            for(int i=0;i<nn;i++) {
+                if(calleeGlobalCalled[i] == true) node->calleeRegCalled.push_back(i);    
+                calleeGlobalCalled[i] = false;
+            }
             $$ = node;
         }
 
@@ -2013,7 +2056,7 @@ formal_parameter
             int t = findEmptyRegistor();
             node->reg_index = t;
             node->offset = functionOffset;
-            functionOffset += typeSizes[$1->primitivetypeIndex];
+            functionOffset += 8;
             temporary_registors_in_use[t] = true;
             get_local_symtab(global_symtab->current_level)->add_entry(node);
             $$ = node;
@@ -2026,7 +2069,7 @@ formal_parameter
             int t = findEmptyRegistor();
             node->reg_index = t;
             node->offset = functionOffset;
-            functionOffset += typeSizes[$2->primitivetypeIndex];
+            functionOffset += 8;
             temporary_registors_in_use[t] = true;
             get_local_symtab(global_symtab->current_level)->add_entry(node);
             node->addChildren({$1,$2,$3}); 
@@ -2309,6 +2352,30 @@ CLOSE_CURLY_BRCKT
 
 ABSTRACT_KEYWORD
         :       abstract_keyword_terminal                                               
+        {
+            Node* temp = createNode($1); 
+            temp->isTerminal = true; 
+            $$ = temp;
+        }
+
+SYSTEM_KEYWORD
+        :       system_keyword_terminal                                               
+        {
+            Node* temp = createNode($1); 
+            temp->isTerminal = true; 
+            $$ = temp;
+        }
+
+OUT_KEYWORD
+        :       out_keyword_terminal                                               
+        {
+            Node* temp = createNode($1); 
+            temp->isTerminal = true; 
+            $$ = temp;
+        }
+
+PRINTLN_KEYWORD
+        :       println_keyword_terminal                                               
         {
             Node* temp = createNode($1); 
             temp->isTerminal = true; 

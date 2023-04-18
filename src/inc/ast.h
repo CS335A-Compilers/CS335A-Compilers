@@ -29,6 +29,8 @@ class Node {
         int offset;
         // denotes the callee saved registor number where the expression's value is stored
         int calleeSavedRegistorIndex;
+        // stores the jump address for some expressions
+        int label_number;
         int entry_type;
         int line_no;
         bool is_parameter;
@@ -160,6 +162,8 @@ class MethodDeclaration : public Node {
         // stores the total size of the function to allocate to the stack
         int local_variables_size;
         bool isConstructor;
+        // stores the index of callee saved registors which are used by the compiler for the given function
+        vector<int> calleeRegCalled;
         // ReceiverParameter* receiver_parameter;
         // contructor
         MethodDeclaration(string lex);

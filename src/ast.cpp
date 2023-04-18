@@ -16,10 +16,13 @@ extern vector<bool> temporary_registors_in_use;
 extern vector<int> typeSizes;
 extern int stack_frame_pointer;
 extern vector<string> calleeSavedRegistors;
+extern vector<string> argumentRegistors;
 extern NormalClassDeclaration* curr_class;
 extern vector<bool> calleeSavedInUse;
 extern vector<string> typeStrings;
 extern int functionOffset;
+extern vector<bool> calleeGlobalCalled;
+extern int for_label_count;
 extern int curr_address;
 
 vector<string> entryTypeStrings = {"variable", "class", "method"};
@@ -35,6 +38,7 @@ Node::Node(string lex){
     isTerminal = false;
     node_id++;
     id = node_id;
+    label_number = -1;
     entry_type = -1;
     isWritten = false;
     current_level = global_symtab->current_level;
@@ -203,7 +207,9 @@ Expression::Expression(string lex, Value* val, bool primary, bool literal)
     isLiteral = literal;
     registor_index = -1;
     primary_exp_val = "";
+    label_number = -1;
     entry_type = EXPRESSIONS;
+    calleeSavedRegistorIndex = -1;
 }
 
 ExpressionList::ExpressionList(string lex, Expression* single_expression, vector<Expression*> expressions)
@@ -291,12 +297,11 @@ bool addVariablesToSymtab(Type* t, VariableDeclaratorList* declarator_list, pair
         int tt = findEmptyRegistor();
         locale->reg_index = tt;
         locale->offset = functionOffset;
-        functionOffset += typeSizes[t->primitivetypeIndex];
+        functionOffset += 8;    // always increasing by 8 bytes, so that mera dimag kharab na ho :(
         temporary_registors_in_use[tt] = true;
         locale->isFieldVariable = is_field_variable;
         locale->entry_type = VARIABLE_DECLARATION;
         locale->name = declarator_list->lists[i]->identifier;
-        cout<<locale->offset<<"    "<<locale->name<<endl;
         if(is_field_variable == true){
             curr_class->field_variables.push_back({locale, curr_class->object_size});
             curr_class->object_size += typeSizes[t->primitivetypeIndex];
@@ -667,7 +672,10 @@ bool checkParams(string name, ExpressionList* exp_list){
 int findEmptyCalleeSavedRegistor(){
     int n = calleeSavedInUse.size();
     for(int i=0;i<n;i++){
-        if(calleeSavedInUse[i] == false) return i;
+        if(calleeSavedInUse[i] == false) {
+            calleeGlobalCalled[i] = true;
+            return i;
+        }
     }
     return -1;
 }
@@ -677,6 +685,26 @@ string convertOperator(string op){
     else if(op == "-") return "subq";
     else if(op == "*") return "imulq";
     else if(op == "/") return "idivq";
+    else if(op == "&") return "andq";
+    else if(op == "|") return "orq";
+    else if(op == "^") return "xorq";
+    else if(op == ">>") return "shrq";
+    else if(op == "<<") return "shlq";
+    else if(op == "&&") return "andq";
+    else if(op == "||") return "orq";
+    // relational conditions are opposite to what they define
+    else if(op == ">=") return "jl";
+    else if(op == "<=") return "jg";
+    else if(op == ">") return "jle";
+    else if(op == "<") return "jge";
+    else if(op == "==") return "jne";
+    else if(op == "!=") return "je";
+}
+
+int find_label_count(string inst){
+    int pos = inst.find('L');
+    string fin_op = inst.substr(pos+1);
+    return stoi(fin_op);
 }
 
 void createAsm(Node* root){
@@ -687,17 +715,27 @@ void createAsm(Node* root){
         }
     }
     else if(root->entry_type == METHOD_DECLARATION){
+        cout<<"\t.globl "<<root->name<<endl;
         cout<<root->name<<":\n";
         cout<<"\tpushq\t%rbp"<<endl;
 	    cout<<"\tmovq\t%rsp, %rbp"<<endl;
+        cout<<"\tsubq\t$"<<to_string(((MethodDeclaration*)(root))->local_variables_size)<<", %rsp"<<endl;
         vector<FormalParameter*> list = ((MethodDeclaration*)(root))->formal_parameter_list->lists;
+        vector<int> registors = ((MethodDeclaration*)(root))->calleeRegCalled;
+        for(int i=0;i<registors.size();i++){
+            cout<<"\tpushq "<<calleeSavedRegistors[registors[i]]<<endl;
+        }
         for(int i=0;i<list.size();i++){
-            // int off = get_local_symtab(root->current_level)->get_entry(list[i]->variable_declarator_id->identifier, VARIABLE_DECLARATION)->offset;
-            // pop param
+            int off = get_local_symtab(root->current_level)->get_entry(list[i]->variable_declarator_id->identifier, VARIABLE_DECLARATION)->offset;
+            cout<<"\tmovq\t"<<argumentRegistors[i]<<", -"<<to_string(off)<<"(%rbp)"<<endl;
         }
         for(int i=0;i<root->children.size();i++){
             createAsm(root->children[i]);
         }
+        for(int i=registors.size()-1;i>=0;i--){
+            cout<<"\tpopq\t"<<calleeSavedRegistors[registors[i]]<<endl;
+        }
+        cout<<"\tleave"<<endl;
         cout<<"\tret"<<endl;
     }
     else if(root->entry_type == VARIABLE_DECLARATION){
@@ -727,15 +765,41 @@ void createAsm(Node* root){
     }
     else if(root->entry_type == IF_THEN_STATEMENT){
         // IF_KEYWORD OP_BRCKT expression CLOSE_BRCKT statement
+        int nn = root->children[2]->x86_64.size();
+        createAsm(root->children[2]);
+        createAsm(root->children[4]);
+        cout<<".L"<<root->children[2]->label_number<<":"<<endl;
     }
     else if(root->entry_type == IF_THEN_ELSE_STATEMENT){
         // IF_KEYWORD  OP_BRCKT expression CLOSE_BRCKT statement_no_short_if ELSE_KEYWORD statement
+        createAsm(root->children[2]);
+        int e1_label = root->children[2]->label_number;
+        createAsm(root->children[4]);
+        cout<<"\tjmp .LL"<<e1_label<<endl;
+        cout<<".L"<<e1_label<<":"<<endl;
+        createAsm(root->children[6]);
+        cout<<".LL"<<e1_label<<":"<<endl;
     }
     else if(root->entry_type == WHILE_STATEMENT){
         // WHILE_KEYWORD OP_BRCKT expression CLOSE_BRCKT statement
+        int e1_label = root->children[2]->label_number;
+        cout<<".LL"<<e1_label<<":"<<endl;
+        createAsm(root->children[2]);
+        createAsm(root->children[4]);
+        cout<<"\tjmp .LL"<<e1_label<<endl;
+        cout<<".L"<<e1_label<<":"<<endl;
     }
     else if(root->entry_type == FOR_STATEMENT){
         // FOR_KEYWORD OP_BRCKT for_init_zero_or_one SEMICOLON_OP expression_zero_or_one SEMICOLON_OP for_update_zero_or_one CLOSE_BRCKT statement
+        createAsm(root->children[2]);
+        int e1_label = root->children[4]->label_number;
+        if(e1_label == -1) e1_label = for_label_count++;
+        cout<<".LL"<<e1_label<<":"<<endl;
+        createAsm(root->children[4]);
+        createAsm(root->children[8]);
+        createAsm(root->children[6]);
+        cout<<"\tjmp .LL"<<e1_label<<endl;
+        cout<<".L"<<e1_label<<":"<<endl;
     }
     else if(root->entry_type == TERNARY_EXPRESSION){
         // conditional_or_expression QN_OP expression COLON_OP condtional_expression
@@ -743,6 +807,9 @@ void createAsm(Node* root){
     else{
         for(int i=0;i<root->children.size();i++){
             createAsm(root->children[i]);
+        }
+        for(int i=0;i<root->x86_64.size();i++){
+            cout<<"\t"<<root->x86_64[i]<<endl;
         }
     }
     return ;
