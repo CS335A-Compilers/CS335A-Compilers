@@ -29,6 +29,8 @@ class Node {
         int offset;
         // denotes the callee saved registor number where the expression's value is stored
         int calleeSavedRegistorIndex;
+        // stores the jump address for some expressions
+        int label_number;
         int entry_type;
         int line_no;
         bool is_parameter;

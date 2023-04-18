@@ -16,15 +16,26 @@ class test {
 
     public static void main(){
         // c = a | b;
-        int x = 6, y = 5;
-
-        // y = x++;
-        x=y=x;
+        // int x = 5, y =1;
+        // while(x > 0){
+        //     if(x>2){
+        //         System.out.println(x);
+        //     }
+        //     else{
+        //         System.out.println(y);
+        //     }
+        //     x--;
+        // }
+        for(int x=0;x<5;x++){
+            for(int y=0;y<5;y++){
+                System.out.println(x+y);
+            }
+        }
+        // x= (y=x);        
         // x = ++y;
         // a  <<=b;
         // return ;
         // while(a < 5){
-        //     // System.out.println(a);
         // }
         // return 5;
         // b = a++;

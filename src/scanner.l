@@ -83,6 +83,9 @@ OCTAL_EXCAPE                \\{OCTAL_DIGIT}|\\{OCTAL_DIGIT}{OCTAL_DIGIT}|\\[0-3]
 
 %%
 
+"System"                {char* temp = strdup(yytext); yylval.lex_val = temp; return(system_keyword_terminal);}
+"out"                   {char* temp = strdup(yytext); yylval.lex_val = temp; return(out_keyword_terminal);}
+"println"               {char* temp = strdup(yytext); yylval.lex_val = temp; return(println_keyword_terminal);}
 "abstract"              {char* temp = strdup(yytext); yylval.lex_val = temp; return(abstract_keyword_terminal);}
 "continue"              {char* temp = strdup(yytext); yylval.lex_val = temp; return(continue_keyword_terminal);}
 "for"                   {char* temp = strdup(yytext); yylval.lex_val = temp; return(for_keyword_terminal);}
