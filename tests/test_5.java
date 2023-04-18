@@ -7,6 +7,7 @@ class functions {
         return z;
     }
     public void main(){
-        int temp = func2(func1()) + func1();
+        int temp = func2(5) + func1();
+        System.out.println(temp);    
     }
 }

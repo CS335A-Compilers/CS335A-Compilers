@@ -13,12 +13,15 @@
     vector<bool> temporary_registors_in_use(MAX_REGISTORS, false);
     vector<int> typeSizes = {1, 1, 2, 4, 8, 4, 8, 1, -1, 0};
     vector<string> calleeSavedRegistors = {"%r12", "%rbx", "%r10", "%r13", "%r14", "%r15"};
+    vector<string> smallCalleeSavedRegistors = {"%r12b", "%bl", "%r10b", "%r13b", "%r14b", "%r15b"};
     vector<bool> calleeSavedInUse(calleeSavedRegistors.size(), false);
     vector<bool> calleeGlobalCalled(calleeSavedRegistors.size(), false);
     vector<string> argumentRegistors = {"%rdi", "%rsi", "%rdx", "%rcx", "%r8", "%r9"};
+    int break_posn = -1;
+    int continue_posn = -1;
     vector<ThreeAC*> threeAC_list;
     int label_count = 1;
-    int for_label_count = 1111;
+    int alternate_label_count = 1111;
     map<string, int> caches;
     int stack_frame_pointer = 0;
     NormalClassDeclaration* curr_class;
@@ -48,7 +51,7 @@
 
 // type == nonterminal, token = terminal
 
-%token<lex_val> goto_keyword_terminal const_keyword_terminal __keyword_terminal system_keyword_terminal out_keyword_terminal println_keyword_terminal abstract_keyword_terminal continue_keyword_terminal for_keyword_terminal new_keyword_terminal default_keyword_terminal if_keyword_terminal boolean_keyword_terminal private_keyword_terminal this_keyword_terminal break_keyword_terminal double_keyword_terminal implements_keyword_terminal protected_keyword_terminal byte_keyword_terminal else_keyword_terminal public_keyword_terminal return_keyword_terminal transient_keyword_terminal extends_keyword_terminal int_keyword_terminal short_keyword_terminal char_keyword_terminal final_keyword_terminal static_keyword_terminal void_keyword_terminal class_keyword_terminal long_keyword_terminal strictfp_keyword_terminal volatile_keyword_terminal float_keyword_terminal native_keyword_terminal super_keyword_terminal while_keyword_terminal record_keyword_terminal
+%token<lex_val> goto_keyword_terminal const_keyword_terminal __keyword_terminal do_keyword_terminal system_keyword_terminal out_keyword_terminal println_keyword_terminal abstract_keyword_terminal continue_keyword_terminal for_keyword_terminal new_keyword_terminal default_keyword_terminal if_keyword_terminal boolean_keyword_terminal private_keyword_terminal this_keyword_terminal break_keyword_terminal double_keyword_terminal implements_keyword_terminal protected_keyword_terminal byte_keyword_terminal else_keyword_terminal public_keyword_terminal return_keyword_terminal transient_keyword_terminal extends_keyword_terminal int_keyword_terminal short_keyword_terminal char_keyword_terminal final_keyword_terminal static_keyword_terminal void_keyword_terminal class_keyword_terminal long_keyword_terminal strictfp_keyword_terminal volatile_keyword_terminal float_keyword_terminal native_keyword_terminal super_keyword_terminal while_keyword_terminal record_keyword_terminal
 %token<lex_val> '=' '>' '<' '!' '~' '?' ':' '+' '-' '*' '/' '&' '|' '^' '%' ',' '.' ';' '(' ')' '[' ']' '{' '}' '@'
 %token<lex_val> EQ_OP_TERMINAL GE_OP_TERMINAL LE_OP_TERMINAL NE_OP_TERMINAL AND_OP_TERMINAL OR_OP_TERMINAL INC_OP_TERMINAL DEC_OP_TERMINAL LEFT_OP_TERMINAL RIGHT_OP_TERMINAL BIT_RIGHT_SHFT_OP_TERMINAL ADD_ASSIGN_TERMINAL SUB_ASSIGN_TERMINAL MUL_ASSIGN_TERMINAL DIV_ASSIGN_TERMINAL AND_ASSIGN_TERMINAL OR_ASSIGN_TERMINAL XOR_ASSIGN_TERMINAL MOD_ASSIGN_TERMINAL LEFT_ASSIGN_TERMINAL RIGHT_ASSIGN_TERMINAL BIT_RIGHT_SHFT_ASSIGN_TERMINAL
 %token<lex_val> IDENTIFIERS_TERMINAL NUM_LITERALS DOUBLE_LITERALS STRING_LITERALS CHAR_LITERALS BOOLEAN_LITERALS
@@ -59,13 +62,13 @@
 %left RIGHT_OP_TERMINAL LEFT_OP_TERMINAL
 %left INC_OP_TERMINAL DEC_OP_TERMINAL
 
-%type<node> SYSTEM_KEYWORD OUT_KEYWORD PRINTLN_KEYWORD ABSTRACT_KEYWORD CONTINUE_KEYWORD FOR_KEYWORD NEW_KEYWORD IF_KEYWORD BOOLEAN_KEYWORD PRIVATE_KEYWORD THIS_KEYWORD BREAK_KEYWORD DOUBLE_KEYWORD PROTECTED_KEYWORD EXTENDS_KEYWORD BYTE_KEYWORD ELSE_KEYWORD PUBLIC_KEYWORD RETURN_KEYWORD TRANSIENT_KEYWORD INT_KEYWORD SHORT_KEYWORD CHAR_KEYWORD FINAL_KEYWORD STATIC_KEYWORD VOID_KEYWORD CLASS_KEYWORD LONG_KEYWORD STRICTFP_KEYWORD VOLATILE_KEYWORD FLOAT_KEYWORD NATIVE_KEYWORD SUPER_KEYWORD WHILE_KEYWORD
+%type<node> DO_KEYWORD SYSTEM_KEYWORD OUT_KEYWORD PRINTLN_KEYWORD ABSTRACT_KEYWORD CONTINUE_KEYWORD FOR_KEYWORD NEW_KEYWORD IF_KEYWORD BOOLEAN_KEYWORD PRIVATE_KEYWORD THIS_KEYWORD BREAK_KEYWORD DOUBLE_KEYWORD PROTECTED_KEYWORD EXTENDS_KEYWORD BYTE_KEYWORD ELSE_KEYWORD PUBLIC_KEYWORD RETURN_KEYWORD TRANSIENT_KEYWORD INT_KEYWORD SHORT_KEYWORD CHAR_KEYWORD FINAL_KEYWORD STATIC_KEYWORD VOID_KEYWORD CLASS_KEYWORD LONG_KEYWORD STRICTFP_KEYWORD VOLATILE_KEYWORD FLOAT_KEYWORD NATIVE_KEYWORD SUPER_KEYWORD WHILE_KEYWORD
 %type<node> ASSIGNMENT_OP GT_OP LT_OP EX_OP TL_OP QN_OP COLON_OP PLUS_OP MINUS_OP STAR_OP DIV_OP ND_OP BAR_OP RAISE_OP PCNT_OP COMMA_OP DOT_OP SEMICOLON_OP OP_BRCKT CLOSE_BRCKT OP_SQR_BRCKT CLOSE_SQR_BRCKT OP_CURLY_BRCKT CLOSE_CURLY_BRCKT
 %type<node> EQ_OP GE_OP  LE_OP  NE_OP  AND_OP  OR_OP  INC_OP  DEC_OP  LEFT_OP  RIGHT_OP  BIT_RIGHT_SHFT_OP ADD_ASSIGN  SUB_ASSIGN  MUL_ASSIGN  DIV_ASSIGN  AND_ASSIGN  OR_ASSIGN  XOR_ASSIGN  MOD_ASSIGN  LEFT_ASSIGN  RIGHT_ASSIGN  BIT_RIGHT_SHFT_ASSIGN
 %type<node> IDENTIFIERS
 
-%type<node> print_statement expression_statement normal_class_declaration_statement assignment_operators basic_for_statement basic_for_statement_no_short_if block block_statement block_statements block_statements_zero_or_more block_statements_zero_or_one break_statement class_body class_body_declaration class_body_declaration_zero_or_more class_body_zero_or_one class_declaration class_extends class_extends_zero_or_one compilation_unit constructor_body continue_statement empty_statement explicit_constructor_invocation field_declaration for_init for_init_zero_or_one for_statement for_statement_no_short_if for_update for_update_zero_or_one identifier_zero_or_one if_then_else_statement if_then_else_statement_no_short_if if_then_statement labeled_statement labeled_statement_no_short_if local_class_or_interface_declaration local_variable_declaration local_variable_declaration_statement normal_class_declaration ordinary_compilation_unit return_statement start_state statement  statement_no_short_if statement_without_trailing_substatement static_initializer top_level_class_or_interface_declaration top_level_class_or_interface_declaration_zero_or_more while_statement while_statement_no_short_if
-%type<expression> array_creation_expression assignment LITERALS array_access class_instance_creation_expression additive_expression and_expression assignment_expression unary_expression unary_expression_not_plus_minus statement_expression conditional_and_expression conditional_or_expression condtional_expression equality_expression exclusive_or_expression expression expression_zero_or_one inclusive_or_expression multiplicative_expression post_decrement_expression post_increment_expression postfix_expression pre_decrement_expression pre_increment_expression primary primary_no_new_array relational_expression shift_expression variable_initializer field_access method_invocation
+%type<node> print_statement expression_statement normal_class_declaration_statement assignment_operators basic_for_statement basic_for_statement_no_short_if block block_statement block_statements block_statements_zero_or_more block_statements_zero_or_one break_statement class_body class_body_declaration class_body_declaration_zero_or_more class_body_zero_or_one class_declaration class_extends class_extends_zero_or_one compilation_unit constructor_body continue_statement do_statememt empty_statement explicit_constructor_invocation field_declaration for_init for_init_zero_or_one for_statement for_statement_no_short_if for_update for_update_zero_or_one if_then_else_statement if_then_else_statement_no_short_if if_then_statement labeled_statement labeled_statement_no_short_if local_class_or_interface_declaration local_variable_declaration local_variable_declaration_statement normal_class_declaration ordinary_compilation_unit return_statement start_state statement  statement_no_short_if statement_without_trailing_substatement static_initializer top_level_class_or_interface_declaration top_level_class_or_interface_declaration_zero_or_more while_statement while_statement_no_short_if
+%type<expression> argument_expression array_creation_expression assignment LITERALS array_access class_instance_creation_expression additive_expression and_expression assignment_expression unary_expression unary_expression_not_plus_minus statement_expression conditional_and_expression conditional_or_expression condtional_expression equality_expression exclusive_or_expression expression expression_zero_or_one inclusive_or_expression multiplicative_expression post_decrement_expression post_increment_expression postfix_expression pre_decrement_expression pre_increment_expression primary primary_no_new_array relational_expression shift_expression variable_initializer field_access method_invocation
 %type<expression_list> argument_list statement_expression_list argument_list_zero_or_one comma_expression_zero_or_more comma_statement_expression_zero_or_more
 %type<formal_parameter> formal_parameter 
 %type<formal_parameter_list> formal_parameter_list formal_parameter_list_zero_or_one
@@ -271,6 +274,10 @@ method_invocation
                     YYERROR;
                 node->name = temp->createString(); 
                 node->entry_type = METHOD_INVOCATION; 
+                int n = findEmptyCalleeSavedRegistor();
+                node->calleeSavedRegistorIndex = n;
+                calleeSavedInUse[n] = true;
+                node->x86_64.push_back("movq\t%rax, " + calleeSavedRegistors[n]);
                 int tx = findEmptyRegistor();
                 temporary_registors_in_use[tx] = true;
                 node->reg_index = tx;
@@ -828,12 +835,12 @@ class_body_zero_or_one
             }           
 
 argument_list
-            :   expression comma_expression_zero_or_more
+            :   argument_expression comma_expression_zero_or_more
             {
                 ExpressionList* node = new ExpressionList("argument list", $1, $2->lists); 
                 node->addChildren({$1, $2}); 
                 $$ = node;
-            }           
+            }
 
 comma_expression_zero_or_more
             :   /* empty */
@@ -842,12 +849,21 @@ comma_expression_zero_or_more
                 node->addChildren({}); 
                 $$ = node;
             }           
-            |   COMMA_OP expression comma_expression_zero_or_more                                                                                       
+            |   COMMA_OP argument_expression comma_expression_zero_or_more                                                                                       
             {
                 ExpressionList* node = new ExpressionList("comma expression zero or more", $2, $3->lists); 
                 node->addChildren({$1,$2,$3}); 
                 $$ = node;
             }           
+
+argument_expression
+            :   expression
+            {
+                Expression* node = grammar_1("variable initializer", $1, $1->isPrimary, $1->isLiteral); 
+                calleeSavedInUse[node->calleeSavedRegistorIndex] = false;
+                node->addChildren({$1}); 
+                $$ = node;
+            }
 
 assignment
             :   IDENTIFIERS assignment_operators expression                                                                                             
@@ -1351,9 +1367,13 @@ statement_without_trailing_substatement
             node->addChildren({$1}); 
             $$ = node;
         }
-     // |   assert_statement                                                                                                                            {Node* node = createNode("statement without trailing substatement"); node->addChildren({$1}); $$ = node;}
-     // |   switch_statement                                                                                                                            {Node* node = createNode("statement without trailing substatement"); node->addChildren({$1}); $$ = node;}
-     // |   do_statememt                                                                                                                                {Node* node = createNode("statement without trailing substatement"); node->addChildren({$1}); $$ = node;}
+     // |   switch_statement
+        |   do_statememt
+        {
+            Node* node = createNode("statement without trailing substatement"); 
+            node->addChildren({$1}); 
+            $$ = node;
+        }
         |   break_statement                                                                                                                             
         {
             Node* node = createNode("statement without trailing substatement"); 
@@ -1396,8 +1416,14 @@ print_statement
 // switch_statement
 //      :   switch_expression                                                                                                                           {Node* node = createNode("switch statement"); node->addChildren({$1}); $$ = node;}
 
-// do_statememt
-//      :   DO_KEYWORD statement WHILE_KEYWORD OP_BRCKT expression CLOSE_BRCKT SEMICOLON_OP                                                             {Node* node = createNode("do statement"); node->addChildren({$1,$2,$3,$4,$5,$6,$7}); $$ = node;}
+do_statememt
+        :   DO_KEYWORD statement WHILE_KEYWORD OP_BRCKT expression CLOSE_BRCKT SEMICOLON_OP
+        {
+            Node* node = createNode("while statement"); 
+            node->addChildren({$1,$2,$3,$4,$5,$6,$7}); 
+            node->entry_type = DO_STATEMENT; 
+            $$ = node;
+        }
 
 empty_statement
         :   SEMICOLON_OP                                                                                                                                
@@ -1437,41 +1463,48 @@ statement_expression
         {
             Expression* node = grammar_1("statement expression", $1, $1->isPrimary, $1->isLiteral); 
             node->addChildren({$1}); 
+            calleeSavedInUse[$1->calleeSavedRegistorIndex] = false;
             $$ = node;
         }
         |  pre_increment_expression                                                                                                                     
         {
             Expression* node = grammar_1("statement expression", $1, $1->isPrimary, $1->isLiteral); 
             node->addChildren({$1}); 
+            calleeSavedInUse[$1->calleeSavedRegistorIndex] = false;
             $$ = node;
         }
         |  pre_decrement_expression                                                                                                                     
         {
             Expression* node = grammar_1("statement expression", $1, $1->isPrimary, $1->isLiteral); 
             node->addChildren({$1}); 
+            calleeSavedInUse[$1->calleeSavedRegistorIndex] = false;
             $$ = node;
         }
         |  post_increment_expression                                                                                                                    
         {
             Expression* node = grammar_1("statement expression", $1, $1->isPrimary, $1->isLiteral); 
             node->addChildren({$1}); 
+            calleeSavedInUse[$1->calleeSavedRegistorIndex] = false;
             $$ = node;
         }
         |  post_decrement_expression                                                                                                                    
         {
             Expression* node = grammar_1("statement expression", $1, $1->isPrimary, $1->isLiteral); 
             node->addChildren({$1}); 
+            calleeSavedInUse[$1->calleeSavedRegistorIndex] = false;
             $$ = node;
         }
         |  method_invocation                                                                                                                            
         {   Expression* node = grammar_1("statement expression", $1, $1->isPrimary, $1->isLiteral); 
             node->addChildren({$1}); 
+            calleeSavedInUse[$1->calleeSavedRegistorIndex] = false;
             $$ = node;
         }
         |  class_instance_creation_expression                                                                                                           
         {
             Expression* node = grammar_1("statement expression", $1, $1->isPrimary, $1->isLiteral); 
             node->addChildren({$1}); 
+            calleeSavedInUse[$1->calleeSavedRegistorIndex] = false;
             $$ = node;
         }
 
@@ -1584,6 +1617,9 @@ expression_zero_or_one
         |  expression                                                                                                                                   
         {
             Expression* node = grammar_1("expression zero or one", $1, $1->isPrimary, $1->isLiteral); 
+            int nn = $1->calleeSavedRegistorIndex;
+            if(nn >=0 && nn< calleeSavedInUse.size())
+                calleeSavedInUse[$1->calleeSavedRegistorIndex] = false;
             node->addChildren({$1}); 
             $$ = node;
         }
@@ -1653,38 +1689,20 @@ comma_statement_expression_zero_or_more
 //         :  FOR_KEYWORD OP_BRCKT local_variable_declaration COLON_OP expression CLOSE_BRCKT statement_no_short_if                                        {Node* node = createNode("enhanced for statement no short if"); node->addChildren({$1,$2,$3,$4,$5,$6,$7}); $$ = node;}
 
 break_statement
-        :  BREAK_KEYWORD IDENTIFIERS SEMICOLON_OP                                                                                                       
-        {
-            Node* node = createNode("break statement"); 
-            node->addChildren({$1,$2,$3}); 
-            $$ = node;
-        }
-        |  BREAK_KEYWORD SEMICOLON_OP                                                                                                                   
+        :  BREAK_KEYWORD SEMICOLON_OP                                                                                                                   
         {
             Node* node = createNode("break statement"); 
             node->addChildren({$1,$2}); 
+            node->entry_type = BREAK_STATEMENT;
             $$ = node;
         }
 
 continue_statement
-        :  CONTINUE_KEYWORD identifier_zero_or_one SEMICOLON_OP                                                                                         
+        :  CONTINUE_KEYWORD SEMICOLON_OP                                                                                         
         {
             Node* node = createNode("continue statement"); 
-            node->addChildren({$1,$2,$3});
-            $$ = node;
-        }
-
-identifier_zero_or_one
-        :  /* empty */                                                                                                                                  
-        {
-            Node* node = createNode("identifier zero or one"); 
-            node->addChildren({}); 
-            $$ = node;
-        } 
-        | IDENTIFIERS                                                                                                                                   
-        {
-            Node* node = createNode("identifier zero or one"); 
-            node->addChildren({$1}); 
+            node->addChildren({$1,$2});
+            node->entry_type = CONTINUE_STATEMENT;
             $$ = node;
         }
 
@@ -2360,6 +2378,14 @@ ABSTRACT_KEYWORD
 
 SYSTEM_KEYWORD
         :       system_keyword_terminal                                               
+        {
+            Node* temp = createNode($1); 
+            temp->isTerminal = true; 
+            $$ = temp;
+        }
+
+DO_KEYWORD
+        :       do_keyword_terminal                                               
         {
             Node* temp = createNode($1); 
             temp->isTerminal = true; 

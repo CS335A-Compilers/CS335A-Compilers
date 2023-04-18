@@ -5,7 +5,7 @@ using namespace std;
 enum ModifierType {PUBLIC, PROTECTED, PRIVATE, ABSTRACT, STATIC, SEALED, NONSEALED, STRICTFP, TRANSITIVE, FINAL, VOLATILE, SYNCHRONIZED, TRANSIENT, NATIVE, };
 enum Types {CHAR, BYTE, SHORT, INT, LONG, FLOAT, DOUBLE, BOOLEAN, STRING, VOID, };
 // symbol table entry is added whenever one of these declaration is done
-enum DeclarationType {VARIABLE_DECLARATION, CLASS_DECLARATION, METHOD_DECLARATION, METHOD_INVOCATION, IF_THEN_STATEMENT, IF_THEN_ELSE_STATEMENT, WHILE_STATEMENT, EXPRESSIONS, FOR_STATEMENT, TERNARY_EXPRESSION};
+enum DeclarationType {VARIABLE_DECLARATION, CLASS_DECLARATION, METHOD_DECLARATION, METHOD_INVOCATION, IF_THEN_STATEMENT, IF_THEN_ELSE_STATEMENT, WHILE_STATEMENT, EXPRESSIONS, FOR_STATEMENT, TERNARY_EXPRESSION, BREAK_STATEMENT, CONTINUE_STATEMENT, DO_STATEMENT};
 
 #define RAX "%rax";
 #define RSP "%rsp";
@@ -30,7 +30,6 @@ class Node {
         // denotes the callee saved registor number where the expression's value is stored
         int calleeSavedRegistorIndex;
         // stores the jump address for some expressions
-        int label_number;
         int entry_type;
         int line_no;
         bool is_parameter;
