@@ -264,9 +264,13 @@ bool typenameErrorChecking(Node* node, pair<int,int> curr_level, int entry_type)
         for(int i=0;i<obj->type->class_instantiated_from->field_variables.size();i++){
             if(obj->type->class_instantiated_from->field_variables[i].first == lists->identifiers[1]) return true;
         }
-        string err = "the field variable \"" + lists->identifiers[1] + "\" not present in class \"" + obj->type->class_instantiated_from->name + "\"";
-        yyerror(const_cast<char*>(err.c_str()));
-        return false;
+        Node* obj1 = get_local_symtab(global_symtab->current_level)->get_entry(lists->identifiers[1], -1);
+        if(obj1 == NULL){
+            string err = "the field \"" + lists->identifiers[1] + "\" not present in class \"" + obj->type->class_instantiated_from->name + "\"";
+            yyerror(const_cast<char*>(err.c_str()));
+            return false;
+        }
+        else return true;
     }
     string entry = (entry_type == -1) ? entryTypeStrings[0] : entryTypeStrings[entry_type];
     string err = "use of undeclared " + entry + " \"" + lists->identifiers[0] + "\"";
@@ -790,6 +794,21 @@ void createAsm(Node* root){
             }
         }
         cout<<"\tcall\t"<<root->children[0]->name<<endl;
+        for(int i=0;i<root->x86_64.size();i++){
+            cout<<"\t"<<root->x86_64[i]<<endl;
+        }
+    }
+    else if(root->entry_type == FIELD_METHOD_INVOCATION){
+        // IDENTIFIERS DOT_OP IDENTIFIERS OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT
+        int n = ((ExpressionList*)(root->children[4]))->lists.size();
+        for(int i=0;i<n;i++){
+            if(argumentRegistors.size() > i){
+                Expression* temp = ((ExpressionList*)(root->children[4]))->lists[i];
+                createAsm(temp);
+                cout<<"\tmovq\t"<<calleeSavedRegistors[temp->calleeSavedRegistorIndex]<<", "<<argumentRegistors[i]<<endl;
+            }
+        }
+        cout<<"\tcall\t"<<root->children[2]->name<<endl;
         for(int i=0;i<root->x86_64.size();i++){
             cout<<"\t"<<root->x86_64[i]<<endl;
         }

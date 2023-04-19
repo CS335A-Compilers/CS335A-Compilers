@@ -1,10 +1,16 @@
-class FieldVariables {
+class Classes {
     int x, y;
+
+    public int add(int a, int b){
+        return  a+b;
+    }
     public static void main(String [] args){
-        FieldVariables f = new FieldVariables();
+        Classes f = new Classes();
+        int a, b;
         f.x = 5;
         f.y = 6;
-        f.x = (f.x + f.y)*2 + f.y;
-        System.out.println(f.x);
+        a = (f.x * f.y)*2 + f.y;
+        b = f.x + f.y;
+        System.out.println(f.add(a,b));
     }
 }

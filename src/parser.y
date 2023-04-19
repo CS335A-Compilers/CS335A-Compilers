@@ -263,22 +263,25 @@ method_invocation
                 node->addChildren({$1,$2,$3,$4}); 
                 $$ = node;
             }
-            // |   field_access OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT                                                                    
-            // {
-            //     IdentifiersList* temp = new IdentifiersList("type_name", "", {}); 
-            //     temp->addIdentifiers($1->primary_exp_val); 
-            //     if(!typenameErrorChecking(temp, global_symtab->current_level, -1)) 
-            //         YYERROR; 
-            //     Value* va = new Value(); 
-            //     va->primitivetypeIndex = ((MethodDeclaration*)(get_local_symtab(global_symtab->current_level)->get_entry($1->lexeme, -1)))->type->primitivetypeIndex; 
-            //     Expression* node = new Expression("postfix expression", va, false, false); 
-            //     if(node == NULL) 
-            //         YYERROR; 
-            //     node->name = temp->createString(); 
-            //     node->entry_type = METHOD_INVOCATION; 
-            //     node->addChildren({$1,$2,$3,$4}); 
-            //     $$ = node;
-            // }
+            |   IDENTIFIERS DOT_OP IDENTIFIERS OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT                                                                    
+            {
+                IdentifiersList* temp = new IdentifiersList("type_name", $1->lexeme, {$3->lexeme}); 
+                if(!typenameErrorChecking(temp, global_symtab->current_level, -1)) 
+                    YYERROR; 
+                Value* va = new Value(); 
+                va->primitivetypeIndex = ((MethodDeclaration*)(get_local_symtab(global_symtab->current_level)->get_entry($3->lexeme, -1)))->type->primitivetypeIndex; 
+                Expression* node = new Expression("postfix expression", va, false, false); 
+                if(node == NULL) 
+                    YYERROR; 
+                node->name = temp->createString(); 
+                node->entry_type = FIELD_METHOD_INVOCATION; 
+                int n = findEmptyCalleeSavedRegistor();
+                node->calleeSavedRegistorIndex = n;
+                calleeSavedInUse[n] = true;
+                node->x86_64.push_back("movq\t%rax, " + calleeSavedRegistors[n]);
+                node->addChildren({$1,$2,$3,$4,$5,$6});
+                $$ = node;
+            }
 
 expression
             :   assignment_expression

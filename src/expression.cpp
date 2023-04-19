@@ -397,8 +397,22 @@ Expression* assignValue(Expression* type_name, string op, Expression* exp, strin
                     obj->x86_64.push_back("movq\t" + calleeSavedRegistors[exp_index] + ", %rcx");
                     obj->x86_64.push_back(convertOperator(fin_op) + "\t" + "%rcx" + ", -" + to_string(off) + "(%rbp)");
                 }
+                else if(fin_op[0] != '/' && fin_op[0] != '%'){
+                    obj->x86_64.push_back("movq\t-" + to_string(off) + "(%rbp), %rcx");
+                    obj->x86_64.push_back(convertOperator(fin_op) + "\t" + calleeSavedRegistors[exp_index] + ", %rcx");
+                    obj->x86_64.push_back("movq\t%rcx, -"  + to_string(off) + "(%rbp)");
+                }
                 else{
-                    obj->x86_64.push_back(convertOperator(fin_op) + "\t" + calleeSavedRegistors[exp_index] + ", -" + to_string(off) + "(%rbp)");
+                    obj->x86_64.push_back("movq\t-" + to_string(off) + "(%rbp), %rax");
+                    obj->x86_64.push_back("cqo");
+                    obj->x86_64.push_back("idivq\t" + calleeSavedRegistors[exp_index]);
+                    
+                    if(op == "/"){
+                        obj->x86_64.push_back("movq\t%rdx, -"  + to_string(off) + "(%rbp)");
+                    }
+                    else{
+                        obj->x86_64.push_back("movq\t%rax, -"  + to_string(off) + "(%rbp)");
+                    }
                 }
                 obj->x86_64.push_back("movq\t-" + to_string(off) + "(%rbp), " + calleeSavedRegistors[exp_index]);
             }
