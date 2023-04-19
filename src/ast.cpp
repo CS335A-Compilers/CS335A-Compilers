@@ -262,7 +262,7 @@ bool typenameErrorChecking(Node* node, pair<int,int> curr_level, int entry_type)
         }
         // check if the field variable is present in the obj;
         for(int i=0;i<obj->type->class_instantiated_from->field_variables.size();i++){
-            if(obj->type->class_instantiated_from->field_variables[i].first->name == lists->identifiers[1]) return true;
+            if(obj->type->class_instantiated_from->field_variables[i].first == lists->identifiers[1]) return true;
         }
         string err = "the field variable \"" + lists->identifiers[1] + "\" not present in class \"" + obj->type->class_instantiated_from->name + "\"";
         yyerror(const_cast<char*>(err.c_str()));
@@ -305,15 +305,17 @@ bool addVariablesToSymtab(Type* t, VariableDeclaratorList* declarator_list, pair
         if(t->primitivetypeIndex == -1){
             functionOffset+= max((t->class_instantiated_from->object_size-8), 0);
         }
-        locale->offset = functionOffset;
-        functionOffset += 8;
+        if(is_field_variable == false){
+            locale->offset = functionOffset;
+            functionOffset += 8;
+        }
         temporary_registors_in_use[tt] = true;
         locale->isFieldVariable = is_field_variable;
         locale->entry_type = VARIABLE_DECLARATION;
         locale->name = declarator_list->lists[i]->identifier;
         
         if(is_field_variable == true){
-            curr_class->field_variables.push_back({locale, curr_class->object_size});
+            curr_class->field_variables.push_back({locale->name, curr_class->object_size});
             curr_class->object_size += 8;
         }
 

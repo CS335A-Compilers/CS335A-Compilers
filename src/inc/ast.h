@@ -173,7 +173,7 @@ class MethodDeclaration : public Node {
 class NormalClassDeclaration : public Node {
     public:
         ModifierList* modifiers_list;
-        vector<pair<LocalVariableDeclaration*, int>> field_variables;
+        vector<pair<string, int>> field_variables;
         // ClassExtends* class_extends;
         int object_size;
         NormalClassDeclaration(string lex, ModifierList* list, string identifier ); 

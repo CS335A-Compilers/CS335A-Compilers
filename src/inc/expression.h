@@ -18,3 +18,5 @@ Expression* assignValue(Expression* type_name, string op, Expression* exp, strin
 Expression* assignArrayValue(IdentifiersList* type_name, Expression* index, string op, Expression* exp);
 void assignLiteralValue(Expression* literal, Expression* e);
 Expression* getArrayAccess(string ident, Expression* e);
+Expression* assignObjectValue(string object_name, string field_var, string op, Expression* exp);
+Expression* getFieldAccess(string object_name, string field_access);
