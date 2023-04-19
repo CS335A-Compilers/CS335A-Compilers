@@ -428,7 +428,9 @@ Expression* assignObjectValue(string object_name, string field_var, string op, E
     int off = temp->offset;
     Expression* obj = new Expression("assignment", NULL, false, false);
     int nn = findEmptyCalleeSavedRegistor();
-    int index = nn + 1;
+    calleeSavedInUse[nn] = true;
+    int index = findEmptyCalleeSavedRegistor();
+    calleeSavedInUse[index] = true;
     int field_off = -1;
     for(int i=0;i<curr_class->field_variables.size();i++){
         if(curr_class->field_variables[i].first == field_var) {
@@ -454,6 +456,7 @@ Expression* assignObjectValue(string object_name, string field_var, string op, E
     }
     obj->calleeSavedRegistorIndex = exp->calleeSavedRegistorIndex;
     calleeSavedInUse[index] = false;
+    calleeSavedInUse[nn] = false;
     return obj;
 }
 
@@ -545,11 +548,13 @@ Expression* getFieldAccess(string object_name, string field_access){
         }
     }
     int nn = findEmptyCalleeSavedRegistor();
-    int index = nn  + 1;
+    calleeSavedInUse[nn] = true;
+    int index = findEmptyCalleeSavedRegistor();
+    calleeSavedInUse[index] = true;
     node->x86_64.push_back("movq\t$" + to_string(field_off) + ", " + calleeSavedRegistors[index]);
     node->x86_64.push_back("leaq\t-" + to_string(off) + "(%rbp), " + calleeSavedRegistors[nn]);
     node->x86_64.push_back("movq\t(" + calleeSavedRegistors[nn] + ", " + calleeSavedRegistors[index] + ", 1), " + calleeSavedRegistors[index] );
     node->calleeSavedRegistorIndex = index;
-    calleeSavedInUse[index] = true;
-    return node;   
+    calleeSavedInUse[nn] = false;
+    return node;
 }

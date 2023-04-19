@@ -1,9 +1,10 @@
 class FieldVariables {
     int x, y;
-    public void main(){
+    public static void main(String [] args){
         FieldVariables f = new FieldVariables();
         f.x = 5;
-        int t = f.x;
-        System.out.println(t);
+        f.y = 6;
+        f.x = (f.x + f.y)*2 + f.y;
+        System.out.println(f.x);
     }
 }
