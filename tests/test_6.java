@@ -1,11 +1,11 @@
-class recursives {
+class RecursiveFunction {
 
-    public int fib(int n){
-        if(n <= 3) return 1;
-        else return fib(n-1) * fib(n-2) + fib(n-3)*n;
+    public static int fib(int n){
+        if(n <= 2) return 1;
+        else return fib(n-1) + fib(n-2);
     }
 
-    public void main() {
+    public static void main(String [] args) {
         int f = fib(6);
         System.out.println(f);
     }

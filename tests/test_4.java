@@ -1,12 +1,8 @@
-class arithmetic {
-
-    public int add(int a, int b){
-        return a + b;
-    }
-
+class FieldVariables {
+    int x, y;
     public void main(){
-        int x = 1, y = 2;
-        x = add(x, y);
-        return ;
+        FieldVariables f = new FieldVariables();
+        // f.x = 1;
+        
     }
 }
