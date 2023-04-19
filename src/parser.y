@@ -239,6 +239,8 @@ field_access
                 else{
                     node->primary_exp_val = "t" + to_string(caches[temp->createString()]);
                 }
+                // LocalVariableDeclaration* temp2 = ((LocalVariableDeclaration*)(get_local_symtab(global_symtab->current_level)->get_entry($1->lexeme, 0)));
+                
                 node->addChildren({$1,$2,$3}); 
                 $$ = node;
             }
@@ -540,7 +542,7 @@ shift_expression
                     YYERROR; 
                 node->addChildren({$1,$2,$3}); 
                 $$ = node;
-            }           
+            }
 
 additive_expression
             :   multiplicative_expression                                                                                                       
@@ -558,7 +560,7 @@ additive_expression
                     YYERROR; 
                 node->addChildren({$1,$2,$3}); 
                 $$ = node;
-            }           
+            }
             |   additive_expression MINUS_OP multiplicative_expression                                                                          
             {
                 Expression* node = evalARITHMETIC("additive expression","-",$1,$3);
@@ -566,7 +568,7 @@ additive_expression
                     YYERROR; 
                 node->addChildren({$1,$2,$3}); 
                 $$ = node;
-            }           
+            }
 
 multiplicative_expression
             :   unary_expression                                                                                                                
@@ -576,7 +578,7 @@ multiplicative_expression
                     YYERROR; 
                 node->addChildren({$1}); 
                 $$ = node;
-            }           
+            }
             |   multiplicative_expression STAR_OP unary_expression                                                                              
             {
                 Expression* node = evalARITHMETIC("multiplicative expression","*",$1,$3);
@@ -584,7 +586,7 @@ multiplicative_expression
                     YYERROR; 
                 node->addChildren({$1,$2,$3}); 
                 $$ = node;
-            }           
+            }
             |   multiplicative_expression PCNT_OP unary_expression                                                                              
             {
                 Expression* node = evalARITHMETIC("multiplicative expression","%",$1,$3);
@@ -600,7 +602,7 @@ multiplicative_expression
                     YYERROR; 
                 node->addChildren({$1,$2,$3}); 
                 $$ = node;
-            }           
+            }
 
 unary_expression
             :   pre_increment_expression                                                                                                        
@@ -810,10 +812,9 @@ class_instance_creation_expression
             :   NEW_KEYWORD IDENTIFIERS OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT class_body_zero_or_one                                              
             {
                 Value* val = createObject($2->lexeme, $4, global_symtab->current_level); 
-                if(val == NULL) 
-                    YYERROR; 
+                if(val == NULL)
+                    YYERROR;
                 Expression* node = new Expression("class instance creation expression", val, false, false); 
-
                 node->addChildren({$1,$2,$3,$4,$5,$6}); 
                 $$ = node;
             }
@@ -1502,7 +1503,9 @@ statement_expression
         {
             Expression* node = grammar_1("statement expression", $1, $1->isPrimary, $1->isLiteral); 
             node->addChildren({$1}); 
-            calleeSavedInUse[$1->calleeSavedRegistorIndex] = false;
+            int nn = $1->calleeSavedRegistorIndex;
+            if(nn >= 0 && nn<calleeSavedRegistors.size())
+                calleeSavedInUse[$1->calleeSavedRegistorIndex] = false;
             $$ = node;
         }
 
