@@ -267,6 +267,10 @@ Expression* evalUNARY(string lex, string op, Expression* e1){
     va->primitivetypeIndex = e1->value->primitivetypeIndex;
     Expression* obj=new Expression(lex, va, false, false);
     obj->code.push_back(addInstruction(obj, NULL, e1, op, 0));
+    if(op == "-"){
+        obj->x86_64.push_back("neg\t" + calleeSavedRegistors[e1->calleeSavedRegistorIndex]);
+    }
+    obj->calleeSavedRegistorIndex = e1->calleeSavedRegistorIndex;
     return obj; 
 }
 
