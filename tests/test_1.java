@@ -15,14 +15,16 @@ class test {
     // }
 
     public static void main(String[] args){
-        // int x = 9, y =11;
-        // x += y;
-        // System.out.println(x);
-        int arr[] = new int[4];
-        int b=5;
-        arr[1] = 2;
-        b = arr[1];
-        System.out.println(arr[1]);
+        int arr[] = new int[10];
+        // int b=5;
+        for(int i=0;i<10;i++){
+            arr[i] = i*2;
+        }
+        int sum = 0;
+        for(int i=0;i<10;i++){
+            sum+=arr[i];
+        }
+        System.out.println(sum);
         // while(x > 0){
             // int a = "sdf";
             // int a = 5, b = 2;
