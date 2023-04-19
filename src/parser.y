@@ -51,7 +51,7 @@
 
 // type == nonterminal, token = terminal
 
-%token<lex_val> goto_keyword_terminal const_keyword_terminal __keyword_terminal do_keyword_terminal system_keyword_terminal out_keyword_terminal println_keyword_terminal abstract_keyword_terminal continue_keyword_terminal for_keyword_terminal new_keyword_terminal default_keyword_terminal if_keyword_terminal boolean_keyword_terminal private_keyword_terminal this_keyword_terminal break_keyword_terminal double_keyword_terminal implements_keyword_terminal protected_keyword_terminal byte_keyword_terminal else_keyword_terminal public_keyword_terminal return_keyword_terminal transient_keyword_terminal extends_keyword_terminal int_keyword_terminal short_keyword_terminal char_keyword_terminal final_keyword_terminal static_keyword_terminal void_keyword_terminal class_keyword_terminal long_keyword_terminal strictfp_keyword_terminal volatile_keyword_terminal float_keyword_terminal native_keyword_terminal super_keyword_terminal while_keyword_terminal record_keyword_terminal
+%token<lex_val> string_keyword_terminal goto_keyword_terminal const_keyword_terminal __keyword_terminal do_keyword_terminal system_keyword_terminal out_keyword_terminal println_keyword_terminal abstract_keyword_terminal continue_keyword_terminal for_keyword_terminal new_keyword_terminal default_keyword_terminal if_keyword_terminal boolean_keyword_terminal private_keyword_terminal this_keyword_terminal break_keyword_terminal double_keyword_terminal implements_keyword_terminal protected_keyword_terminal byte_keyword_terminal else_keyword_terminal public_keyword_terminal return_keyword_terminal transient_keyword_terminal extends_keyword_terminal int_keyword_terminal short_keyword_terminal char_keyword_terminal final_keyword_terminal static_keyword_terminal void_keyword_terminal class_keyword_terminal long_keyword_terminal strictfp_keyword_terminal volatile_keyword_terminal float_keyword_terminal native_keyword_terminal super_keyword_terminal while_keyword_terminal record_keyword_terminal
 %token<lex_val> '=' '>' '<' '!' '~' '?' ':' '+' '-' '*' '/' '&' '|' '^' '%' ',' '.' ';' '(' ')' '[' ']' '{' '}' '@'
 %token<lex_val> EQ_OP_TERMINAL GE_OP_TERMINAL LE_OP_TERMINAL NE_OP_TERMINAL AND_OP_TERMINAL OR_OP_TERMINAL INC_OP_TERMINAL DEC_OP_TERMINAL LEFT_OP_TERMINAL RIGHT_OP_TERMINAL BIT_RIGHT_SHFT_OP_TERMINAL ADD_ASSIGN_TERMINAL SUB_ASSIGN_TERMINAL MUL_ASSIGN_TERMINAL DIV_ASSIGN_TERMINAL AND_ASSIGN_TERMINAL OR_ASSIGN_TERMINAL XOR_ASSIGN_TERMINAL MOD_ASSIGN_TERMINAL LEFT_ASSIGN_TERMINAL RIGHT_ASSIGN_TERMINAL BIT_RIGHT_SHFT_ASSIGN_TERMINAL
 %token<lex_val> IDENTIFIERS_TERMINAL NUM_LITERALS DOUBLE_LITERALS STRING_LITERALS CHAR_LITERALS BOOLEAN_LITERALS
@@ -62,7 +62,7 @@
 %left RIGHT_OP_TERMINAL LEFT_OP_TERMINAL
 %left INC_OP_TERMINAL DEC_OP_TERMINAL
 
-%type<node> DO_KEYWORD SYSTEM_KEYWORD OUT_KEYWORD PRINTLN_KEYWORD ABSTRACT_KEYWORD CONTINUE_KEYWORD FOR_KEYWORD NEW_KEYWORD IF_KEYWORD BOOLEAN_KEYWORD PRIVATE_KEYWORD THIS_KEYWORD BREAK_KEYWORD DOUBLE_KEYWORD PROTECTED_KEYWORD EXTENDS_KEYWORD BYTE_KEYWORD ELSE_KEYWORD PUBLIC_KEYWORD RETURN_KEYWORD TRANSIENT_KEYWORD INT_KEYWORD SHORT_KEYWORD CHAR_KEYWORD FINAL_KEYWORD STATIC_KEYWORD VOID_KEYWORD CLASS_KEYWORD LONG_KEYWORD STRICTFP_KEYWORD VOLATILE_KEYWORD FLOAT_KEYWORD NATIVE_KEYWORD SUPER_KEYWORD WHILE_KEYWORD
+%type<node> STRING_KEYWORD DO_KEYWORD SYSTEM_KEYWORD OUT_KEYWORD PRINTLN_KEYWORD ABSTRACT_KEYWORD CONTINUE_KEYWORD FOR_KEYWORD NEW_KEYWORD IF_KEYWORD BOOLEAN_KEYWORD PRIVATE_KEYWORD THIS_KEYWORD BREAK_KEYWORD DOUBLE_KEYWORD PROTECTED_KEYWORD EXTENDS_KEYWORD BYTE_KEYWORD ELSE_KEYWORD PUBLIC_KEYWORD RETURN_KEYWORD TRANSIENT_KEYWORD INT_KEYWORD SHORT_KEYWORD CHAR_KEYWORD FINAL_KEYWORD STATIC_KEYWORD VOID_KEYWORD CLASS_KEYWORD LONG_KEYWORD STRICTFP_KEYWORD VOLATILE_KEYWORD FLOAT_KEYWORD NATIVE_KEYWORD SUPER_KEYWORD WHILE_KEYWORD
 %type<node> ASSIGNMENT_OP GT_OP LT_OP EX_OP TL_OP QN_OP COLON_OP PLUS_OP MINUS_OP STAR_OP DIV_OP ND_OP BAR_OP RAISE_OP PCNT_OP COMMA_OP DOT_OP SEMICOLON_OP OP_BRCKT CLOSE_BRCKT OP_SQR_BRCKT CLOSE_SQR_BRCKT OP_CURLY_BRCKT CLOSE_CURLY_BRCKT
 %type<node> EQ_OP GE_OP  LE_OP  NE_OP  AND_OP  OR_OP  INC_OP  DEC_OP  LEFT_OP  RIGHT_OP  BIT_RIGHT_SHFT_OP ADD_ASSIGN  SUB_ASSIGN  MUL_ASSIGN  DIV_ASSIGN  AND_ASSIGN  OR_ASSIGN  XOR_ASSIGN  MOD_ASSIGN  LEFT_ASSIGN  RIGHT_ASSIGN  BIT_RIGHT_SHFT_ASSIGN
 %type<node> IDENTIFIERS
@@ -1933,6 +1933,12 @@ unann_type
             node->addChildren({$1}); 
             $$ = node;
         }
+        |   STRING_KEYWORD
+        {
+            Type* node = new Type("unann type", STRING); 
+            node->addChildren({$1}); 
+            $$ = node;
+        }
 
 method_declaration
         :   method_declaration_statement block
@@ -2075,6 +2081,18 @@ formal_parameter
             node->reg_index = t;
             node->offset = functionOffset;
             functionOffset += 8;
+            temporary_registors_in_use[t] = true;
+            get_local_symtab(global_symtab->current_level)->add_entry(node);
+            $$ = node;
+        }
+        |  unann_type OP_SQR_BRCKT CLOSE_SQR_BRCKT IDENTIFIERS                                                                                                            
+        {
+            FormalParameter* node = new FormalParameter("formal parameter", $1, NULL, false); 
+            node->addChildren({$1,$2,$3,$4}); 
+            node->name = $4->lexeme;
+            node->entry_type = VARIABLE_DECLARATION;
+            int t = findEmptyRegistor();
+            node->reg_index = t;
             temporary_registors_in_use[t] = true;
             get_local_symtab(global_symtab->current_level)->add_entry(node);
             $$ = node;
@@ -2623,6 +2641,14 @@ VOLATILE_KEYWORD
 
 FLOAT_KEYWORD
         :       float_keyword_terminal                                                  
+        {
+            Node* temp = createNode($1); 
+            temp->isTerminal = true; 
+            $$ = temp;
+        }
+
+STRING_KEYWORD
+        :       string_keyword_terminal                                                  
         {
             Node* temp = createNode($1); 
             temp->isTerminal = true; 

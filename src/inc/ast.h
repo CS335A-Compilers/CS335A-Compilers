@@ -7,10 +7,6 @@ enum Types {CHAR, BYTE, SHORT, INT, LONG, FLOAT, DOUBLE, BOOLEAN, STRING, VOID, 
 // symbol table entry is added whenever one of these declaration is done
 enum DeclarationType {VARIABLE_DECLARATION, CLASS_DECLARATION, METHOD_DECLARATION, METHOD_INVOCATION, IF_THEN_STATEMENT, IF_THEN_ELSE_STATEMENT, WHILE_STATEMENT, EXPRESSIONS, FOR_STATEMENT, TERNARY_EXPRESSION, BREAK_STATEMENT, CONTINUE_STATEMENT, DO_STATEMENT};
 
-#define RAX "%rax";
-#define RSP "%rsp";
-#define RIP "%rip";
-
 class Node {
 
     public:
