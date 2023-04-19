@@ -286,6 +286,7 @@ bool addVariablesToSymtab(Type* t, VariableDeclaratorList* declarator_list, pair
             }
         }
         if(declarator_list->lists[i]->initialized_value != NULL && declarator_list->lists[i]->num_of_dims > 0){
+            // type conversion between array's data types
             int exp_type = t->primitivetypeIndex;
             int given_type = declarator_list->lists[i]->initialized_value->primitivetypeIndex;
             if(given_type != exp_type){
@@ -298,12 +299,16 @@ bool addVariablesToSymtab(Type* t, VariableDeclaratorList* declarator_list, pair
         LocalVariableDeclaration* locale = new LocalVariableDeclaration("local_variable_declaration", t, declarator_list->lists[i], modif_lists);
         int tt = findEmptyRegistor();
         locale->reg_index = tt;
+        if(declarator_list->lists[i]->initialized_value != NULL && declarator_list->lists[i]->num_of_dims > 0){
+            functionOffset += (declarator_list->lists[i]->initialized_value->dim1_count-1)*8;
+        }
         locale->offset = functionOffset;
-        functionOffset += 8;    // always increasing by 8 bytes, so that mera dimag kharab na ho :(
+        functionOffset += 8;
         temporary_registors_in_use[tt] = true;
         locale->isFieldVariable = is_field_variable;
         locale->entry_type = VARIABLE_DECLARATION;
         locale->name = declarator_list->lists[i]->identifier;
+        
         if(is_field_variable == true){
             curr_class->field_variables.push_back({locale, curr_class->object_size});
             curr_class->object_size += typeSizes[t->primitivetypeIndex];
@@ -752,10 +757,15 @@ void createAsm(Node* root){
         // ignoring for field variables
         if(var->isFieldVariable) return ;
         if(root->children.size() > 2) createAsm(root->children[2]);
-        if(root->children.size() == 1)
-            cout<<"\tmovq\t$0, -"<<var->offset<<"(%rbp)\n";
-        else 
-            cout<<"\tmovq\t"<<calleeSavedRegistors[root->children[2]->calleeSavedRegistorIndex]<<", -"<<var->offset<<"(%rbp)\n";
+        if(var->variable_declarator->num_of_dims == 0){
+            if(root->children.size() == 1)
+                cout<<"\tmovq\t$0, -"<<var->offset<<"(%rbp)\n";
+            else 
+                cout<<"\tmovq\t"<<calleeSavedRegistors[root->children[2]->calleeSavedRegistorIndex]<<", -"<<var->offset<<"(%rbp)\n";
+        }
+        else{
+
+        }
     }
     else if(root->entry_type == EXPRESSIONS){
         // vector<int> codes = root->code;

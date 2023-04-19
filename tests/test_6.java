@@ -1,8 +1,8 @@
 class recursives {
 
     public int fib(int n){
-        if(n <= 2) return 1;
-        else return fib(n-1) + fib(n-2);
+        if(n <= 3) return 1;
+        else return fib(n-1) * fib(n-2) + fib(n-3)*n;
     }
 
     public void main() {

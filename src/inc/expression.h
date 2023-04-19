@@ -15,5 +15,6 @@ Expression* evalIC_DC(string lex,string op,Expression* e1, bool preOperation);
 Expression* evalTL(string lex,Expression* e1);
 Expression* evalEX(string lex,Expression* e1);
 Expression* assignValue(Expression* type_name, string op, Expression* exp, string ident);
+Expression* assignArrayValue(IdentifiersList* type_name, Expression* index, string op, Expression* exp);
 void assignLiteralValue(Expression* literal, Expression* e);
 Expression* getArrayAccess(string ident, Expression* e);

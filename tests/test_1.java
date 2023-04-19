@@ -15,13 +15,19 @@ class test {
     // }
 
     public static void main(String[] args){
-        // int x = 9, y =1;
+        // int x = 9, y =11;
+        // x += y;
+        // System.out.println(x);
+        int arr[] = new int[4];
+        int b=5;
+        arr[1] = 2;
+        b = arr[1];
+        System.out.println(arr[1]);
         // while(x > 0){
             // int a = "sdf";
             // int a = 5, b = 2;
             
         //     if(x>2){
-        //         System.out.println(x);
         //     }
         //     else{
         //         System.out.println(y);

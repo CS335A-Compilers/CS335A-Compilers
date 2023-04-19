@@ -157,7 +157,7 @@ primary
             }
 
 primary_no_new_array
-            :   LITERALS                                                                                                                        
+            :   LITERALS
             {
                 Expression* node = grammar_1("primary no new array", $1, $1->isPrimary, $1->isLiteral); 
                 node->primary_exp_val = $1->lexeme; 
@@ -892,12 +892,12 @@ assignment
                 node->addChildren({$1,$2,$3});  
                 $$ = node;
             }
-            |   array_access assignment_operators expression                                                                                            
+            |   type_name_scoping OP_SQR_BRCKT expression CLOSE_SQR_BRCKT assignment_operators expression                                                                                            
             {   
-                Expression* node = assignValue($1,  $2->children[0]->lexeme, $3, $1->name);
+                Expression* node = assignArrayValue($1, $3, $5->children[0]->lexeme, $6);
                 if(node == NULL) 
                     YYERROR; 
-                node->addChildren({$1,$2,$3});
+                node->addChildren({$1,$2,$3,$4,$5,$6});
                 $$ = node;
             }           
 
@@ -949,42 +949,38 @@ assignment_operators
                 Node* node = createNode("assignment operators"); 
                 node->addChildren({$1}); 
                 $$ = node;
-            }           
+            }
             |   MOD_ASSIGN                                                                                                                              
             {
                 Node* node = createNode("assignment operators"); 
                 node->addChildren({$1}); 
                 $$ = node;
-            }           
+            }
             |   LEFT_ASSIGN                                                                                                                             
             {
                 Node* node = createNode("assignment operators"); 
                 node->addChildren({$1}); 
                 $$ = node;
-            }           
+            }
             |   RIGHT_ASSIGN                                                                                                                            
             {
                 Node* node = createNode("assignment operators"); 
                 node->addChildren({$1}); 
                 $$ = node;
-            }           
+            }
             |   BIT_RIGHT_SHFT_ASSIGN                                                                                                                   
             {
                 Node* node = createNode("assignment operators"); 
                 node->addChildren({$1}); 
                 $$ = node;
-            }           
+            }
 
 array_creation_expression
-            :   NEW_KEYWORD primitive_type OP_SQR_BRCKT expression CLOSE_SQR_BRCKT                                                                      
+            :   NEW_KEYWORD primitive_type OP_SQR_BRCKT LITERALS CLOSE_SQR_BRCKT                                                                      
             {
                 if($4->value->primitivetypeIndex > LONG) {
                     string err = "type mismatch: cannot convert from \"" + typeStrings[$4->value->primitivetypeIndex] + "\" to int";
                     yyerror(const_cast<char*>(err.c_str()));
-                    YYERROR;
-                }
-                if($4->value->num_val.size() == 0) {
-                    yyerror("Variable must provide dimension literal only");
                     YYERROR;
                 }
                 Value* val = new Value(); 
@@ -1076,10 +1072,12 @@ numeric_type
             }
 
 variable_initializer
-            :   expression                                                                                                                              
+            :   expression
             {
                 Expression* node = grammar_1("variable initializer", $1, $1->isPrimary, $1->isLiteral); 
-                calleeSavedInUse[node->calleeSavedRegistorIndex] = false;
+                int nn = node->calleeSavedRegistorIndex;
+                if(nn >=0 && nn< calleeSavedRegistors.size())
+                    calleeSavedInUse[node->calleeSavedRegistorIndex] = false;
                 node->addChildren({$1}); 
                 $$ = node;
             }
@@ -1903,7 +1901,6 @@ variable_declarator
         {
             VariableDeclaratorId* node = new VariableDeclaratorId("variable_declarator", $1->identifier, $1->num_of_dims, $3->value); 
             node->entry_type = VARIABLE_DECLARATION; 
-            node->lex_val = $3->primary_exp_val; 
             node->addChildren({$1,$2,$3}); 
             $$ = node;
         }
