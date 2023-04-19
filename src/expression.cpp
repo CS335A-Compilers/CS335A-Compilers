@@ -330,10 +330,12 @@ Expression* evalTL(string lex, Expression* e1){
     Value* va= new Value();
     va->primitivetypeIndex = e1->value->primitivetypeIndex;
     Expression* obj=new Expression(lex, va, false, false);
-    int off = get_local_symtab(global_symtab->current_level)->get_entry(e1->name, VARIABLE_DECLARATION)->offset;
+    Node* off = (get_local_symtab(global_symtab->current_level)->get_entry(e1->name, VARIABLE_DECLARATION));
     obj->code.push_back(addInstruction(obj, NULL, e1, "~", 0));
     obj->x86_64.push_back("notq\t" + calleeSavedRegistors[e1->calleeSavedRegistorIndex]);
-    obj->x86_64.push_back("movq\t" + calleeSavedRegistors[e1->calleeSavedRegistorIndex] + ", -" + to_string(off) + "(%rbp)");
+    if(off != NULL){
+        obj->x86_64.push_back("movq\t" + calleeSavedRegistors[e1->calleeSavedRegistorIndex] + ", -" + to_string(off->offset) + "(%rbp)");
+    }
     obj->calleeSavedRegistorIndex = e1->calleeSavedRegistorIndex;
     return obj; 
 }
