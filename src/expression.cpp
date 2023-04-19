@@ -10,6 +10,7 @@ extern vector<ThreeAC*> threeAC_list;
 extern vector<int> typeSizes;
 extern vector<string> calleeSavedRegistors;
 extern vector<string> smallCalleeSavedRegistors;
+extern NormalClassDeclaration* curr_class;
 extern int label_count;
 extern vector<bool> calleeSavedInUse;
 // Define an array of strings that corresponds to the type values.
@@ -329,10 +330,12 @@ Expression* evalTL(string lex, Expression* e1){
     Value* va= new Value();
     va->primitivetypeIndex = e1->value->primitivetypeIndex;
     Expression* obj=new Expression(lex, va, false, false);
-    int off = get_local_symtab(global_symtab->current_level)->get_entry(e1->name, VARIABLE_DECLARATION)->offset;
+    Node* off = (get_local_symtab(global_symtab->current_level)->get_entry(e1->name, VARIABLE_DECLARATION));
     obj->code.push_back(addInstruction(obj, NULL, e1, "~", 0));
     obj->x86_64.push_back("notq\t" + calleeSavedRegistors[e1->calleeSavedRegistorIndex]);
-    obj->x86_64.push_back("movq\t" + calleeSavedRegistors[e1->calleeSavedRegistorIndex] + ", -" + to_string(off) + "(%rbp)");
+    if(off != NULL){
+        obj->x86_64.push_back("movq\t" + calleeSavedRegistors[e1->calleeSavedRegistorIndex] + ", -" + to_string(off->offset) + "(%rbp)");
+    }
     obj->calleeSavedRegistorIndex = e1->calleeSavedRegistorIndex;
     return obj; 
 }
@@ -396,8 +399,22 @@ Expression* assignValue(Expression* type_name, string op, Expression* exp, strin
                     obj->x86_64.push_back("movq\t" + calleeSavedRegistors[exp_index] + ", %rcx");
                     obj->x86_64.push_back(convertOperator(fin_op) + "\t" + "%rcx" + ", -" + to_string(off) + "(%rbp)");
                 }
+                else if(fin_op[0] != '/' && fin_op[0] != '%'){
+                    obj->x86_64.push_back("movq\t-" + to_string(off) + "(%rbp), %rcx");
+                    obj->x86_64.push_back(convertOperator(fin_op) + "\t" + calleeSavedRegistors[exp_index] + ", %rcx");
+                    obj->x86_64.push_back("movq\t%rcx, -"  + to_string(off) + "(%rbp)");
+                }
                 else{
-                    obj->x86_64.push_back(convertOperator(fin_op) + "\t" + calleeSavedRegistors[exp_index] + ", -" + to_string(off) + "(%rbp)");
+                    obj->x86_64.push_back("movq\t-" + to_string(off) + "(%rbp), %rax");
+                    obj->x86_64.push_back("cqo");
+                    obj->x86_64.push_back("idivq\t" + calleeSavedRegistors[exp_index]);
+                    
+                    if(op == "/"){
+                        obj->x86_64.push_back("movq\t%rdx, -"  + to_string(off) + "(%rbp)");
+                    }
+                    else{
+                        obj->x86_64.push_back("movq\t%rax, -"  + to_string(off) + "(%rbp)");
+                    }
                 }
                 obj->x86_64.push_back("movq\t-" + to_string(off) + "(%rbp), " + calleeSavedRegistors[exp_index]);
             }
@@ -416,6 +433,47 @@ Expression* assignValue(Expression* type_name, string op, Expression* exp, strin
         yyerror(const_cast<char*>(err.c_str()));
         return NULL;
     }
+}
+
+Expression* assignObjectValue(string object_name, string field_var, string op, Expression* exp){
+    LocalVariableDeclaration* temp = (LocalVariableDeclaration*)(get_local_symtab(global_symtab->current_level)->get_entry(object_name, -1));
+    if(temp == NULL) {
+        yyerror("use of undeclared variable");
+        return NULL;
+    }
+    int off = temp->offset;
+    Expression* obj = new Expression("assignment", NULL, false, false);
+    int nn = findEmptyCalleeSavedRegistor();
+    calleeSavedInUse[nn] = true;
+    int index = findEmptyCalleeSavedRegistor();
+    calleeSavedInUse[index] = true;
+    int field_off = -1;
+    for(int i=0;i<curr_class->field_variables.size();i++){
+        if(curr_class->field_variables[i].first == field_var) {
+            field_off = curr_class->field_variables[i].second;
+        }
+    }
+    obj->x86_64.push_back("movq\t$" + to_string(field_off) + ", " + calleeSavedRegistors[index]);
+    if(op == "="){
+        obj->x86_64.push_back("leaq\t-" + to_string(off) + "(%rbp), " + calleeSavedRegistors[nn]);
+        obj->x86_64.push_back("movq\t" + calleeSavedRegistors[exp->calleeSavedRegistorIndex] + ", (" + calleeSavedRegistors[nn] + ", " + calleeSavedRegistors[index] + ", 1)");
+    }
+    else{
+        int pos = op.find('=');
+        string fin_op = op.substr(0, pos);
+        obj->x86_64.push_back("leaq\t-" + to_string(off) + "(%rbp), " + calleeSavedRegistors[nn]);
+        obj->x86_64.push_back("movq\t(" + calleeSavedRegistors[nn] + ", " + calleeSavedRegistors[index] + ", 1), " + calleeSavedRegistors[exp->calleeSavedRegistorIndex] );
+        if(fin_op[0] == '>' || fin_op[0] == '<'){
+            // use CL registor to store the exp value
+            obj->x86_64.push_back("movq\t" + calleeSavedRegistors[exp->calleeSavedRegistorIndex] + ", %rcx");
+            obj->x86_64.push_back(convertOperator(fin_op) + "\t" + "%rcx" + ", (" + calleeSavedRegistors[nn] + ", " + calleeSavedRegistors[index] + ", 1)");
+        }
+        obj->x86_64.push_back(convertOperator(fin_op) + "\t" + calleeSavedRegistors[exp->calleeSavedRegistorIndex] + ", (" + calleeSavedRegistors[nn] + ", " + calleeSavedRegistors[index] + ", 1)");
+    }
+    obj->calleeSavedRegistorIndex = exp->calleeSavedRegistorIndex;
+    calleeSavedInUse[index] = false;
+    calleeSavedInUse[nn] = false;
+    return obj;
 }
 
 Expression* assignArrayValue(IdentifiersList* type_name, Expression* index, string op, Expression* exp){
@@ -489,4 +547,30 @@ Expression* getArrayAccess(string ident, Expression* e){
     node->x86_64.push_back("movq\t(" + calleeSavedRegistors[nn] + ", " + calleeSavedRegistors[e->calleeSavedRegistorIndex] + ", 8), " + calleeSavedRegistors[e->calleeSavedRegistorIndex] );
     node->calleeSavedRegistorIndex = e->calleeSavedRegistorIndex;
     return node;   
+}
+
+Expression* getFieldAccess(string object_name, string field_access){
+    Value* val = new Value();
+    LocalVariableDeclaration* temp = (LocalVariableDeclaration*)(get_local_symtab(global_symtab->current_level)->get_entry(object_name, 0)) ;
+    LocalVariableDeclaration* temp2 = (LocalVariableDeclaration*)(get_local_symtab(global_symtab->current_level)->get_entry(field_access, 0)) ;
+    val->primitivetypeIndex = temp2->type->primitivetypeIndex;
+    Expression* node = new Expression("array_access", val, false, false);
+    node->name = object_name;
+    int off = temp->offset;
+    int field_off = -1;
+    for(int i=0;i<curr_class->field_variables.size();i++){
+        if(curr_class->field_variables[i].first == field_access) {
+            field_off = curr_class->field_variables[i].second;
+        }
+    }
+    int nn = findEmptyCalleeSavedRegistor();
+    calleeSavedInUse[nn] = true;
+    int index = findEmptyCalleeSavedRegistor();
+    calleeSavedInUse[index] = true;
+    node->x86_64.push_back("movq\t$" + to_string(field_off) + ", " + calleeSavedRegistors[index]);
+    node->x86_64.push_back("leaq\t-" + to_string(off) + "(%rbp), " + calleeSavedRegistors[nn]);
+    node->x86_64.push_back("movq\t(" + calleeSavedRegistors[nn] + ", " + calleeSavedRegistors[index] + ", 1), " + calleeSavedRegistors[index] );
+    node->calleeSavedRegistorIndex = index;
+    calleeSavedInUse[nn] = false;
+    return node;
 }

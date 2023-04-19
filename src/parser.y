@@ -215,32 +215,7 @@ field_access
                 if(!typenameErrorChecking(temp, global_symtab->current_level, 0)) 
                     YYERROR; 
                 Value* va = new Value(); 
-                Expression* node = new Expression("postfix expression", va, true, false);
-                va->primitivetypeIndex = ((LocalVariableDeclaration*)(get_local_symtab(global_symtab->current_level)->get_entry($3->identifiers[0], 0)))->type->primitivetypeIndex;
-                node->name = $3->identifiers[0];
-                if(caches.find(temp->createString())==caches.end()){
-                    int tt = findEmptyRegistor();
-                    temporary_registors_in_use[tt] = true;
-                    LocalVariableDeclaration* temp2 = ((LocalVariableDeclaration*)(get_local_symtab(global_symtab->current_level)->get_entry($1->lexeme, 0)));
-                    int regtt = temp2->reg_index;
-                    int offset = -1;
-                    for(int i=0;i<curr_class->field_variables.size();i++){
-                        if(curr_class->field_variables[i].first->name == $3->identifiers[0]) {
-                            offset = curr_class->field_variables[i].second;
-                            break;
-                        }
-                    }
-                    ThreeAC* inst = new ThreeAC("+", "", tt, regtt, -1, "", to_string(offset), 0);
-                    node->code.push_back(threeAC_list.size());
-                    threeAC_list.push_back(inst);
-                    node->primary_exp_val = "*t" + to_string(tt); 
-                    caches.insert({temp->createString(), tt});
-                }
-                else{
-                    node->primary_exp_val = "t" + to_string(caches[temp->createString()]);
-                }
-                // LocalVariableDeclaration* temp2 = ((LocalVariableDeclaration*)(get_local_symtab(global_symtab->current_level)->get_entry($1->lexeme, 0)));
-                
+                Expression* node = getFieldAccess($1->lexeme, $3->identifiers[0]);
                 node->addChildren({$1,$2,$3}); 
                 $$ = node;
             }
@@ -288,22 +263,25 @@ method_invocation
                 node->addChildren({$1,$2,$3,$4}); 
                 $$ = node;
             }
-            // |   field_access OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT                                                                    
-            // {
-            //     IdentifiersList* temp = new IdentifiersList("type_name", "", {}); 
-            //     temp->addIdentifiers($1->primary_exp_val); 
-            //     if(!typenameErrorChecking(temp, global_symtab->current_level, -1)) 
-            //         YYERROR; 
-            //     Value* va = new Value(); 
-            //     va->primitivetypeIndex = ((MethodDeclaration*)(get_local_symtab(global_symtab->current_level)->get_entry($1->lexeme, -1)))->type->primitivetypeIndex; 
-            //     Expression* node = new Expression("postfix expression", va, false, false); 
-            //     if(node == NULL) 
-            //         YYERROR; 
-            //     node->name = temp->createString(); 
-            //     node->entry_type = METHOD_INVOCATION; 
-            //     node->addChildren({$1,$2,$3,$4}); 
-            //     $$ = node;
-            // }
+            |   IDENTIFIERS DOT_OP IDENTIFIERS OP_BRCKT argument_list_zero_or_one CLOSE_BRCKT                                                                    
+            {
+                IdentifiersList* temp = new IdentifiersList("type_name", $1->lexeme, {$3->lexeme}); 
+                if(!typenameErrorChecking(temp, global_symtab->current_level, -1)) 
+                    YYERROR; 
+                Value* va = new Value(); 
+                va->primitivetypeIndex = ((MethodDeclaration*)(get_local_symtab(global_symtab->current_level)->get_entry($3->lexeme, -1)))->type->primitivetypeIndex; 
+                Expression* node = new Expression("postfix expression", va, false, false); 
+                if(node == NULL) 
+                    YYERROR; 
+                node->name = temp->createString(); 
+                node->entry_type = FIELD_METHOD_INVOCATION; 
+                int n = findEmptyCalleeSavedRegistor();
+                node->calleeSavedRegistorIndex = n;
+                calleeSavedInUse[n] = true;
+                node->x86_64.push_back("movq\t%rax, " + calleeSavedRegistors[n]);
+                node->addChildren({$1,$2,$3,$4,$5,$6});
+                $$ = node;
+            }
 
 expression
             :   assignment_expression
@@ -884,13 +862,16 @@ assignment
                     YYERROR; 
                 node->addChildren({$1,$2,$3});  
                 $$ = node;
-            }           
-            |   field_access assignment_operators expression                                                                                            
+            }
+            |   IDENTIFIERS DOT_OP type_name_scoping assignment_operators expression                                                                                            
             {   
-                Expression* node = assignValue($1, $2->children[0]->lexeme, $3, $1->name); 
+                IdentifiersList* temp = new IdentifiersList("type_name", $1->lexeme, $3->identifiers);
+                if(!typenameErrorChecking(temp, global_symtab->current_level, VARIABLE_DECLARATION)) 
+                    YYERROR; 
+                Expression* node = assignObjectValue($1->lexeme, $3->identifiers[0], $4->children[0]->lexeme, $5); 
                 if(node == NULL) 
                     YYERROR; 
-                node->addChildren({$1,$2,$3});  
+                node->addChildren({$1,$2,$3,$4,$5});  
                 $$ = node;
             }
             |   type_name_scoping OP_SQR_BRCKT expression CLOSE_SQR_BRCKT assignment_operators expression                                                                                            
