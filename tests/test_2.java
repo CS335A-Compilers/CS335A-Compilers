@@ -20,9 +20,6 @@ class Constructs {
         if(x > 5){
             System.out.println(-1);
         }
-        else if(x==5){
-            System.out.println(5);
-        }
         else {
             System.out.println(1);
         }
